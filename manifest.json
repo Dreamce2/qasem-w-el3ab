@@ -1,25 +1,16 @@
 {
-  "background_color": "#ffffff",
-  "dir": "ltr",
-  "display": "standalone",
   "name": "قسّم والعب",
-  "orientation": "any",
-  "scope": "/",
   "short_name": "قسّم والعب",
-  "start_url": "/",
+  "start_url": "https://dreamce2.github.io/qasem-w-el3ab/",
+  "scope": "https://dreamce2.github.io/qasem-w-el3ab/",
+  "display": "standalone",
+  "background_color": "#0b1120",
   "theme_color": "#0b1120",
   "icons": [
     {
-      "src": "data:image/svg+xml,&lt;svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\" fill=\"none\"&gt;&lt;defs&gt;&lt;linearGradient id=\"fp\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"&gt;&lt;stop offset=\"0%25\" stop-color=\"%2334d399\"/&gt;&lt;stop offset=\"100%25\" stop-color=\"%2338bdf8\"/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;path d=\"M12 52 V17 Q12 12 17 12 H47 Q52 12 52 17 V52\" stroke=\"url(%23fp)\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/&gt;&lt;path d=\"M15 21 H49 M15 30 H49 M15 39 H49 M23 14 V50 M32 14 V50 M41 14 V50\" stroke=\"%2394a3b8\" stroke-opacity=\"0.55\" stroke-width=\"1.5\"/&gt;&lt;path d=\"M10 47 L22 39 M12 52 L24 44\" stroke=\"%23fbbf24\" stroke-width=\"2.6\" stroke-linecap=\"round\"/&gt;&lt;circle cx=\"38\" cy=\"33\" r=\"12\" fill=\"%23ffffff\" stroke=\"%230f172a\" stroke-width=\"1.8\"/&gt;&lt;polygon points=\"38,27.5 42.8,31 41,36.8 35,36.8 33.2,31\" fill=\"%230f172a\"/&gt;&lt;path d=\"M38 27.5 V21.5 M42.8 31 L48.8 29 M41 36.8 L44.8 42.2 M35 36.8 L31.2 42.2 M33.2 31 L27.2 29\" stroke=\"%230f172a\" stroke-width=\"1.5\" stroke-linecap=\"round\"/&gt;&lt;/svg&gt;",
-      "type": "image/svg+xml",
-      "isSquare": false,
-      "isPng": false,
-      "isWebp": false,
-      "isJpg": false,
-      "width": 0,
-      "is512x512": false,
-      "is256x256": false,
-      "is192x192": false
+      "src": "https://dreamce2.github.io/qasem-w-el3ab/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }
