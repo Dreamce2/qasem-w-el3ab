@@ -1,8 +1,0 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "qasem.w.el3ab",
-        "sha256_cert_fingerprints": ["AE:76:6F:0B:10:4A:A6:A7:9A:12:D3:10:BF:2E:B2:05:B3:D6:FA:13:A9:7A:88:C1:CD:FF:8E:6F:A5:2A:5A:74"]
-      }
-    }]
