@@ -8,15 +8,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>قسّم والعب</title>
 
-    <!-- App Icons & PWA Manifest -->
-    <link rel="shortcut icon" href="./logo.png" type="image/png">
-    <link rel="icon" href="./logo.png" sizes="192x192" type="image/png">
-    <link rel="icon" href="./logo.png" sizes="512x512" type="image/png">
-    <link rel="apple-touch-icon" href="./logo.png">
+    <!-- App Logo Favicon -->
+    <link rel="icon" type="image/png" href="logo.png">
 
-    <!-- PWA Manifest Link & Inline Fallback -->
-    <link rel="manifest" href="./manifest.json">
-    <link rel="manifest" href='data:application/manifest+json,{"name":"قسّم والعب","short_name":"قسّم والعب","start_url":"./","scope":"./","display":"standalone","background_color":"#0b1120","theme_color":"#0b1120","icons":[{"src":"./logo.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"./logo.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     
@@ -51,6 +47,7 @@
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: #ffffff;
             border-color: #34d399;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
         }
         .pro-card-bg {
             background: linear-gradient(160deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
@@ -83,65 +80,51 @@
             letter-spacing: 0.02em;
         }
 
-        /* Splash Screen Styles */
-        #appSplashScreen {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(circle at top, #132238 0%, #0b1120 68%);
-            transition: opacity 0.45s ease, visibility 0.45s ease, transform 0.45s ease;
+        /* Smooth Staggered In-App Splash Overlay */
+        #appSplash {
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s ease;
         }
-        #appSplashScreen.splash-hidden {
+        #appSplash.splash-hide {
             opacity: 0;
             visibility: hidden;
-            transform: scale(1.03);
             pointer-events: none;
         }
-        .splash-logo-wrap {
-            width: 112px;
-            height: 112px;
-            border-radius: 26px;
-            padding: 8px;
-            background: rgba(19, 28, 49, 0.85);
-            border: 1px solid rgba(52, 211, 153, 0.35);
-            box-shadow: 0 14px 36px rgba(16, 185, 129, 0.22), 0 8px 24px rgba(0, 0, 0, 0.55);
-            animation: splashPop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+        @keyframes splashLogoIn {
+            0% { transform: scale(0.82) translateY(10px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
         }
-        .splash-title {
-            animation: splashFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+        @keyframes splashTextIn {
+            0% { transform: translateY(12px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
         }
-        .splash-signature {
-            animation: splashFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.16s both;
+        .splash-logo-anim {
+            opacity: 0;
+            animation: splashLogoIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
         }
-        @keyframes splashPop {
-            0% { opacity: 0; transform: scale(0.84); }
-            100% { opacity: 1; transform: scale(1); }
+        .splash-title-anim {
+            opacity: 0;
+            animation: splashTextIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.32s forwards;
         }
-        @keyframes splashFadeUp {
-            0% { opacity: 0; transform: translateY(10px); }
-            100% { opacity: 1; transform: translateY(0); }
+        .splash-sig-anim {
+            opacity: 0;
+            animation: splashTextIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.58s forwards;
         }
     </style>
 </head>
 <body>
 
-    <!-- App Launch Splash Screen -->
-    <div id="appSplashScreen" aria-hidden="true">
-        <div class="flex flex-col items-center justify-center text-center px-6 select-none">
-            <div class="splash-logo-wrap mb-4 flex items-center justify-center overflow-hidden">
-                <img src="./logo.png" alt="لوجو قسّم والعب" class="w-full h-full object-contain rounded-2xl block" onerror="this.style.display='none'; document.getElementById('splashFallbackLogo').classList.remove('hidden');" />
-                <svg id="splashFallbackLogo" viewBox="0 0 64 64" class="w-full h-full block hidden" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M11 52 V17 Q11 11 17 11 H47 Q53 11 53 17 V52" stroke="#10b981" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="38" cy="33" r="12" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
-                    <polygon points="38,27.6 43.1,31.3 41.2,37.3 34.8,37.3 32.9,31.3" fill="#0f172a"/>
-                </svg>
-            </div>
-            <h2 class="splash-title text-2xl font-black tracking-tight text-white mb-1.5">قسّم والعب</h2>
-            <p class="splash-signature signature-font text-xs text-slate-300/75">تطبيق من تصميم الموجي</p>
+    <!-- In-App Splash Screen: Smooth Staggered Logo -> App Name -> Signature -->
+    <div id="appSplash" class="fixed inset-0 z-[100] bg-[#0b1120] flex flex-col items-center justify-center select-none px-4 overflow-hidden">
+        <div class="relative flex flex-col items-center text-center">
+            <div class="absolute -inset-12 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+            <img
+                src="logo.png"
+                onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/Dreamce2/qasem-w-el3ab/main/logo.png';"
+                alt="شعار قسّم والعب"
+                class="splash-logo-anim relative w-28 h-28 rounded-3xl object-contain drop-shadow-[0_0_26px_rgba(16,185,129,0.38)]"
+            />
+            <h2 class="splash-title-anim relative text-2xl font-black tracking-tight text-white mt-3">قسّم والعب</h2>
+            <span class="splash-sig-anim relative signature-font text-xs text-slate-400/85 mt-1.5">تطبيق من تصميم الموجي</span>
         </div>
     </div>
 
@@ -281,7 +264,59 @@
             </button>
         </section>
 
-        <!-- Rules & Constraints Card Container -->
+        <!-- Players List Card (Above Rules) -->
+        <section class="glass-card overflow-hidden border border-emerald-500/30 transition-all">
+            <div onclick="togglePlayersListVisibility()" class="p-2.5 bg-emerald-950/40 hover:bg-emerald-950/60 cursor-pointer flex items-center justify-between transition border-b border-emerald-500/20 select-none">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs">📋</span>
+                    <span class="text-xs font-extrabold text-emerald-200">قائمة اللاعبين</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1 text-[10px] font-extrabold flex-wrap">
+                        <span class="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-0.5" title="إجمالي اللاعبين">
+                            <span>👥</span>
+                            <span id="badgeTotalCount">0</span>
+                        </span>
+                        <span class="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-0.5" title="رؤوس المجموعات (الكباتن)">
+                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <rect x="2" y="5" width="20" height="14" rx="4" fill="#f59e0b" fill-opacity="0.25" stroke="#fbbf24" stroke-width="1.8"/>
+                                <path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"/>
+                            </svg>
+                            <span id="badgeCapCount">0</span>
+                        </span>
+                        <span class="px-1.5 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 flex items-center gap-0.5" title="حراس المرمى">
+                            <span>🧤</span>
+                            <span id="badgeGkCount">0</span>
+                        </span>
+                        <span class="px-1.5 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-0.5" title="اللاعبين الجامدين">
+                            <span>⚡</span>
+                            <span id="badgeProCount">0</span>
+                        </span>
+                    </div>
+                    <span id="rosterToggleArrow" class="text-xs text-emerald-400 transition-transform duration-200 rotate-180">▼</span>
+                </div>
+            </div>
+
+            <div id="playersListBody" class="p-2.5 space-y-2">
+                <!-- 50/50 Equal Action Buttons -->
+                <div class="grid grid-cols-2 gap-2 pb-1.5 border-b border-slate-800/80">
+                    <button type="button" onclick="openRandomNamesModal()" class="py-1.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-xs font-extrabold transition flex items-center justify-center gap-1">
+                        <span>🎲</span>
+                        <span>أسماء عشوائية</span>
+                    </button>
+                    <button type="button" onclick="clearAllPlayers()" class="py-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 text-xs font-extrabold transition flex items-center justify-center gap-1">
+                        <span>🗑️</span>
+                        <span>مسح الكل</span>
+                    </button>
+                </div>
+
+                <div id="playersContainer" class="space-y-1 max-h-72 overflow-y-auto pr-0.5">
+                    <p class="text-center text-xs text-slate-500 py-5">لا يوجد لاعبين .. قم بإضافة لاعبين</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rules & Constraints Card Container (Below Players List) -->
         <section id="rulesCard" class="glass-card overflow-hidden border border-indigo-500/30 transition-all">
             <div onclick="toggleRulesVisibility()" class="p-2.5 bg-indigo-950/40 hover:bg-indigo-950/60 cursor-pointer flex items-center justify-between transition border-b border-indigo-500/20 select-none">
                 <div class="flex items-center gap-1.5">
@@ -348,69 +383,17 @@
             </div>
         </section>
 
-        <!-- Players List Card -->
-        <section class="glass-card overflow-hidden border border-emerald-500/30 transition-all">
-            <div onclick="togglePlayersListVisibility()" class="p-2.5 bg-emerald-950/40 hover:bg-emerald-950/60 cursor-pointer flex items-center justify-between transition border-b border-emerald-500/20 select-none">
-                <div class="flex items-center gap-1.5">
-                    <span class="text-xs">📋</span>
-                    <span class="text-xs font-extrabold text-emerald-200">قائمة اللاعبين</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="flex items-center gap-1 text-[10px] font-extrabold flex-wrap">
-                        <span class="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-0.5" title="إجمالي اللاعبين">
-                            <span>👥</span>
-                            <span id="badgeTotalCount">0</span>
-                        </span>
-                        <span class="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-0.5" title="رؤوس المجموعات (الكباتن)">
-                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <rect x="2" y="5" width="20" height="14" rx="4" fill="#f59e0b" fill-opacity="0.25" stroke="#fbbf24" stroke-width="1.8"/>
-                                <path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"/>
-                            </svg>
-                            <span id="badgeCapCount">0</span>
-                        </span>
-                        <span class="px-1.5 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 flex items-center gap-0.5" title="حراس المرمى">
-                            <span>🧤</span>
-                            <span id="badgeGkCount">0</span>
-                        </span>
-                        <span class="px-1.5 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-0.5" title="اللاعبين الجامدين">
-                            <span>⚡</span>
-                            <span id="badgeProCount">0</span>
-                        </span>
-                    </div>
-                    <span id="rosterToggleArrow" class="text-xs text-emerald-400 transition-transform duration-200 rotate-180">▼</span>
-                </div>
-            </div>
-
-            <div id="playersListBody" class="p-2.5 space-y-2">
-                <!-- 50/50 Equal Action Buttons -->
-                <div class="grid grid-cols-2 gap-2 pb-1.5 border-b border-slate-800/80">
-                    <button type="button" onclick="openRandomNamesModal()" class="py-1.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-xs font-extrabold transition flex items-center justify-center gap-1">
-                        <span>🎲</span>
-                        <span>أسماء عشوائية</span>
-                    </button>
-                    <button type="button" onclick="clearAllPlayers()" class="py-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 text-xs font-extrabold transition flex items-center justify-center gap-1">
-                        <span>🗑️</span>
-                        <span>مسح الكل</span>
-                    </button>
-                </div>
-
-                <div id="playersContainer" class="space-y-1 max-h-72 overflow-y-auto pr-0.5">
-                    <p class="text-center text-xs text-slate-500 py-5">لا يوجد لاعبين .. قم بإضافة لاعبين</p>
-                </div>
-            </div>
-        </section>
-
         <!-- Generate Draw Interactive Card -->
-        <section class="glass-card overflow-hidden border border-cyan-500/30 transition-all shadow-none">
-            <button type="button" onclick="toggleDrawPanel()" class="w-full py-2.5 px-3 bg-cyan-950/40 hover:bg-cyan-950/60 border-b border-cyan-500/20 text-cyan-100 font-extrabold text-xs flex items-center justify-between active:translate-y-[1px] transition select-none shadow-none">
+        <section class="glass-card overflow-hidden border border-emerald-500/40 shadow-lg transition-all">
+            <button type="button" onclick="toggleDrawPanel()" class="w-full py-2 px-3 font-black text-xs btn-active flex items-center justify-between active:scale-[0.99] transition select-none">
                 <span class="flex items-center gap-1.5">
                     <span>🎲</span>
                     <span>اعمل القرعة وقسّم الفرق</span>
                 </span>
-                <span id="drawPanelArrow" class="text-[11px] text-cyan-300 transition-transform duration-200 rotate-180">▼</span>
+                <span id="drawPanelArrow" class="text-[11px] transition-transform duration-200 rotate-180">▼</span>
             </button>
 
-            <div id="drawPanelBody" class="p-2 space-y-1.5 bg-slate-900/75">
+            <div id="drawPanelBody" class="p-2 space-y-1.5 bg-slate-900/75 border-t border-emerald-500/20">
                 <!-- Row 1: Team Count + Single Draw -->
                 <div class="grid grid-cols-12 gap-1.5">
                     <!-- 1. Team Count Rectangular Bar -->
@@ -443,7 +426,7 @@
                     <div class="col-span-7 h-9 px-2 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-400/40 flex items-center justify-between gap-1 shadow-sm transition select-none">
                         <button type="button" id="btnDrawMulti" onclick="generateTeamsMultiple()" class="flex-1 h-full text-indigo-200 font-extrabold text-[11px] flex items-center justify-start gap-1 active:scale-[0.98] transition disabled:opacity-50 min-w-0">
                             <span class="text-xs shrink-0">🔁</span>
-                            <span id="btnDrawMultiText" class="truncate">قسّم أكتر</span>
+                            <span id="btnDrawMultiText" class="truncate">قسّم أكتر من مرة</span>
                         </button>
 
                         <!-- Compact Inline Counter: Unified Minus & Plus Controls -->
@@ -487,15 +470,21 @@
                 <!-- Teams Divisions Output Container -->
                 <div id="teamsOutputGrid" class="space-y-2.5"></div>
 
-                <!-- Minimal Match Rules Box -->
+                <!-- Editable Match Rules Box -->
                 <div class="rounded-xl bg-slate-950/75 border border-slate-700/60 p-2.5 space-y-1.5">
-                    <div class="flex items-center gap-1.5 pb-1 border-b border-slate-800/90">
-                        <span class="w-1 h-3.5 rounded-full bg-emerald-400"></span>
-                        <span class="text-[11px] font-black text-emerald-300">نظام اللعب</span>
+                    <div class="flex items-center justify-between pb-1 border-b border-slate-800/90">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-1 h-3.5 rounded-full bg-emerald-400"></span>
+                            <span class="text-[11px] font-black text-emerald-300">نظام اللعب</span>
+                        </div>
+                        <button type="button" data-html2canvas-ignore="true" onclick="openMatchRulesModal()" class="px-2 py-0.5 rounded-md bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white text-[10px] font-extrabold flex items-center gap-1 transition active:scale-95">
+                            <span>✏️</span>
+                            <span>تعديل</span>
+                        </button>
                     </div>
                     <div class="space-y-1 text-[11px] font-bold text-slate-200">
-                        <p>⏱️ الماتش 15 دقيقة أو تسجيل 3 أهداف</p>
-                        <p>🎯 في حالة التعادل لعب ضربتين جزاء</p>
+                        <p id="matchRuleText1">⏱️ الماتش 15 دقيقة أو تسجيل 3 أهداف</p>
+                        <p id="matchRuleText2">🎯 في حالة التعادل لعب ضربتين جزاء</p>
                     </div>
                 </div>
             </div>
@@ -526,6 +515,40 @@
             <span class="signature-font text-xs text-slate-400/55">تطبيق من تصميم الموجي</span>
         </footer>
 
+    </div>
+
+    <!-- Edit Match Rules Modal -->
+    <div id="editMatchRulesModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+        <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl p-3.5 max-w-sm w-full space-y-3 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="text-xs font-black text-white flex items-center gap-1.5">
+                    <span>🏆</span>
+                    <span>تعديل نظام اللعب</span>
+                </h3>
+                <button type="button" onclick="closeMatchRulesModal()" class="text-slate-400 hover:text-white text-xs px-1">✕</button>
+            </div>
+
+            <div class="space-y-2.5">
+                <div>
+                    <label class="block text-[11px] font-extrabold text-emerald-300 mb-1">الشرط الأول (الوقت / الأهداف)</label>
+                    <input type="text" id="editRule1Input" placeholder="⏱️ الماتش 15 دقيقة أو تسجيل 3 أهداف" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-emerald-500" />
+                </div>
+                <div>
+                    <label class="block text-[11px] font-extrabold text-emerald-300 mb-1">الشرط الثاني (التعادل / الجزاء)</label>
+                    <input type="text" id="editRule2Input" placeholder="🎯 في حالة التعادل لعب ضربتين جزاء" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-emerald-500" />
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-800">
+                <button type="button" onclick="resetMatchRulesToDefault()" class="py-1.5 px-2.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px] font-bold transition">
+                    ↺ الافتراضي
+                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="closeMatchRulesModal()" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold">إلغاء</button>
+                    <button type="button" onclick="saveMatchRules()" class="py-1.5 px-4 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs transition">حفظ</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Video Recording Preview Modal -->
@@ -663,29 +686,10 @@
     </div>
 
 <script>
-    // Dismiss launch splash screen smoothly after load (2 seconds hold so text is easy to read)
-    (function initSplashScreen() {
-        const hideSplash = () => {
-            const splash = document.getElementById('appSplashScreen');
-            if (!splash || splash.dataset.dismissed) return;
-            splash.dataset.dismissed = '1';
-            setTimeout(() => {
-                splash.classList.add('splash-hidden');
-                setTimeout(() => splash.remove(), 500);
-            }, 2000);
-        };
-        if (document.readyState === 'complete') {
-            hideSplash();
-        } else {
-            window.addEventListener('load', hideSplash, { once: true });
-            setTimeout(hideSplash, 3200);
-        }
-    })();
-
-    // Application state persisted in localStorage
-    let players = JSON.parse(localStorage.getItem('fives_players_v14') || '[]');
-    let constraints = JSON.parse(localStorage.getItem('fives_constraints_v14') || '[]');
-    let teamCount = parseInt(localStorage.getItem('fives_teamCount_v14') || '3', 10);
+    // Always start fresh with zero players & zero constraints on every open
+    let players = [];
+    let constraints = [];
+    let teamCount = 3;
     let selectedSkill = 1;
     let activeTab = 'single';
     let isRosterVisible = true;
@@ -695,6 +699,12 @@
     let multiDrawCount = 3;
     let allGeneratedDraws = [];
     let singleRoleState = { isGk: false, isCap: false };
+
+    // Editable Match Rules (default values)
+    const DEFAULT_RULE_1 = '⏱️ الماتش 15 دقيقة أو تسجيل 3 أهداف';
+    const DEFAULT_RULE_2 = '🎯 في حالة التعادل لعب ضربتين جزاء';
+    let matchRule1 = DEFAULT_RULE_1;
+    let matchRule2 = DEFAULT_RULE_2;
 
     // Reusable football captain armband ("C") SVG icons
     const CAPTAIN_ICON_SVG = `<svg class="w-3.5 h-3.5 inline-block shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="2"/><path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>`;
@@ -718,14 +728,61 @@
         'عمر كمال', 'رامي ربيعة', 'أحمد حجازي', 'طارق حامد', 'محمود تريزيجيه'
     ];
 
-    function saveData() {
-        try {
-            localStorage.setItem('fives_players_v14', JSON.stringify(players));
-            localStorage.setItem('fives_constraints_v14', JSON.stringify(constraints));
-            localStorage.setItem('fives_teamCount_v14', String(teamCount));
-        } catch (e) { console.error(e); }
+    // No-op persistence so the app always opens clean with zero players
+    function saveData() {}
+
+    // Editable Match Rules Modal handlers
+    function renderMatchRulesUI() {
+        const el1 = document.getElementById('matchRuleText1');
+        const el2 = document.getElementById('matchRuleText2');
+        if (el1) {
+            el1.textContent = matchRule1;
+            el1.classList.toggle('hidden', !matchRule1);
+        }
+        if (el2) {
+            el2.textContent = matchRule2;
+            el2.classList.toggle('hidden', !matchRule2);
+        }
     }
 
+    function openMatchRulesModal() {
+        const in1 = document.getElementById('editRule1Input');
+        const in2 = document.getElementById('editRule2Input');
+        if (in1) in1.value = matchRule1;
+        if (in2) in2.value = matchRule2;
+        const modal = document.getElementById('editMatchRulesModal');
+        modal?.classList.remove('hidden');
+        modal?.classList.add('flex');
+    }
+
+    function closeMatchRulesModal() {
+        const modal = document.getElementById('editMatchRulesModal');
+        modal?.classList.add('hidden');
+        modal?.classList.remove('flex');
+    }
+
+    function resetMatchRulesToDefault() {
+        const in1 = document.getElementById('editRule1Input');
+        const in2 = document.getElementById('editRule2Input');
+        if (in1) in1.value = DEFAULT_RULE_1;
+        if (in2) in2.value = DEFAULT_RULE_2;
+    }
+
+    function saveMatchRules() {
+        const val1 = (document.getElementById('editRule1Input')?.value || '').trim();
+        const val2 = (document.getElementById('editRule2Input')?.value || '').trim();
+        if (!val1 && !val2) {
+            showToast('اكتب شرط واحد على الأقل!', '⚠️');
+            return;
+        }
+        matchRule1 = val1;
+        matchRule2 = val2;
+        renderMatchRulesUI();
+        closeMatchRulesModal();
+        showToast('تم تحديث نظام اللعب بنجاح ✅', '✅', 2000);
+    }
+
+    // Safely escape user-entered text before injecting into HTML templates
     function escapeHtml(str) {
         return String(str ?? '')
             .replace(/&/g, '&amp;')
@@ -735,6 +792,7 @@
             .replace(/'/g, '&#39;');
     }
 
+    // Collect all player IDs transitively linked together via 'link' constraints
     function getLinkedGroupIds(startId, extraLink = null) {
         const links = constraints.filter(c => c.type === 'link');
         if (extraLink) links.push(extraLink);
@@ -803,6 +861,7 @@
         openModal({ icon: '🗑️', title: 'تأكيد العمل', msg, confirmText: 'تأكيد المسح', showCancel: true, onConfirm });
     }
 
+    // Team count stepper controls (2 to 8)
     function setTeamCount(count) {
         const clamped = Math.min(8, Math.max(2, parseInt(count, 10) || 3));
         teamCount = clamped;
@@ -819,6 +878,7 @@
         setTeamCount(teamCount + delta);
     }
 
+    // Tabs for Single vs Bulk player add (click active tab again to collapse)
     function toggleSection(tab) {
         activeTab = activeTab === tab ? null : tab;
         updateTabStyles();
@@ -837,6 +897,7 @@
         if (bulkBtn) bulkBtn.className = activeTab === 'bulk' ? `${base} border border-amber-500/50 bg-amber-500/10 text-amber-300` : inactive;
     }
 
+    // Shared style helpers for role & skill toggle buttons
     function applyRoleBtnStyle(btnId, checkId, active, tone, idleBg) {
         const btn = document.getElementById(btnId);
         const check = document.getElementById(checkId);
@@ -870,6 +931,7 @@
             : idle;
     }
 
+    // Role and skill toggles in Single Add form
     function toggleRoleInput(role) {
         singleRoleState[role] = !singleRoleState[role];
         updateRoleButtons();
@@ -1012,6 +1074,7 @@
         });
     }
 
+    // Edit Player Modal handlers
     function openEditPlayerModal(id) {
         const player = players.find(p => p.id === id);
         if (!player) return;
@@ -1090,6 +1153,7 @@
         showToast('تم تحديث بيانات اللاعب', '✅', 2000);
     }
 
+    // Random Names Modal handlers
     function openRandomNamesModal() {
         const modal = document.getElementById('randomNamesModal');
         updateRandomStepperState();
@@ -1150,6 +1214,7 @@
         showToast(`تم توليد ${count} لاعب عشوائي بنجاح! 🎲`, '✅');
     }
 
+    // Custom searchable pickers for rules
     function openCustomPicker(key) {
         try {
             pickerKeys.forEach(k => {
@@ -1207,108 +1272,108 @@
             const p = players.find(x => x.id === playerId);
             if (!p) return;
 
+            const otherKey = key === 'linkP1' ? 'linkP2' : key === 'linkP2' ? 'linkP1' : key === 'avoidP1' ? 'avoidP2' : 'avoidP1';
+            const otherVal = document.getElementById(otherKey)?.value;
+            if (otherVal && otherVal === playerId) {
+                showToast('مينفعش تختار نفس اللاعب في الطرفين!', '⚠️');
+                return;
+            }
+
+            document.getElementById(key).value = p.id;
             const searchInput = document.getElementById(`picker-search-${key}`);
-            const hiddenInput = document.getElementById(key);
-            const list = document.getElementById(`picker-list-${key}`);
             if (searchInput) searchInput.value = p.name;
-            if (hiddenInput) hiddenInput.value = p.id;
-            if (list) list.classList.add('hidden');
+            document.getElementById(`picker-list-${key}`)?.classList.add('hidden');
         } catch (e) { console.error(e); }
     }
 
-    document.addEventListener('click', function(e) {
-        const clickedInsideAnyPicker = pickerKeys.some(k => {
-            const cont = document.getElementById(`picker-container-${k}`);
-            return cont && cont.contains(e.target);
-        });
-        if (!clickedInsideAnyPicker) {
-            pickerKeys.forEach(k => document.getElementById(`picker-list-${k}`)?.classList.add('hidden'));
-        }
-    });
-
-    function refreshPickerSelects() {
-        pickerKeys.forEach(key => {
-            const hiddenInput = document.getElementById(key);
-            const searchInput = document.getElementById(`picker-search-${key}`);
-            if (hiddenInput && searchInput) {
-                const p = players.find(x => x.id === hiddenInput.value);
-                if (!p) {
-                    hiddenInput.value = '';
-                    searchInput.value = '';
-                } else {
-                    searchInput.value = p.name;
-                }
-            }
-            const list = document.getElementById(`picker-list-${key}`);
-            if (list && !list.classList.contains('hidden')) {
-                filterCustomPicker(key);
+    function updateSelectDropdowns() {
+        pickerKeys.forEach(k => {
+            const hidden = document.getElementById(k);
+            const search = document.getElementById(`picker-search-${k}`);
+            if (hidden && hidden.value && !players.some(p => p.id === hidden.value)) {
+                hidden.value = '';
+                if (search) search.value = '';
             }
         });
     }
 
-    function addConstraint(type) {
-        const p1Id = document.getElementById(type === 'link' ? 'linkP1' : 'avoidP1')?.value;
-        const p2Id = document.getElementById(type === 'link' ? 'linkP2' : 'avoidP2')?.value;
+    document.addEventListener('click', (e) => {
+        try {
+            pickerKeys.forEach(k => {
+                const container = document.getElementById(`picker-container-${k}`);
+                if (container && !container.contains(e.target)) {
+                    document.getElementById(`picker-list-${k}`)?.classList.add('hidden');
+                }
+            });
+        } catch (err) { console.error(err); }
+    });
 
-        if (!p1Id || !p2Id) {
-            showToast('اختر اللاعب الأول والثاني من القائمة!', '⚠️');
+    // Constraints management
+    function addConstraint(type) {
+        const k1 = type === 'link' ? 'linkP1' : 'avoidP1';
+        const k2 = type === 'link' ? 'linkP2' : 'avoidP2';
+        const p1 = document.getElementById(k1)?.value;
+        const p2 = document.getElementById(k2)?.value;
+
+        if (!p1 || !p2) {
+            showToast('اختر اللاعبين الأول قبل تثبيت الشرط!', '⚠️');
             return;
         }
-        if (p1Id === p2Id) {
+        if (p1 === p2) {
             showToast('مينفعش تختار نفس اللاعب مرتين!', '⚠️');
             return;
         }
 
-        const p1 = players.find(x => x.id === p1Id);
-        const p2 = players.find(x => x.id === p2Id);
-        if (!p1 || !p2) return;
-
-        const duplicate = constraints.some(c =>
-            c.type === type && ((c.p1 === p1Id && c.p2 === p2Id) || (c.p1 === p2Id && c.p2 === p1Id))
+        const exists = constraints.some(c =>
+            (c.p1 === p1 && c.p2 === p2) || (c.p1 === p2 && c.p2 === p1)
         );
-        if (duplicate) {
-            showToast('الشرط ده متثبت بالفعل!', 'ℹ️');
-            return;
-        }
-
-        const conflicting = constraints.some(c =>
-            c.type !== type && ((c.p1 === p1Id && c.p2 === p2Id) || (c.p1 === p2Id && c.p2 === p1Id))
-        );
-        if (conflicting) {
-            showToast('في شرط عكسي متثبت بين نفس اللاعبين! احذفه الأول.', '⚠️');
+        if (exists) {
+            showToast('يوجد شرط بالفعل بين هذين اللاعبين!', '⚠️');
             return;
         }
 
         if (type === 'link') {
-            const group1 = getLinkedGroupIds(p1Id);
-            const group2 = getLinkedGroupIds(p2Id);
-            const combined = new Set([...group1, ...group2]);
+            const mergedGroup = getLinkedGroupIds(p1, { type: 'link', p1, p2 });
+            const groupPlayers = players.filter(p => mergedGroup.has(p.id));
 
-            const capsInCombined = [...combined].filter(id => players.find(x => x.id === id)?.isCap);
-            if (capsInCombined.length > 1) {
-                showToast('مينفعش نربط اتنين رؤوس مجموعات (كباتن) في نفس الفريق!', '⚠️');
+            if (groupPlayers.filter(p => p.isCap).length > 1) {
+                showToast('مينفعش تربط كابتنين في نفس الفريق! كل كابتن لازم يكون في مجموعة لوحده.', '⚠️', 3500);
                 return;
             }
-
-            const gksInCombined = [...combined].filter(id => players.find(x => x.id === id)?.isGk);
-            if (gksInCombined.length > 1) {
-                showToast('مينفعش نربط اتنين حراس مرمى في نفس الفريق!', '⚠️');
+            if (groupPlayers.filter(p => p.isGk).length > 1) {
+                showToast('مينفعش تربط حارسين في نفس الفريق! كل حارس لازم يكون في مجموعة لوحده.', '⚠️', 3500);
                 return;
             }
-
-            const avoids = constraints.filter(c => c.type === 'avoid');
-            for (const a of avoids) {
-                if (combined.has(a.p1) && combined.has(a.p2)) {
-                    showToast('الربط ده بيعارض شرط "لا يلعبوا معاً" بين لاعبين في نفس المجموعة!', '⚠️');
-                    return;
-                }
+            const hasAvoidConflict = constraints.some(c =>
+                c.type === 'avoid' && mergedGroup.has(c.p1) && mergedGroup.has(c.p2)
+            );
+            if (hasAvoidConflict) {
+                showToast('يوجد تعارض! هذا الربط يجمع لاعبين بينهم شرط استبعاد ❌', '⚠️', 3500);
+                return;
+            }
+        } else if (type === 'avoid') {
+            const linkedGroup = getLinkedGroupIds(p1);
+            if (linkedGroup.has(p2)) {
+                showToast('مينفعش تستبعد لاعبين مرتبطين معاً في نفس الفريق 🔗', '⚠️', 3500);
+                return;
             }
         }
 
-        constraints.push({ id: 'c_' + Date.now(), type, p1: p1Id, p2: p2Id });
+        constraints.push({
+            id: 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            type,
+            p1,
+            p2
+        });
+
+        document.getElementById(k1).value = '';
+        document.getElementById(k2).value = '';
+        document.getElementById(`picker-search-${k1}`).value = '';
+        document.getElementById(`picker-search-${k2}`).value = '';
+
         saveData();
         renderConstraints();
-        showToast(type === 'link' ? `تم ربط ${p1.name} و ${p2.name} معاً` : `تم منع لعب ${p1.name} و ${p2.name} معاً`, '✅', 2000);
+        showToast(type === 'link' ? 'تم تثبيت شرط اللعب معاً 🔗' : 'تم تثبيت شرط الاستبعاد ❌', '✅', 2000);
     }
 
     function removeConstraint(id) {
@@ -1320,598 +1385,1458 @@
     function renderConstraints() {
         const list = document.getElementById('constraintsList');
         const badge = document.getElementById('rulesCountBadge');
-        if (badge) {
-            badge.textContent = `${constraints.length} شرط`;
-            badge.classList.toggle('hidden', constraints.length === 0);
-        }
         if (!list) return;
 
+        if (badge) {
+            if (constraints.length > 0) {
+                badge.textContent = `${constraints.length} شرط`;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
         if (!constraints.length) {
-            list.innerHTML = `<p class="text-[11px] text-slate-500 w-full text-center py-1">لا توجد شروط مضافة حالياً</p>`;
+            list.innerHTML = '';
             return;
         }
 
         list.innerHTML = constraints.map(c => {
-            const p1 = players.find(x => x.id === c.p1);
-            const p2 = players.find(x => x.id === c.p2);
-            if (!p1 || !p2) return '';
+            const pl1 = players.find(p => p.id === c.p1);
+            const pl2 = players.find(p => p.id === c.p2);
+            if (!pl1 || !pl2) return '';
             const isLink = c.type === 'link';
-            const cls = isLink
-                ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
-                : 'bg-rose-500/15 border-rose-500/40 text-rose-300';
-            const icon = isLink ? '🔗' : '❌';
-            const label = isLink ? 'معاً' : 'ضد';
             return `
-            <div class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-extrabold ${cls}">
-                <span>${icon}</span>
-                <span>${escapeHtml(p1.name)}</span>
-                <span class="opacity-70 text-[10px]">(${label})</span>
-                <span>${escapeHtml(p2.name)}</span>
-                <button type="button" onclick="removeConstraint('${c.id}')" class="mr-0.5 hover:text-white font-black">✕</button>
-            </div>`;
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-900/80 border border-slate-800 text-[11px] text-slate-200 max-w-full">
+                <span class="truncate">${escapeHtml(pl1.name)}</span>
+                <span class="font-black ${isLink ? 'text-emerald-400' : 'text-rose-400'}">${isLink ? '+' : '≠'}</span>
+                <span class="truncate">${escapeHtml(pl2.name)}</span>
+                <button type="button" onclick="removeConstraint('${c.id}')" title="حذف الشرط" class="text-slate-500 hover:text-rose-400 text-[10px] mr-0.5 transition">✕</button>
+            </span>
+            `;
         }).join('');
     }
 
-    function togglePlayersListVisibility() {
-        isRosterVisible = !isRosterVisible;
-        document.getElementById('playersListBody')?.classList.toggle('hidden', !isRosterVisible);
-        document.getElementById('rosterToggleArrow')?.classList.toggle('rotate-180', isRosterVisible);
+    function canGenerateTeams() {
+        if (players.length < teamCount) {
+            showAlert(`لازم تضيف على الأقل ${teamCount} لاعبين عشان تقسمهم على ${teamCount} فرق!`);
+            return false;
+        }
+        const caps = players.filter(p => p.isCap);
+        if (caps.length > teamCount) {
+            showAlert(`عدد رؤوس المجموعات (${caps.length}) أكبر من عدد الفرق (${teamCount})! قلّل عدد الكباتن أو زوّد عدد الفرق.`, '⚠️');
+            return false;
+        }
+        return true;
+    }
+
+    // Collapsible sections
+    function setCollapsibleState(bodyId, arrowId, isOpen) {
+        document.getElementById(bodyId)?.classList.toggle('hidden', !isOpen);
+        const arrow = document.getElementById(arrowId);
+        if (arrow) arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
     }
 
     function toggleRulesVisibility() {
         isRulesVisible = !isRulesVisible;
-        document.getElementById('rulesListBody')?.classList.toggle('hidden', !isRulesVisible);
-        document.getElementById('rulesToggleArrow')?.classList.toggle('rotate-180', isRulesVisible);
+        setCollapsibleState('rulesListBody', 'rulesToggleArrow', isRulesVisible);
+        document.getElementById('rulesCard')?.classList.toggle('border-indigo-500/60', isRulesVisible);
+    }
+
+    function togglePlayersListVisibility() {
+        isRosterVisible = !isRosterVisible;
+        setCollapsibleState('playersListBody', 'rosterToggleArrow', isRosterVisible);
     }
 
     function toggleDrawPanel() {
         isDrawPanelVisible = !isDrawPanelVisible;
-        document.getElementById('drawPanelBody')?.classList.toggle('hidden', !isDrawPanelVisible);
-        document.getElementById('drawPanelArrow')?.classList.toggle('rotate-180', isDrawPanelVisible);
+        setCollapsibleState('drawPanelBody', 'drawPanelArrow', isDrawPanelVisible);
     }
 
-    function renderPlayers() {
-        const container = document.getElementById('playersContainer');
-        document.getElementById('badgeTotalCount').textContent = players.length;
-        document.getElementById('badgeCapCount').textContent = players.filter(p => p.isCap).length;
-        document.getElementById('badgeGkCount').textContent = players.filter(p => p.isGk).length;
-        document.getElementById('badgeProCount').textContent = players.filter(p => p.skill === 2).length;
-
-        refreshPickerSelects();
-        renderConstraints();
-
-        if (!container) return;
-        if (!players.length) {
-            container.innerHTML = `<p class="text-center text-xs text-slate-500 py-5">لا يوجد لاعبين .. قم بإضافة لاعبين</p>`;
-            return;
-        }
-
-        container.innerHTML = players.map((p, idx) => {
-            const isPro = p.skill === 2;
-            const skillBadge = isPro
-                ? `<button type="button" onclick="togglePlayerProp('${p.id}', 'skill')" title="تبديل المهارة" class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-extrabold">⚡ جامد</button>`
-                : `<button type="button" onclick="togglePlayerProp('${p.id}', 'skill')" title="تبديل المهارة" class="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 text-[10px] font-extrabold">🔥 لعّيب</button>`;
-
-            const capBtn = `<button type="button" onclick="togglePlayerProp('${p.id}', 'isCap')" title="رأس مجموعة" class="px-1.5 py-0.5 rounded border text-[10px] font-extrabold inline-flex items-center ${p.isCap ? 'bg-amber-500/25 text-amber-300 border-amber-400/50' : 'bg-slate-800/70 text-slate-500 border-slate-700/70'}">${CAPTAIN_ICON_SVG}</button>`;
-            const gkBtn = `<button type="button" onclick="togglePlayerProp('${p.id}', 'isGk')" title="حارس مرمى" class="px-1.5 py-0.5 rounded border text-[10px] font-extrabold ${p.isGk ? 'bg-sky-500/25 text-sky-300 border-sky-400/50' : 'bg-slate-800/70 text-slate-500 border-slate-700/70'}">🧤</button>`;
-
-            return `
-            <div class="flex items-center justify-between gap-1.5 px-2 py-1.5 rounded-lg bg-slate-900/85 border border-slate-800/90 hover:border-slate-700 transition">
-                <div class="flex items-center gap-1.5 min-w-0">
-                    <span class="text-[10px] font-black text-slate-500 w-4 text-center shrink-0">${idx + 1}</span>
-                    <span class="text-xs font-extrabold text-white truncate">${escapeHtml(p.name)}</span>
-                </div>
-                <div class="flex items-center gap-1 shrink-0">
-                    ${skillBadge}
-                    ${capBtn}
-                    ${gkBtn}
-                    <button type="button" onclick="openEditPlayerModal('${p.id}')" title="تعديل" class="p-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[10px]">✏️</button>
-                    <button type="button" onclick="removePlayer('${p.id}')" title="حذف" class="p-1 rounded bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 text-[10px]">✕</button>
-                </div>
-            </div>`;
-        }).join('');
-    }
-
-    function shuffle(arr) {
-        const copy = arr.slice();
-        for (let i = copy.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [copy[i], copy[j]] = [copy[j], copy[i]];
-        }
-        return copy;
-    }
-
-    function buildSingleBalancedDraw() {
-        const nTeams = teamCount;
-        const teams = Array.from({ length: nTeams }, () => []);
-        const assignedTeam = new Map();
-
-        const links = constraints.filter(c => c.type === 'link');
-        const avoids = constraints.filter(c => c.type === 'avoid');
-
-        const adj = new Map();
-        players.forEach(p => adj.set(p.id, new Set()));
-        links.forEach(l => {
-            if (adj.has(l.p1) && adj.has(l.p2)) {
-                adj.get(l.p1).add(l.p2);
-                adj.get(l.p2).add(l.p1);
-            }
-        });
-
-        const visited = new Set();
-        const components = [];
-        const shuffledPlayers = shuffle(players);
-
-        for (const p of shuffledPlayers) {
-            if (visited.has(p.id)) continue;
-            const compMembers = [];
-            const queue = [p.id];
-            visited.add(p.id);
-            while (queue.length) {
-                const curId = queue.shift();
-                const curObj = players.find(x => x.id === curId);
-                if (curObj) compMembers.push(curObj);
-                for (const nxt of (adj.get(curId) || [])) {
-                    if (!visited.has(nxt)) {
-                        visited.add(nxt);
-                        queue.push(nxt);
-                    }
-                }
-            }
-            components.push({
-                members: compMembers,
-                hasCap: compMembers.some(m => m.isCap),
-                gkCount: compMembers.filter(m => m.isGk).length,
-                skillSum: compMembers.reduce((acc, m) => acc + (m.skill || 1), 0)
-            });
-        }
-
-        const capComps = shuffle(components.filter(c => c.hasCap));
-        const otherComps = shuffle(components.filter(c => !c.hasCap)).sort((a, b) => b.skillSum - a.skillSum);
-        const orderedComps = [...capComps, ...otherComps];
-
-        const canPlaceInTeam = (comp, tIdx) => {
-            const team = teams[tIdx];
-            if (comp.hasCap && team.some(m => m.isCap)) return false;
-            const currentGks = team.filter(m => m.isGk).length;
-            if (comp.gkCount > 0 && currentGks + comp.gkCount > 1) return false;
-            for (const m of comp.members) {
-                for (const a of avoids) {
-                    const otherId = a.p1 === m.id ? a.p2 : (a.p2 === m.id ? a.p1 : null);
-                    if (otherId && assignedTeam.get(otherId) === tIdx) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        };
-
-        const scoreTeamForComp = (comp, tIdx, strictMode) => {
-            const team = teams[tIdx];
-            const sizeDiff = team.length - Math.min(...teams.map(t => t.length));
-            const teamSkill = team.reduce((s, m) => s + (m.skill || 1), 0);
-            const avgSkill = teams.reduce((s, t) => s + t.reduce((a, b) => a + (b.skill || 1), 0), 0) / nTeams;
-            const skillDiff = Math.abs((teamSkill + comp.skillSum) - avgSkill);
-            const gkPenalty = strictMode ? 0 : team.filter(m => m.isGk).length * comp.gkCount * 50;
-            return sizeDiff * 15 + skillDiff * 4 + gkPenalty + Math.random() * 1.5;
-        };
-
-        for (const comp of orderedComps) {
-            let validIndices = [];
-            for (let t = 0; t < nTeams; t++) {
-                if (canPlaceInTeam(comp, t)) validIndices.push(t);
-            }
-
-            let chosenIdx = -1;
-            if (validIndices.length > 0) {
-                validIndices.sort((a, b) => scoreTeamForComp(comp, a, true) - scoreTeamForComp(comp, b, true));
-                chosenIdx = validIndices[0];
-            } else {
-                const candidates = Array.from({ length: nTeams }, (_, i) => i);
-                candidates.sort((a, b) => scoreTeamForComp(comp, a, false) - scoreTeamForComp(comp, b, false));
-                chosenIdx = candidates[0];
-            }
-
-            for (const m of comp.members) {
-                teams[chosenIdx].push(m);
-                assignedTeam.set(m.id, chosenIdx);
-            }
-        }
-
-        teams.forEach(t => {
-            t.sort((a, b) => (b.isCap ? 1 : 0) - (a.isCap ? 1 : 0) || (b.isGk ? 1 : 0) - (a.isGk ? 1 : 0) || (b.skill || 1) - (a.skill || 1));
-        });
-
-        return teams;
-    }
-
-    function generateTeams() {
-        if (players.length < teamCount) {
-            showToast(`أضف على الأقل ${teamCount} لاعبين لتقسيمهم على ${teamCount} فرق!`, '⚠️');
-            return;
-        }
-        isMultiDrawing = false;
-        allGeneratedDraws = [buildSingleBalancedDraw()];
-        renderGeneratedDraws();
-    }
-
-    function regenerateTeams() {
-        if (!players.length) return;
-        if (isMultiDrawing) {
-            allGeneratedDraws = Array.from({ length: multiDrawCount }, () => buildSingleBalancedDraw());
-        } else {
-            allGeneratedDraws = [buildSingleBalancedDraw()];
-        }
-        renderGeneratedDraws();
-        showToast('تم إعادة التقسيم بنجاح! 🔄', '✅', 1800);
-    }
-
-    function setMultiDrawCount(count) {
-        const clamped = Math.min(20, Math.max(2, parseInt(count, 10) || 3));
+    // Multi-draw counter controls
+    function setMultiDrawCount(val) {
+        const clamped = Math.min(20, Math.max(2, parseInt(val, 10) || 2));
         multiDrawCount = clamped;
         const input = document.getElementById('multiDrawCountInput');
-        const btnDec = document.getElementById('btnDecMulti');
-        const btnInc = document.getElementById('btnIncMulti');
-        if (input && document.activeElement !== input) input.value = clamped;
-        if (btnDec) btnDec.disabled = clamped <= 2;
-        if (btnInc) btnInc.disabled = clamped >= 20;
+        if (input) input.value = clamped;
+        updateMultiDrawButtonsState();
     }
 
     function changeMultiDrawCount(delta) {
         setMultiDrawCount(multiDrawCount + delta);
     }
 
-    function syncMultiDrawInput(input) {
-        const raw = parseInt(input.value, 10);
-        if (!isNaN(raw)) {
-            multiDrawCount = Math.min(20, Math.max(2, raw));
-            const btnDec = document.getElementById('btnDecMulti');
-            const btnInc = document.getElementById('btnIncMulti');
-            if (btnDec) btnDec.disabled = multiDrawCount <= 2;
-            if (btnInc) btnInc.disabled = multiDrawCount >= 20;
+    function syncMultiDrawInput(el) {
+        const parsed = parseInt(el.value, 10);
+        if (!isNaN(parsed)) {
+            multiDrawCount = Math.min(20, Math.max(2, parsed));
+            updateMultiDrawButtonsState();
         }
     }
 
-    function finalizeMultiDrawInput(input) {
-        setMultiDrawCount(input.value);
+    function finalizeMultiDrawInput(el) {
+        setMultiDrawCount(el.value);
     }
 
-    function generateTeamsMultiple() {
-        if (players.length < teamCount) {
-            showToast(`أضف على الأقل ${teamCount} لاعبين لتقسيمهم على ${teamCount} فرق!`, '⚠️');
+    function updateMultiDrawButtonsState() {
+        const btnDec = document.getElementById('btnDecMulti');
+        const btnInc = document.getElementById('btnIncMulti');
+        if (btnDec) btnDec.disabled = multiDrawCount <= 2;
+        if (btnInc) btnInc.disabled = multiDrawCount >= 20;
+    }
+
+    // Render players roster & live counters
+    function renderPlayers() {
+        const container = document.getElementById('playersContainer');
+        if (!container) return;
+
+        const totalBadge = document.getElementById('badgeTotalCount');
+        const capBadge = document.getElementById('badgeCapCount');
+        const gkBadge = document.getElementById('badgeGkCount');
+        const proBadge = document.getElementById('badgeProCount');
+
+        if (totalBadge) totalBadge.textContent = players.length;
+        if (capBadge) capBadge.textContent = players.filter(p => p.isCap).length;
+        if (gkBadge) gkBadge.textContent = players.filter(p => p.isGk).length;
+        if (proBadge) proBadge.textContent = players.filter(p => p.skill === 2).length;
+
+        if (!players.length) {
+            container.innerHTML = `<p class="text-center text-xs text-slate-500 py-5">لا يوجد لاعبين .. قم بإضافة لاعبين</p>`;
+            updateSelectDropdowns();
+            renderConstraints();
             return;
         }
-        setMultiDrawCount(document.getElementById('multiDrawCountInput')?.value || multiDrawCount);
+
+        container.innerHTML = players.map((p, idx) => `
+            <div class="flex items-center justify-between gap-1.5 px-2 py-1.5 rounded-lg bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition">
+                <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-[10px] font-extrabold text-slate-500 w-4 shrink-0 text-center tabular-nums">${idx + 1}.</span>
+                    <span class="text-xs font-bold text-slate-100 truncate">${escapeHtml(p.name)}</span>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" onclick="togglePlayerProp('${p.id}', 'skill')" title="تبديل المستوى (لعّيب / جامد)" class="h-6 px-1.5 min-w-[50px] rounded-md border text-[10px] font-extrabold flex items-center justify-center gap-0.5 transition active:scale-95 ${p.skill === 2 ? 'bg-purple-500/25 border-purple-400 text-purple-200 shadow-sm' : 'bg-emerald-500/15 border-emerald-500/35 text-emerald-300'}">
+                        <span>${p.skill === 2 ? '⚡' : '🔥'}</span>
+                        <span>${p.skill === 2 ? 'جامد' : 'لعّيب'}</span>
+                    </button>
+                    <button type="button" onclick="togglePlayerProp('${p.id}', 'isCap')" title="كابتن رأس مجموعة" class="w-6 h-6 rounded-md border flex items-center justify-center transition ${p.isCap ? 'bg-amber-500/25 border-amber-400 text-amber-300' : 'bg-slate-950 border-slate-800 text-slate-500 hover:text-slate-300'}">
+                        ${CAPTAIN_ICON_SVG}
+                    </button>
+                    <button type="button" onclick="togglePlayerProp('${p.id}', 'isGk')" title="حارس مرمى" class="w-6 h-6 rounded-md border text-[11px] flex items-center justify-center transition ${p.isGk ? 'bg-sky-500/25 border-sky-400 text-sky-300' : 'bg-slate-950 border-slate-800 text-slate-500 opacity-60 hover:opacity-100'}">
+                        🧤
+                    </button>
+                    <button type="button" onclick="openEditPlayerModal('${p.id}')" title="تعديل" class="w-6 h-6 rounded-md bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] flex items-center justify-center transition">
+                        ✏️
+                    </button>
+                    <button type="button" onclick="removePlayer('${p.id}')" title="حذف" class="w-6 h-6 rounded-md bg-rose-500/15 hover:bg-rose-500/30 border border-rose-500/30 text-rose-400 text-[10px] font-black flex items-center justify-center transition">
+                        ✕
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+        updateSelectDropdowns();
+        renderConstraints();
+    }
+
+    // Fisher-Yates shuffle helper returning a new shuffled array
+    function shuffle(array) {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // Build a deterministic signature of a division to encourage variety in multi-draws
+    function getDivisionSignature(teams) {
+        return teams
+            .map(t => t.map(p => p.id).sort().join(','))
+            .sort()
+            .join('|');
+    }
+
+    // Fair team-generation solver strictly respecting Captains, GKs, Skill balance, Links & Avoids
+    function computeBalancedTeams(usedSignatures = null) {
+        const avoids = constraints.filter(c => c.type === 'avoid');
+        const totalGks = players.filter(p => p.isGk).length;
+        const maxTeamSize = Math.ceil(players.length / teamCount);
+
+        const avoidMap = new Map();
+        for (const av of avoids) {
+            if (!avoidMap.has(av.p1)) avoidMap.set(av.p1, new Set());
+            if (!avoidMap.has(av.p2)) avoidMap.set(av.p2, new Set());
+            avoidMap.get(av.p1).add(av.p2);
+            avoidMap.get(av.p2).add(av.p1);
+        }
+
+        const baseUnits = [];
+        const visited = new Set();
+        for (const p of players) {
+            if (visited.has(p.id)) continue;
+            const groupIds = getLinkedGroupIds(p.id);
+            const groupPlayers = players.filter(x => groupIds.has(x.id));
+            groupPlayers.forEach(x => visited.add(x.id));
+
+            const externalAvoids = new Set();
+            for (const m of groupPlayers) {
+                const blocked = avoidMap.get(m.id);
+                if (blocked) {
+                    for (const bId of blocked) {
+                        if (!groupIds.has(bId)) externalAvoids.add(bId);
+                    }
+                }
+            }
+
+            baseUnits.push({
+                members: groupPlayers,
+                ids: groupIds,
+                capCount: groupPlayers.filter(x => x.isCap).length,
+                gkCount: groupPlayers.filter(x => x.isGk).length,
+                proCount: groupPlayers.filter(x => x.skill === 2).length,
+                skillSum: groupPlayers.reduce((s, x) => s + x.skill, 0),
+                size: groupPlayers.length,
+                avoidDegree: externalAvoids.size
+            });
+        }
+
+        function evaluateDivision(unitTeams) {
+            const teamStats = unitTeams.map(units => {
+                const ids = new Set();
+                let size = 0, capCount = 0, gkCount = 0, proCount = 0, skillSum = 0;
+                for (const u of units) {
+                    size += u.size;
+                    capCount += u.capCount;
+                    gkCount += u.gkCount;
+                    proCount += u.proCount;
+                    skillSum += u.skillSum;
+                    for (const id of u.ids) ids.add(id);
+                }
+                return { ids, size, capCount, gkCount, proCount, skillSum };
+            });
+
+            let penalty = 0;
+            let capViolations = 0;
+            let gkViolations = 0;
+            let avoidViolations = 0;
+
+            for (const av of avoids) {
+                if (teamStats.some(t => t.ids.has(av.p1) && t.ids.has(av.p2))) {
+                    avoidViolations++;
+                    penalty += 300000;
+                }
+            }
+
+            for (const t of teamStats) {
+                if (t.capCount > 1) {
+                    capViolations += (t.capCount - 1);
+                    penalty += 500000 * (t.capCount - 1);
+                }
+                if (totalGks <= teamCount && t.gkCount > 1) {
+                    gkViolations += (t.gkCount - 1);
+                    penalty += 200000 * (t.gkCount - 1);
+                }
+            }
+
+            const sizes = teamStats.map(t => t.size);
+            const skills = teamStats.map(t => t.skillSum);
+            const pros = teamStats.map(t => t.proCount);
+            const gks = teamStats.map(t => t.gkCount);
+
+            const sizeSpread = Math.max(...sizes) - Math.min(...sizes);
+            const gkSpread = Math.max(...gks) - Math.min(...gks);
+            const skillSpread = Math.max(...skills) - Math.min(...skills);
+            const proSpread = Math.max(...pros) - Math.min(...pros);
+
+            penalty += sizeSpread * 6000 + (sizeSpread > 1 ? 60000 : 0);
+            penalty += gkSpread * 25000;
+            penalty += skillSpread * 45;
+            penalty += proSpread * 65;
+
+            const avgSkill = skills.reduce((a, b) => a + b, 0) / teamCount;
+            const skillVariance = skills.reduce((acc, s) => acc + Math.pow(s - avgSkill, 2), 0);
+            const avgPro = pros.reduce((a, b) => a + b, 0) / teamCount;
+            const proVariance = pros.reduce((acc, p) => acc + Math.pow(p - avgPro, 2), 0);
+            penalty += skillVariance * 18 + proVariance * 22;
+
+            if (usedSignatures) {
+                const rawTeams = unitTeams.map(units => units.flatMap(u => u.members));
+                if (usedSignatures.has(getDivisionSignature(rawTeams))) {
+                    penalty += 250;
+                }
+            }
+
+            return { penalty, capViolations, gkViolations, avoidViolations, sizeSpread };
+        }
+
+        let bestUnitTeams = null;
+        let bestEval = { penalty: Infinity, capViolations: 0, gkViolations: 0, avoidViolations: 0, sizeSpread: 0 };
+
+        for (let attempt = 0; attempt < 900; attempt++) {
+            const teams = Array.from({ length: teamCount }, () => ({
+                units: [],
+                ids: new Set(),
+                size: 0,
+                capCount: 0,
+                gkCount: 0,
+                proCount: 0,
+                skillSum: 0
+            }));
+
+            const orderedUnits = shuffle(baseUnits).sort((a, b) => {
+                if ((b.capCount > 0) !== (a.capCount > 0)) return b.capCount - a.capCount;
+                if ((b.gkCount > 0) !== (a.gkCount > 0)) return b.gkCount - a.gkCount;
+                if (b.size !== a.size) return b.size - a.size;
+                if (b.avoidDegree !== a.avoidDegree) return b.avoidDegree - a.avoidDegree;
+                if (b.proCount !== a.proCount) return b.proCount - a.proCount;
+                return b.skillSum - a.skillSum;
+            });
+
+            for (const unit of orderedUnits) {
+                let bestIdx = 0;
+                let minCost = Infinity;
+
+                for (let i = 0; i < teamCount; i++) {
+                    const t = teams[i];
+                    let cost = 0;
+
+                    if (unit.capCount > 0 && t.capCount > 0) cost += 600000 * t.capCount;
+
+                    let avoidHits = 0;
+                    for (const m of unit.members) {
+                        const blocked = avoidMap.get(m.id);
+                        if (blocked) {
+                            for (const bId of blocked) {
+                                if (t.ids.has(bId)) avoidHits++;
+                            }
+                        }
+                    }
+                    if (avoidHits > 0) cost += 250000 * avoidHits;
+
+                    if (unit.gkCount > 0 && t.gkCount > 0) {
+                        cost += (totalGks <= teamCount ? 180000 : 18000) * t.gkCount;
+                    }
+
+                    const newSize = t.size + unit.size;
+                    if (newSize > maxTeamSize) cost += 12000 * (newSize - maxTeamSize);
+                    cost += t.size * 140;
+
+                    cost += (t.skillSum + unit.skillSum) * 28;
+                    cost += (t.proCount + unit.proCount) * 36;
+
+                    cost += Math.random() * 14;
+
+                    if (cost < minCost) {
+                        minCost = cost;
+                        bestIdx = i;
+                    }
+                }
+
+                const chosen = teams[bestIdx];
+                chosen.units.push(unit);
+                unit.ids.forEach(id => chosen.ids.add(id));
+                chosen.size += unit.size;
+                chosen.capCount += unit.capCount;
+                chosen.gkCount += unit.gkCount;
+                chosen.proCount += unit.proCount;
+                chosen.skillSum += unit.skillSum;
+            }
+
+            const unitTeams = teams.map(t => t.units);
+            const evalRes = evaluateDivision(unitTeams);
+            if (evalRes.penalty < bestEval.penalty) {
+                bestEval = evalRes;
+                bestUnitTeams = unitTeams;
+            }
+        }
+
+        if (bestUnitTeams) {
+            for (let pass = 0; pass < 35; pass++) {
+                let improved = false;
+
+                for (let i = 0; i < teamCount; i++) {
+                    for (let j = i + 1; j < teamCount; j++) {
+                        for (let a = 0; a < bestUnitTeams[i].length; a++) {
+                            for (let b = 0; b < bestUnitTeams[j].length; b++) {
+                                const tmp = bestUnitTeams[i][a];
+                                bestUnitTeams[i][a] = bestUnitTeams[j][b];
+                                bestUnitTeams[j][b] = tmp;
+
+                                const cand = evaluateDivision(bestUnitTeams);
+                                if (cand.penalty + 1e-6 < bestEval.penalty) {
+                                    bestEval = cand;
+                                    improved = true;
+                                } else {
+                                    bestUnitTeams[j][b] = bestUnitTeams[i][a];
+                                    bestUnitTeams[i][a] = tmp;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                for (let i = 0; i < teamCount; i++) {
+                    if (bestUnitTeams[i].length <= 1) continue;
+                    for (let a = bestUnitTeams[i].length - 1; a >= 0; a--) {
+                        const unit = bestUnitTeams[i][a];
+                        let moved = false;
+                        for (let j = 0; j < teamCount; j++) {
+                            if (i === j) continue;
+                            bestUnitTeams[i].splice(a, 1);
+                            bestUnitTeams[j].push(unit);
+
+                            const cand = evaluateDivision(bestUnitTeams);
+                            if (cand.penalty + 1e-6 < bestEval.penalty) {
+                                bestEval = cand;
+                                improved = true;
+                                moved = true;
+                                break;
+                            } else {
+                                bestUnitTeams[j].pop();
+                                bestUnitTeams[i].splice(a, 0, unit);
+                            }
+                        }
+                        if (moved) break;
+                    }
+                }
+
+                if (!improved) break;
+            }
+        }
+
+        const bestTeams = (bestUnitTeams || []).map(units => units.flatMap(u => u.members));
+
+        const orderedTeams = shuffle(bestTeams).map(t => {
+            const cap = t.find(p => p.isCap);
+            const others = shuffle(t.filter(p => !p.isCap));
+            return cap ? [cap, ...others] : others;
+        });
+
+        const warnings = [];
+        if (bestEval.capViolations > 0) warnings.push('اجتماع كابتنين بسبب شروط ربط متعارضة');
+        if (bestEval.gkViolations > 0) warnings.push('اجتماع حارسين بسبب شروط ربط متعارضة');
+        if (bestEval.avoidViolations > 0) warnings.push('تعذّر تطبيق أحد شروط الاستبعاد بسبب التعارض');
+        if (bestEval.sizeSpread > 1) warnings.push('يوجد فرق في عدد اللاعبين بين الفرق بسبب حجم مجموعة مربوطة 🔗');
+
+        return { teams: orderedTeams, warnings };
+    }
+
+    // Single team generation
+    function generateTeams(shouldScroll = true) {
+        if (!canGenerateTeams()) return false;
+
+        const { teams, warnings } = computeBalancedTeams();
+        allGeneratedDraws = [teams];
+        renderAllResults(shouldScroll);
+        if (warnings.length) {
+            showToast(`تنبيه: ${warnings[0]}`, '⚠️', 4000);
+        }
+        return true;
+    }
+
+    // Multiple consecutive draws stacked under each other
+    async function generateTeamsMultiple(customRounds = null) {
+        if (isMultiDrawing) return;
+
+        const inputEl = document.getElementById('multiDrawCountInput');
+        if (inputEl && customRounds === null) setMultiDrawCount(inputEl.value);
+
+        if (!canGenerateTeams()) return;
+
         isMultiDrawing = true;
-        allGeneratedDraws = Array.from({ length: multiDrawCount }, () => buildSingleBalancedDraw());
-        renderGeneratedDraws();
+        const btnMulti = document.getElementById('btnDrawMulti');
+        const btnMultiText = document.getElementById('btnDrawMultiText');
+        const btnOnce = document.getElementById('btnDrawOnce');
+        const btnClear = document.getElementById('btnClearDraw');
+        const btnRedraw = document.getElementById('redrawBtn');
+        const origLabel = 'قسّم أكتر من مرة';
+
+        if (btnMulti) btnMulti.disabled = true;
+        if (btnOnce) btnOnce.disabled = true;
+        if (btnClear) btnClear.disabled = true;
+        if (btnRedraw) btnRedraw.disabled = true;
+
+        try {
+            const totalRounds = customRounds !== null ? customRounds : multiDrawCount;
+            allGeneratedDraws = [];
+            const usedSignatures = new Set();
+            let firstWarning = '';
+
+            for (let round = 1; round <= totalRounds; round++) {
+                if (btnMultiText) {
+                    btnMultiText.textContent = `جولة ${round} / ${totalRounds}...`;
+                }
+                const { teams, warnings } = computeBalancedTeams(usedSignatures);
+                usedSignatures.add(getDivisionSignature(teams));
+                if (!firstWarning && warnings.length) firstWarning = warnings[0];
+
+                allGeneratedDraws.push(teams);
+                renderAllResults(round === 1);
+
+                if (round < totalRounds) {
+                    await new Promise(resolve => setTimeout(resolve, 260));
+                }
+            }
+            if (firstWarning) {
+                showToast(`تم عمل ${totalRounds} تقسيمات (تنبيه: ${firstWarning})`, '⚠️', 4000);
+            } else {
+                showToast(`تم عمل ${totalRounds} تقسيمات مختلفة تحت بعض بنجاح! 🎲`, '✅');
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            isMultiDrawing = false;
+            if (btnMulti) btnMulti.disabled = false;
+            if (btnOnce) btnOnce.disabled = false;
+            if (btnClear) btnClear.disabled = false;
+            if (btnRedraw) btnRedraw.disabled = false;
+            if (btnMultiText) btnMultiText.textContent = origLabel;
+        }
     }
 
+    // Clear only generated team divisions without affecting the players roster
     function clearGeneratedTeams() {
-        allGeneratedDraws = [];
-        document.getElementById('resultWrapper')?.classList.add('hidden');
-        showToast('تم مسح التقسيمات', '🧹', 1800);
-    }
-
-    function renderGeneratedDraws() {
+        if (isMultiDrawing) return;
         const wrapper = document.getElementById('resultWrapper');
         const grid = document.getElementById('teamsOutputGrid');
-        const copySingleBtn = document.getElementById('singleDrawCopyBtn');
-        const badge = document.getElementById('resultHeaderBadge');
-        if (!wrapper || !grid) return;
 
-        wrapper.classList.remove('hidden');
+        if (!allGeneratedDraws.length && wrapper?.classList.contains('hidden')) {
+            showToast('لا توجد تقسيمات حالية لمسحها!', 'ℹ️', 2000);
+            return;
+        }
 
-        if (!isMultiDrawing) {
-            copySingleBtn?.classList.remove('hidden');
-            badge?.classList.add('hidden');
-            const teams = allGeneratedDraws[0] || [];
-            grid.innerHTML = renderTeamsStackHtml(teams);
+        allGeneratedDraws = [];
+        if (grid) grid.innerHTML = '';
+        if (wrapper) wrapper.classList.add('hidden');
+        showToast('تم مسح التقسيمات بنجاح 🧹', '✅', 2000);
+    }
+
+    // Re-draw teams respecting all constraints (keeps single or multi-draw count)
+    function regenerateTeams() {
+        if (isMultiDrawing) return;
+        if (allGeneratedDraws.length > 1) {
+            generateTeamsMultiple(allGeneratedDraws.length);
         } else {
-            copySingleBtn?.classList.add('hidden');
-            if (badge) {
-                badge.textContent = `${allGeneratedDraws.length} تقسيمات`;
-                badge.classList.remove('hidden');
+            if (generateTeams(false)) {
+                showToast('تم إعادة التقسيم بمراعاة جميع الشروط 🔄', '✅', 2200);
             }
-            grid.innerHTML = allGeneratedDraws.map((teams, drawIdx) => `
-                <div class="rounded-xl bg-slate-900/85 border border-indigo-500/30 p-2 space-y-2">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
-                        <span class="text-xs font-black text-indigo-300">🎲 قرعة رقم ${drawIdx + 1}</span>
-                        <button type="button" data-html2canvas-ignore="true" onclick="copyDrawToClipboard(${drawIdx})" class="px-2 py-0.5 rounded-md bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-500/40 text-emerald-200 text-[10px] font-extrabold transition active:scale-95">
-                            📋 نسخ التقسيمة
+        }
+    }
+
+    // Copy a specific division cleanly to the clipboard
+    function copyDrawToClipboard(drawIdx) {
+        try {
+            const teams = allGeneratedDraws[drawIdx];
+            if (!teams || !teams.length) return;
+
+            const isMulti = allGeneratedDraws.length > 1;
+            let text = isMulti ? `⚽ التقسيمة ${drawIdx + 1}\n` : `⚽ تقسيمة المجموعات\n`;
+            text += `━━━━━━━━━━━━━━\n`;
+
+            teams.forEach((team, idx) => {
+                text += `\n🔹 ${teamNames[idx] || `الفريق ${idx + 1}`}\n`;
+                team.forEach((p, i) => {
+                    text += `${i + 1}. ${p.name}${p.isCap ? ' (C)' : ''}\n`;
+                });
+            });
+
+            text += `\n🏆 نظام اللعب:`;
+            if (matchRule1) text += `\n${matchRule1}`;
+            if (matchRule2) text += `\n${matchRule2}`;
+
+            const tempArea = document.createElement('textarea');
+            tempArea.value = text;
+            tempArea.style.position = 'fixed';
+            tempArea.style.opacity = '0';
+            tempArea.style.pointerEvents = 'none';
+            document.body.appendChild(tempArea);
+            tempArea.focus();
+            tempArea.select();
+            const ok = document.execCommand('copy');
+            document.body.removeChild(tempArea);
+
+            if (ok) {
+                showToast(isMulti ? `تم نسخ التقسيمة ${drawIdx + 1} بنجاح 📋` : 'تم نسخ التقسيمة بنجاح 📋', '✅', 2200);
+            } else {
+                showToast('تعذر النسخ، حاول مرة أخرى', '⚠️');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('حدث خطأ أثناء النسخ', '⚠️');
+        }
+    }
+
+    // Build side-by-side team cards HTML for a single division (numbered names, no player count badge)
+    function buildSingleDrawGridHTML(teams) {
+        const isThreeCol = teams.length === 3 || teams.length === 6;
+        const gridClass = isThreeCol ? 'grid grid-cols-3 gap-1.5' : 'grid grid-cols-2 gap-2';
+
+        return `
+            <div class="${gridClass} items-stretch">
+                ${teams.map((team, idx) => `
+                    <div class="rounded-xl bg-slate-900/90 border border-slate-700/70 overflow-hidden flex flex-col shadow-md">
+                        <div class="team-header-${idx % 4} py-1.5 px-1.5 text-center">
+                            <h3 class="${isThreeCol ? 'text-[11px]' : 'text-xs'} font-black text-white truncate">${teamNames[idx] || `الفريق ${idx + 1}`}</h3>
+                        </div>
+                        <div class="p-1.5 space-y-1 flex-1">
+                            ${team.map((p, i) => `
+                                <div class="flex items-center justify-between gap-1 px-1.5 py-1 rounded-md ${i % 2 === 1 ? 'bg-slate-800/70' : 'bg-slate-800/35'}">
+                                    <div class="flex items-center gap-1 min-w-0">
+                                        <span class="${isThreeCol ? 'text-[10px]' : 'text-[11px]'} font-black text-emerald-400 shrink-0 tabular-nums">${i + 1}.</span>
+                                        <span class="${isThreeCol ? 'text-[10px]' : 'text-xs'} font-bold text-slate-100 truncate">${escapeHtml(p.name)}</span>
+                                    </div>
+                                    ${p.isCap ? `<span class="shrink-0 flex items-center" title="كابتن رأس مجموعة">${CAPTAIN_BADGE_SOLID_SVG}</span>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // Render one or multiple divisions stacked cleanly under each other
+    function renderAllResults(shouldScroll = true) {
+        const wrapper = document.getElementById('resultWrapper');
+        const container = document.getElementById('teamsOutputGrid');
+        const headerBadge = document.getElementById('resultHeaderBadge');
+        const singleCopyBtn = document.getElementById('singleDrawCopyBtn');
+        if (!wrapper || !container) return;
+
+        const isMulti = allGeneratedDraws.length > 1;
+        if (headerBadge) {
+            headerBadge.classList.toggle('hidden', !isMulti);
+            headerBadge.textContent = isMulti ? `${allGeneratedDraws.length} تقسيمات` : '';
+        }
+        if (singleCopyBtn) {
+            singleCopyBtn.classList.toggle('hidden', isMulti);
+        }
+
+        container.innerHTML = allGeneratedDraws.map((drawTeams, dIdx) => {
+            if (!isMulti) {
+                return buildSingleDrawGridHTML(drawTeams);
+            }
+            return `
+                <div class="rounded-xl bg-slate-950/55 border border-indigo-500/30 p-2 space-y-2 shadow-inner">
+                    <div class="flex items-center justify-between px-1 pb-1 border-b border-indigo-500/20">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-5 h-5 rounded-md bg-indigo-500/25 border border-indigo-400/40 text-indigo-200 text-[10px] font-black flex items-center justify-center tabular-nums">${dIdx + 1}</span>
+                            <span class="text-xs font-black text-indigo-200">التقسيمة ${dIdx + 1}</span>
+                        </div>
+                        <button type="button" data-html2canvas-ignore="true" onclick="copyDrawToClipboard(${dIdx})" class="px-2 py-0.5 rounded-md bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-500/40 text-emerald-200 text-[10px] font-extrabold flex items-center gap-1 transition active:scale-95">
+                            <span>📋</span>
+                            <span>نسخ</span>
                         </button>
                     </div>
-                    ${renderTeamsStackHtml(teams)}
+                    ${buildSingleDrawGridHTML(drawTeams)}
                 </div>
-            `).join('');
-        }
-
-        wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    function renderTeamsStackHtml(teams) {
-        return teams.map((members, tIdx) => {
-            const headerClass = `team-header-${tIdx % 4}`;
-            const tName = teamNames[tIdx] || `الفريق ${tIdx + 1}`;
-            const rows = members.map((m, mIdx) => {
-                const badges = [];
-                if (m.isCap) badges.push(`<span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-500/25 text-amber-300 border border-amber-400/40 text-[10px] font-black">${CAPTAIN_BADGE_SOLID_SVG}<span>كابتن</span></span>`);
-                if (m.isGk) badges.push(`<span class="px-1.5 py-0.5 rounded bg-sky-500/25 text-sky-300 border border-sky-400/40 text-[10px] font-black">🧤 حارس</span>`);
-                if (m.skill === 2) badges.push(`<span class="px-1.5 py-0.5 rounded bg-purple-500/25 text-purple-300 border border-purple-400/40 text-[10px] font-black">⚡ جامد</span>`);
-
-                return `
-                <div class="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-950/75 border border-slate-800/80">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <span class="w-4 h-4 rounded-full bg-slate-800 text-slate-300 text-[10px] font-black flex items-center justify-center shrink-0">${mIdx + 1}</span>
-                        <span class="text-xs font-extrabold text-white truncate">${escapeHtml(m.name)}</span>
-                    </div>
-                    <div class="flex items-center gap-1 shrink-0">${badges.join('')}</div>
-                </div>`;
-            }).join('');
-
-            return `
-            <div class="rounded-xl overflow-hidden border border-slate-700/70 bg-slate-900/70">
-                <div class="${headerClass} px-2.5 py-1.5 flex items-center justify-between text-white">
-                    <span class="text-xs font-black">${escapeHtml(tName)}</span>
-                    <span class="text-[10px] font-extrabold bg-black/25 px-2 py-0.5 rounded-full">${members.length} لاعبين</span>
-                </div>
-                <div class="p-1.5 space-y-1">
-                    ${rows || `<p class="text-[11px] text-slate-500 text-center py-2">لا يوجد لاعبون</p>`}
-                </div>
-            </div>`;
+            `;
         }).join('');
-    }
 
-    function formatDrawAsText(drawIdx) {
-        const teams = allGeneratedDraws[drawIdx] || [];
-        const lines = ['⚽ *قسّم والعب — تقسيمة المجموعات*', ''];
-        teams.forEach((members, idx) => {
-            const tName = teamNames[idx] || `الفريق ${idx + 1}`;
-            lines.push(`*${tName}* (${members.length}):`);
-            members.forEach((m, i) => {
-                const tags = [];
-                if (m.isCap) tags.push('(C)');
-                if (m.isGk) tags.push('🧤');
-                if (m.skill === 2) tags.push('⚡');
-                lines.push(`${i + 1}. ${m.name} ${tags.join(' ')}`.trim());
-            });
-            lines.push('');
-        });
-        lines.push('⏱️ الماتش 15 دقيقة أو تسجيل 3 أهداف');
-        lines.push('🎯 في حالة التعادل لعب ضربتين جزاء');
-        return lines.join('\n');
-    }
-
-    function copyDrawToClipboard(drawIdx) {
-        const text = formatDrawAsText(drawIdx);
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('تم نسخ التقسيمة بنجاح! 📋', '✅', 2000);
-            }).catch(() => fallbackCopy(text));
-        } else {
-            fallbackCopy(text);
+        wrapper.classList.remove('hidden');
+        if (shouldScroll) {
+            wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
-    function fallbackCopy(text) {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        try {
-            document.execCommand('copy');
-            showToast('تم نسخ التقسيمة بنجاح! 📋', '✅', 2000);
-        } catch (e) {
-            showToast('تعذر النسخ تلقائياً', '⚠️');
-        }
-        ta.remove();
-    }
-
-    // Export result card as PNG image
-    function loadHtml2Canvas() {
-        return new Promise((resolve, reject) => {
-            if (window.html2canvas) return resolve(window.html2canvas);
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-            script.onload = () => resolve(window.html2canvas);
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    }
-
+    // Export crisp high-DPI PNG directly via native Canvas (avoids html2canvas Arabic text clipping)
     async function downloadResultImage() {
-        const area = document.getElementById('captureArea');
+        const draws = allGeneratedDraws;
         const btn = document.getElementById('saveImgBtn');
-        if (!area || !allGeneratedDraws.length) return;
-
+        if (!draws.length) {
+            showToast('اعمل القرعة الأول عشان تحفظ الصورة!', '⚠️');
+            return;
+        }
         try {
             if (btn) btn.disabled = true;
-            showToast('جاري تجهيز الصورة...', '📸', 2000);
-            const h2c = await loadHtml2Canvas();
-            const canvas = await h2c(area, {
-                backgroundColor: '#0f172a',
-                scale: 2,
-                useCORS: true
+            if (document.fonts && document.fonts.ready) {
+                await document.fonts.ready;
+            }
+
+            const activeRules = [matchRule1, matchRule2].filter(Boolean);
+            const isMultiDraw = draws.length > 1;
+            const W = 720;
+            const outerPad = 18;
+            const cardPad = 20;
+            const contentX = outerPad + cardPad;
+            const contentW = W - contentX * 2;
+            const headerH = 56;
+            const colGap = 12;
+            const rowGap = 12;
+            const drawGap = 16;
+            const teamHeaderH = 40;
+            const playerRowH = 36;
+            const rulesH = activeRules.length === 1 ? 86 : 114;
+
+            const teamHeaderColors = [
+                ['#059669', '#10b981'],
+                ['#2563eb', '#3b82f6'],
+                ['#d97706', '#f59e0b'],
+                ['#7c3aed', '#8b5cf6']
+            ];
+
+            let cursorY = outerPad + cardPad + headerH + 14;
+            const drawLayouts = draws.map((drawTeams, dIdx) => {
+                const isThreeCol = drawTeams.length === 3 || drawTeams.length === 6;
+                const cols = isThreeCol ? 3 : 2;
+                const boxPad = isMultiDraw ? 14 : 0;
+                const boxHeaderH = isMultiDraw ? 42 : 0;
+                const innerX = contentX + boxPad;
+                const innerW = contentW - boxPad * 2;
+                const cardW = (innerW - (cols - 1) * colGap) / cols;
+
+                const boxTop = cursorY;
+                let rowY = boxTop + boxPad + boxHeaderH;
+                const cards = [];
+                const gridRows = Math.ceil(drawTeams.length / cols);
+
+                for (let r = 0; r < gridRows; r++) {
+                    const rowTeams = drawTeams.slice(r * cols, (r + 1) * cols);
+                    const maxPlayers = Math.max(...rowTeams.map(t => t.length), 1);
+                    const cardH = teamHeaderH + 16 + maxPlayers * playerRowH;
+
+                    rowTeams.forEach((team, cIdx) => {
+                        const teamIdx = r * cols + cIdx;
+                        const cardX = innerX + (cols - 1 - cIdx) * (cardW + colGap);
+                        cards.push({ teamIdx, team, x: cardX, y: rowY, w: cardW, h: cardH, isThreeCol });
+                    });
+                    rowY += cardH + (r < gridRows - 1 ? rowGap : 0);
+                }
+
+                const boxH = (rowY - boxTop) + boxPad;
+                cursorY = boxTop + boxH + drawGap;
+                return { drawIdx: dIdx, boxTop, boxH, cards };
             });
-            const link = document.createElement('a');
-            link.download = `qasem-w-el3ab-${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            showToast('تم حفظ الصورة بنجاح! 📸', '✅');
-        } catch (e) {
-            console.error(e);
-            showToast('حدث خطأ أثناء حفظ الصورة', '⚠️');
+
+            const rulesTop = cursorY;
+            const sigH = 34;
+            const proCardH = (rulesTop + rulesH + sigH + cardPad - 6) - outerPad;
+            const H = proCardH + outerPad * 2;
+
+            const scale = 2;
+            const canvas = document.createElement('canvas');
+            canvas.width = W * scale;
+            canvas.height = H * scale;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) throw new Error('Canvas context unavailable');
+
+            ctx.scale(scale, scale);
+            ctx.direction = 'rtl';
+            ctx.textBaseline = 'middle';
+
+            ctx.fillStyle = '#0b1120';
+            ctx.fillRect(0, 0, W, H);
+
+            drawRoundedRect(ctx, outerPad, outerPad, W - outerPad * 2, proCardH, 22);
+            const cardGrad = ctx.createLinearGradient(outerPad, outerPad, W - outerPad, outerPad + proCardH);
+            cardGrad.addColorStop(0, '#0f172a');
+            cardGrad.addColorStop(0.5, '#1e293b');
+            cardGrad.addColorStop(1, '#0f172a');
+            ctx.fillStyle = cardGrad;
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(52, 211, 153, 0.32)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            const headerMidY = outerPad + cardPad + headerH / 2 - 4;
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '900 24px Cairo, sans-serif';
+            ctx.fillText('⚽ تقسيمة المجموعات', W - contentX, headerMidY);
+
+            if (isMultiDraw) {
+                const badgeText = `${draws.length} تقسيمات`;
+                ctx.font = '800 14px Cairo, sans-serif';
+                const badgeW = Math.max(88, ctx.measureText(badgeText).width + 26);
+                const badgeH = 28;
+                drawRoundedRect(ctx, contentX, headerMidY - badgeH / 2, badgeW, badgeH, 14);
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.18)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.35)';
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#6ee7b7';
+                ctx.fillText(badgeText, contentX + badgeW / 2, headerMidY);
+            }
+
+            const headerLineY = outerPad + cardPad + headerH;
+            ctx.strokeStyle = 'rgba(16, 185, 129, 0.22)';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.moveTo(contentX, headerLineY);
+            ctx.lineTo(W - contentX, headerLineY);
+            ctx.stroke();
+
+            for (const dl of drawLayouts) {
+                if (isMultiDraw) {
+                    drawRoundedRect(ctx, contentX, dl.boxTop, contentW, dl.boxH, 16);
+                    ctx.fillStyle = 'rgba(2, 6, 23, 0.55)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(99, 102, 241, 0.32)';
+                    ctx.lineWidth = 1.2;
+                    ctx.stroke();
+
+                    const numSize = 24;
+                    const divMidY = dl.boxTop + 26;
+                    const badgeX = W - contentX - 14 - numSize;
+                    drawRoundedRect(ctx, badgeX, divMidY - numSize / 2, numSize, numSize, 7);
+                    ctx.fillStyle = 'rgba(99, 102, 241, 0.25)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(129, 140, 248, 0.45)';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#c7d2fe';
+                    ctx.font = '900 13px Cairo, sans-serif';
+                    ctx.fillText(String(dl.drawIdx + 1), badgeX + numSize / 2, divMidY);
+
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = '#c7d2fe';
+                    ctx.font = '900 16px Cairo, sans-serif';
+                    ctx.fillText(`التقسيمة ${dl.drawIdx + 1}`, badgeX - 10, divMidY);
+
+                    ctx.strokeStyle = 'rgba(99, 102, 241, 0.22)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(contentX + 14, dl.boxTop + 44);
+                    ctx.lineTo(W - contentX - 14, dl.boxTop + 44);
+                    ctx.stroke();
+                }
+
+                for (const card of dl.cards) {
+                    drawRoundedRect(ctx, card.x, card.y, card.w, card.h, 14);
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(51, 65, 85, 0.75)';
+                    ctx.lineWidth = 1.2;
+                    ctx.stroke();
+
+                    const [c1, c2] = teamHeaderColors[card.teamIdx % teamHeaderColors.length];
+                    const hGrad = ctx.createLinearGradient(card.x, card.y, card.x + card.w, card.y);
+                    hGrad.addColorStop(0, c1);
+                    hGrad.addColorStop(1, c2);
+                    ctx.save();
+                    drawRoundedRect(ctx, card.x, card.y, card.w, card.h, 14);
+                    ctx.clip();
+                    ctx.fillStyle = hGrad;
+                    ctx.fillRect(card.x, card.y, card.w, teamHeaderH);
+                    ctx.restore();
+
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = card.isThreeCol ? '900 16px Cairo, sans-serif' : '900 18px Cairo, sans-serif';
+                    ctx.fillText(teamNames[card.teamIdx] || `الفريق ${card.teamIdx + 1}`, card.x + card.w / 2, card.y + teamHeaderH / 2);
+
+                    card.team.forEach((p, idx) => {
+                        const rowTop = card.y + teamHeaderH + 8 + idx * playerRowH;
+                        const rowH = playerRowH - 6;
+                        const rowMidY = rowTop + rowH / 2;
+
+                        drawRoundedRect(ctx, card.x + 8, rowTop, card.w - 16, rowH, 8);
+                        ctx.fillStyle = idx % 2 === 1 ? 'rgba(30, 41, 59, 0.72)' : 'rgba(30, 41, 59, 0.36)';
+                        ctx.fill();
+
+                        const numStr = `${idx + 1}.`;
+                        ctx.textAlign = 'right';
+                        ctx.font = card.isThreeCol ? '900 13px Cairo, sans-serif' : '900 14px Cairo, sans-serif';
+                        ctx.fillStyle = '#34d399';
+                        const rightAnchor = card.x + card.w - 15;
+                        ctx.fillText(numStr, rightAnchor, rowMidY);
+                        const numW = ctx.measureText(numStr).width;
+
+                        ctx.font = card.isThreeCol ? '700 14px Cairo, sans-serif' : '700 16px Cairo, sans-serif';
+                        const maxNameW = card.w - 30 - numW - 6 - (p.isCap ? 30 : 0);
+                        ctx.fillStyle = '#f1f5f9';
+                        ctx.fillText(truncateCanvasText(ctx, p.name, Math.max(40, maxNameW)), rightAnchor - numW - 6, rowMidY);
+
+                        if (p.isCap) {
+                            const capW = 22;
+                            const capH = 18;
+                            drawRoundedRect(ctx, card.x + 13, rowMidY - capH / 2, capW, capH, 5);
+                            ctx.fillStyle = '#f59e0b';
+                            ctx.fill();
+                            ctx.strokeStyle = '#fef3c7';
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                            ctx.textAlign = 'center';
+                            ctx.fillStyle = '#0f172a';
+                            ctx.font = '900 12px Cairo, sans-serif';
+                            ctx.fillText('C', card.x + 13 + capW / 2, rowMidY);
+                        }
+                    });
+                }
+            }
+
+            drawRoundedRect(ctx, contentX, rulesTop, contentW, rulesH, 14);
+            ctx.fillStyle = 'rgba(2, 6, 23, 0.78)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(51, 65, 85, 0.65)';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            const rulesRight = W - contentX;
+            drawRoundedRect(ctx, rulesRight - 20, rulesTop + 14, 5, 18, 3);
+            ctx.fillStyle = '#34d399';
+            ctx.fill();
+
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#6ee7b7';
+            ctx.font = '900 16px Cairo, sans-serif';
+            ctx.fillText('نظام اللعب', rulesRight - 30, rulesTop + 23);
+
+            ctx.strokeStyle = 'rgba(30, 41, 59, 0.9)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(contentX + 16, rulesTop + 42);
+            ctx.lineTo(rulesRight - 16, rulesTop + 42);
+            ctx.stroke();
+
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = '700 16px Cairo, sans-serif';
+            const maxRuleTextW = contentW - 36;
+            activeRules.forEach((ruleStr, rIdx) => {
+                ctx.fillText(truncateCanvasText(ctx, ruleStr, maxRuleTextW), rulesRight - 18, rulesTop + 68 + rIdx * 28);
+            });
+
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.52)';
+            ctx.font = '300 14px Cairo, sans-serif';
+            ctx.fillText('تطبيق من تصميم الموجي', W / 2, rulesTop + rulesH + 22);
+
+            const fileName = `تقسيمة-الفرق-${Date.now()}.png`;
+            const saveFromUrl = (url, shouldRevoke = false) => {
+                const link = document.createElement('a');
+                link.download = fileName;
+                link.href = url;
+                link.rel = 'noopener';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                if (shouldRevoke) {
+                    setTimeout(() => URL.revokeObjectURL(url), 4000);
+                }
+            };
+
+            if (typeof canvas.toBlob === 'function') {
+                await new Promise((resolve) => {
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            saveFromUrl(URL.createObjectURL(blob), true);
+                        } else {
+                            saveFromUrl(canvas.toDataURL('image/png'));
+                        }
+                        resolve();
+                    }, 'image/png');
+                });
+            } else {
+                saveFromUrl(canvas.toDataURL('image/png'));
+            }
+
+            showToast('تم حفظ صورة التقسيمة على جهازك! 📸', '✅');
+        } catch (err) {
+            console.error(err);
+            showAlert('حدث خطأ أثناء حفظ الصورة، حاول مرة أخرى.', '⚠️');
         } finally {
             if (btn) btn.disabled = false;
         }
     }
 
-    // Animated Canvas Video Recording for generated draws
-    let lastRecordedVideoUrl = null;
-    let videoRecInterval = null;
-    let activeMediaRecorder = null;
+    // =========================================================
+    // Smooth & Exciting Canvas Video Recording (MP4 Priority)
+    // =========================================================
+    let videoRecorder = null;
+    let videoAnimFrame = null;
+    let recordedVideoUrl = null;
+    let recordedVideoExt = 'mp4';
+    let isRecordingVideo = false;
+    let videoCancelled = false;
 
     function triggerVideoDownload() {
-        if (!lastRecordedVideoUrl) return;
-        const a = document.createElement('a');
-        a.href = lastRecordedVideoUrl;
-        a.download = `qasem-w-el3ab-draw-${Date.now()}.webm`;
-        a.click();
-        showToast('تم تحميل الفيديو! 🎬', '✅');
+        if (!recordedVideoUrl) return;
+        const link = document.createElement('a');
+        link.href = recordedVideoUrl;
+        link.download = `قرعة-قسم-والعب-${Date.now()}.${recordedVideoExt}`;
+        link.rel = 'noopener';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('تم حفظ فيديو القرعة على جهازك! 🎬', '✅');
     }
 
     function closeVideoModal() {
-        if (videoRecInterval) {
-            clearInterval(videoRecInterval);
-            videoRecInterval = null;
+        if (isRecordingVideo) {
+            videoCancelled = true;
         }
-        if (activeMediaRecorder && activeMediaRecorder.state !== 'inactive') {
-            try { activeMediaRecorder.stop(); } catch (e) {}
+        if (videoAnimFrame) {
+            cancelAnimationFrame(videoAnimFrame);
+            videoAnimFrame = null;
         }
+        if (videoRecorder && videoRecorder.state === 'recording') {
+            try { videoRecorder.stop(); } catch (e) {}
+        }
+        isRecordingVideo = false;
         const modal = document.getElementById('videoRecordModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        modal?.classList.add('hidden');
+        modal?.classList.remove('flex');
     }
 
-    function recordDrawVideo() {
-        if (!allGeneratedDraws.length) {
-            showToast('اعمل تقسيمة أولاً لتسجيل فيديو!', '⚠️');
+    function drawRoundedRect(ctx, x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+    }
+
+    function truncateCanvasText(ctx, text, maxWidth) {
+        if (ctx.measureText(text).width <= maxWidth) return text;
+        let str = text;
+        while (str.length > 1 && ctx.measureText(str + '…').width > maxWidth) {
+            str = str.slice(0, -1);
+        }
+        return str + '…';
+    }
+
+    async function recordDrawVideo() {
+        const draws = allGeneratedDraws;
+        if (!draws.length) {
+            showToast('اعمل القرعة الأول عشان تسجّل الفيديو!', '⚠️');
             return;
         }
-        if (typeof MediaRecorder === 'undefined') {
-            showToast('متصفحك لا يدعم تسجيل الفيديو مباشرة', '⚠️');
-            return;
-        }
+        if (isRecordingVideo) return;
 
         const modal = document.getElementById('videoRecordModal');
         const canvas = document.getElementById('drawVideoCanvas');
-        const progressBar = document.getElementById('videoProgressBar');
-        const statusText = document.getElementById('videoStatusText');
         const titleEl = document.getElementById('videoModalTitle');
+        const statusEl = document.getElementById('videoStatusText');
+        const progressEl = document.getElementById('videoProgressBar');
+        const dotEl = document.getElementById('videoRecDot');
         const dlBtn = document.getElementById('videoDownloadAgainBtn');
-        const dot = document.getElementById('videoRecDot');
 
-        canvas.width = 540;
-        canvas.height = 960;
-        const ctx = canvas.getContext('2d');
+        if (!canvas || !modal) return;
 
-        dlBtn.classList.add('hidden');
-        dot.classList.remove('hidden');
-        titleEl.textContent = 'جاري تسجيل فيديو القرعة...';
-        statusText.textContent = 'جاري رسم بطاقات المجموعات...';
-        progressBar.style.width = '0%';
+        if (document.fonts && document.fonts.ready) {
+            await document.fonts.ready;
+        }
+
+        if (recordedVideoUrl) {
+            URL.revokeObjectURL(recordedVideoUrl);
+            recordedVideoUrl = null;
+        }
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        if (titleEl) titleEl.textContent = 'جاري تسجيل فيديو القرعة...';
+        if (statusEl) statusEl.textContent = draws.length > 1
+            ? `يتم الآن تسجيل ${draws.length} تقسيمات تحت بعضها بشكل انسيابي...`
+            : 'يتم الآن تسجيل فيديو القرعة بشكل انسيابي...';
+        if (progressEl) progressEl.style.width = '0%';
+        if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse';
+        dlBtn?.classList.add('hidden');
 
-        const teams = allGeneratedDraws[0] || [];
-        const stream = canvas.captureStream(30);
-        const chunks = [];
+        const activeRules = [matchRule1, matchRule2].filter(Boolean);
+        const W = 720;
+        const isMultiDraw = draws.length > 1;
+        const padX = 28;
+        const colGap = 14;
+        const rowGap = 14;
+        const headerH = 88;
+        const teamHeaderH = 40;
+        const playerRowH = 34;
+        const drawGap = 20;
+        const rulesH = activeRules.length === 1 ? 88 : 116;
+        const bottomPad = 28;
+        const teamHeaderColors = [
+            ['#059669', '#10b981'],
+            ['#2563eb', '#3b82f6'],
+            ['#d97706', '#f59e0b'],
+            ['#7c3aed', '#8b5cf6']
+        ];
 
-        let mimeType = 'video/webm;codecs=vp9';
-        if (!MediaRecorder.isTypeSupported(mimeType)) {
-            mimeType = MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : '';
-        }
+        let cursorY = headerH + 8;
+        let currentStartMs = 360;
+        const drawLayouts = draws.map((drawTeams, dIdx) => {
+            const isThreeCol = drawTeams.length === 3 || drawTeams.length === 6;
+            const cols = isThreeCol ? 3 : 2;
+            const boxPad = isMultiDraw ? 14 : 0;
+            const boxHeaderH = isMultiDraw ? 38 : 0;
+            const innerX = padX + boxPad;
+            const innerW = W - padX * 2 - boxPad * 2;
+            const cardW = (innerW - (cols - 1) * colGap) / cols;
 
-        const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
-        activeMediaRecorder = recorder;
+            const boxTop = cursorY;
+            const drawStartMs = currentStartMs;
+            let rowY = boxTop + boxPad + boxHeaderH;
+            const cards = [];
 
-        recorder.ondataavailable = e => {
-            if (e.data && e.data.size > 0) chunks.push(e.data);
-        };
+            const gridRows = Math.ceil(drawTeams.length / cols);
+            let maxRowEndMs = drawStartMs + (isMultiDraw ? 220 : 80);
 
-        recorder.onstop = () => {
-            const blob = new Blob(chunks, { type: mimeType || 'video/webm' });
-            if (lastRecordedVideoUrl) URL.revokeObjectURL(lastRecordedVideoUrl);
-            lastRecordedVideoUrl = URL.createObjectURL(blob);
-            dlBtn.classList.remove('hidden');
-            dot.classList.add('hidden');
-            titleEl.textContent = 'اكتمل تسجيل الفيديو!';
-            statusText.textContent = 'الفيديو جاهز للحفظ أو المشاركة';
-            progressBar.style.width = '100%';
-            triggerVideoDownload();
-        };
+            for (let r = 0; r < gridRows; r++) {
+                const rowTeams = drawTeams.slice(r * cols, (r + 1) * cols);
+                const maxPlayersInRow = Math.max(...rowTeams.map(t => t.length), 1);
+                const cardH = teamHeaderH + 14 + maxPlayersInRow * playerRowH;
+                const rowStartMs = maxRowEndMs;
 
-        recorder.start();
-
-        const totalSteps = 60;
-        let step = 0;
-        const palette = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'];
-
-        const drawFrame = (progressRatio) => {
-            ctx.fillStyle = '#0b1120';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#f8fafc';
-            ctx.font = '900 32px Cairo, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('⚽ قسّم والعب', canvas.width / 2, 68);
-
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = '600 18px Cairo, sans-serif';
-            ctx.fillText('تقسيمة المجموعات', canvas.width / 2, 102);
-
-            const visibleTeamsCount = Math.max(1, Math.ceil(progressRatio * teams.length));
-            let yCursor = 140;
-
-            for (let t = 0; t < Math.min(visibleTeamsCount, teams.length); t++) {
-                const members = teams[t];
-                const cardH = 44 + members.length * 34;
-                if (yCursor + cardH > canvas.height - 95) break;
-
-                ctx.fillStyle = '#131c31';
-                ctx.fillRect(32, yCursor, canvas.width - 64, cardH - 8);
-
-                ctx.fillStyle = palette[t % palette.length];
-                ctx.fillRect(32, yCursor, canvas.width - 64, 34);
-
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '800 18px Cairo, sans-serif';
-                ctx.textAlign = 'right';
-                ctx.fillText(teamNames[t] || `الفريق ${t + 1}`, canvas.width - 48, yCursor + 23);
-
-                members.forEach((m, idx) => {
-                    const rowY = yCursor + 54 + idx * 32;
-                    ctx.fillStyle = '#e2e8f0';
-                    ctx.font = '700 17px Cairo, sans-serif';
-                    ctx.textAlign = 'right';
-                    const roleTag = m.isCap ? ' [كابتن]' : (m.isGk ? ' [حارس]' : '');
-                    ctx.fillText(`${idx + 1}. ${m.name}${roleTag}`, canvas.width - 52, rowY);
+                rowTeams.forEach((team, cIdx) => {
+                    const teamIdx = r * cols + cIdx;
+                    const cardX = innerX + (cols - 1 - cIdx) * (cardW + colGap);
+                    const cardStartMs = rowStartMs + cIdx * 90;
+                    const playersTiming = team.map((player, pIdx) => {
+                        const pStart = cardStartMs + 130 + pIdx * 70;
+                        if (pStart + 220 > maxRowEndMs) maxRowEndMs = pStart + 220;
+                        return { player, idx: pIdx, startMs: pStart };
+                    });
+                    cards.push({
+                        teamIdx,
+                        x: cardX,
+                        y: rowY,
+                        w: cardW,
+                        h: cardH,
+                        startMs: cardStartMs,
+                        playersTiming,
+                        isThreeCol
+                    });
                 });
 
-                yCursor += cardH + 6;
+                rowY += cardH + (r < gridRows - 1 ? rowGap : 0);
             }
 
-            ctx.fillStyle = 'rgba(148, 163, 184, 0.65)';
-            ctx.font = '300 16px Cairo, sans-serif';
+            const boxH = (rowY - boxTop) + boxPad;
+            cursorY = boxTop + boxH + drawGap;
+            currentStartMs = maxRowEndMs + 180;
+
+            return {
+                drawIdx: dIdx,
+                boxTop,
+                boxH,
+                startMs: drawStartMs,
+                cards
+            };
+        });
+
+        const rulesTop = cursorY;
+        const rulesStartMs = currentStartMs + 80;
+        const sigH = 38;
+        const totalContentH = rulesTop + rulesH + sigH + bottomPad;
+
+        const H = Math.min(1280, Math.max(760, totalContentH));
+        const maxScroll = Math.max(0, totalContentH - H);
+        const totalDurationMs = rulesStartMs + 1900;
+
+        canvas.width = W;
+        canvas.height = H;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.direction = 'rtl';
+
+        const chunks = [];
+        let canRecord = typeof canvas.captureStream === 'function' && typeof MediaRecorder !== 'undefined';
+        if (canRecord) {
+            try {
+                const stream = canvas.captureStream(30);
+                // Prioritize MP4 (WhatsApp-ready) before WebM fallback
+                const mimeCandidates = [
+                    { mime: 'video/mp4;codecs=avc1.42E01E', ext: 'mp4' },
+                    { mime: 'video/mp4;codecs=h264', ext: 'mp4' },
+                    { mime: 'video/mp4', ext: 'mp4' },
+                    { mime: 'video/webm;codecs=vp9', ext: 'webm' },
+                    { mime: 'video/webm;codecs=vp8', ext: 'webm' },
+                    { mime: 'video/webm', ext: 'webm' }
+                ];
+                let chosen = null;
+                for (const c of mimeCandidates) {
+                    if (MediaRecorder.isTypeSupported(c.mime)) {
+                        chosen = c;
+                        break;
+                    }
+                }
+                recordedVideoExt = chosen ? chosen.ext : 'mp4';
+                videoRecorder = chosen
+                    ? new MediaRecorder(stream, { mimeType: chosen.mime, videoBitsPerSecond: 3500000 })
+                    : new MediaRecorder(stream);
+
+                videoRecorder.ondataavailable = (e) => {
+                    if (e.data && e.data.size > 0) chunks.push(e.data);
+                };
+                videoRecorder.onstop = () => {
+                    if (videoCancelled) return;
+                    if (chunks.length > 0) {
+                        const blob = new Blob(chunks, { type: chosen ? chosen.mime : 'video/mp4' });
+                        recordedVideoUrl = URL.createObjectURL(blob);
+                        dlBtn?.classList.remove('hidden');
+                        if (titleEl) titleEl.textContent = 'اكتمل تسجيل فيديو القرعة ✅';
+                        if (statusEl) statusEl.textContent = `الفيديو جاهز بصيغة ${recordedVideoExt.toUpperCase()} — اضغط على "حفظ الفيديو" لتحميله.`;
+                        if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+                    }
+                };
+                videoRecorder.start(100);
+            } catch (err) {
+                console.error('MediaRecorder fallback:', err);
+                canRecord = false;
+            }
+        }
+
+        videoCancelled = false;
+        isRecordingVideo = true;
+        const startTime = performance.now();
+        let currentScrollY = 0;
+
+        function renderFrame(now) {
+            if (!isRecordingVideo) return;
+
+            const elapsed = now - startTime;
+            const progress = Math.min(1, elapsed / totalDurationMs);
+            if (progressEl) progressEl.style.width = `${Math.round(progress * 100)}%`;
+
+            let targetScroll = 0;
+            if (maxScroll > 0) {
+                let focusBottomY = headerH;
+                for (const dl of drawLayouts) {
+                    if (elapsed >= dl.startMs) {
+                        focusBottomY = Math.max(focusBottomY, dl.boxTop + dl.boxH + 24);
+                    }
+                }
+                if (elapsed >= rulesStartMs - 150) {
+                    focusBottomY = totalContentH;
+                }
+                targetScroll = Math.min(maxScroll, Math.max(0, focusBottomY - H + 20));
+                currentScrollY += (targetScroll - currentScrollY) * 0.08;
+            }
+
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+            bgGrad.addColorStop(0, '#0b1120');
+            bgGrad.addColorStop(0.5, '#131c31');
+            bgGrad.addColorStop(1, '#0b1120');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, W, H);
+
+            const glowGrad = ctx.createRadialGradient(W / 2, 80, 20, W / 2, 80, 380);
+            glowGrad.addColorStop(0, 'rgba(16, 185, 129, 0.14)');
+            glowGrad.addColorStop(1, 'rgba(16, 185, 129, 0)');
+            ctx.fillStyle = glowGrad;
+            ctx.fillRect(0, 0, W, H);
+
+            ctx.save();
+            ctx.translate(0, -currentScrollY);
+
+            const titleT = Math.min(1, elapsed / 420);
+            const titleEase = 1 - Math.pow(1 - titleT, 3);
+            ctx.save();
+            ctx.globalAlpha = titleEase;
+            ctx.translate(0, (1 - titleEase) * 14);
             ctx.textAlign = 'center';
-            ctx.fillText('تطبيق من تصميم الموجي', canvas.width / 2, canvas.height - 32);
-        };
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '900 36px Cairo, sans-serif';
+            ctx.fillText('⚽ تقسيمة المجموعات', W / 2, 62);
+            ctx.restore();
 
-        drawFrame(0.1);
-        videoRecInterval = setInterval(() => {
-            step++;
-            const ratio = Math.min(1, step / totalSteps);
-            progressBar.style.width = `${Math.round(ratio * 100)}%`;
-            drawFrame(ratio);
+            for (const dl of drawLayouts) {
+                if (elapsed < dl.startMs) continue;
+                const dT = Math.min(1, (elapsed - dl.startMs) / 300);
+                const dEase = 1 - Math.pow(1 - dT, 3);
 
-            if (step >= totalSteps) {
-                clearInterval(videoRecInterval);
-                videoRecInterval = null;
-                if (recorder.state !== 'inactive') recorder.stop();
+                if (isMultiDraw) {
+                    ctx.save();
+                    ctx.globalAlpha = dEase;
+                    drawRoundedRect(ctx, padX, dl.boxTop, W - padX * 2, dl.boxH, 16);
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.65)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(99, 102, 241, 0.35)';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = '#c7d2fe';
+                    ctx.font = '900 18px Cairo, sans-serif';
+                    ctx.fillText(`التقسيمة ${dl.drawIdx + 1}`, W - padX - 18, dl.boxTop + 30);
+
+                    ctx.strokeStyle = 'rgba(99, 102, 241, 0.22)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(padX + 14, dl.boxTop + 42);
+                    ctx.lineTo(W - padX - 14, dl.boxTop + 42);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                for (const card of dl.cards) {
+                    if (elapsed < card.startMs) continue;
+                    const cT = Math.min(1, (elapsed - card.startMs) / 260);
+                    const cEase = 1 - Math.pow(1 - cT, 3);
+
+                    ctx.save();
+                    ctx.globalAlpha = cEase;
+                    ctx.translate(0, (1 - cEase) * 14);
+
+                    drawRoundedRect(ctx, card.x, card.y, card.w, card.h, 14);
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
+                    ctx.lineWidth = 1.2;
+                    ctx.stroke();
+
+                    const [c1, c2] = teamHeaderColors[card.teamIdx % teamHeaderColors.length];
+                    const hGrad = ctx.createLinearGradient(card.x, card.y, card.x + card.w, card.y);
+                    hGrad.addColorStop(0, c1);
+                    hGrad.addColorStop(1, c2);
+                    ctx.save();
+                    drawRoundedRect(ctx, card.x, card.y, card.w, card.h, 14);
+                    ctx.clip();
+                    ctx.fillStyle = hGrad;
+                    ctx.fillRect(card.x, card.y, card.w, teamHeaderH);
+                    ctx.restore();
+
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = card.isThreeCol ? '900 17px Cairo, sans-serif' : '900 19px Cairo, sans-serif';
+                    ctx.fillText(teamNames[card.teamIdx] || `الفريق ${card.teamIdx + 1}`, card.x + card.w / 2, card.y + 26);
+
+                    for (const pt of card.playersTiming) {
+                        if (elapsed < pt.startMs) continue;
+                        const pT = Math.min(1, (elapsed - pt.startMs) / 220);
+                        const pEase = 1 - Math.pow(1 - pT, 3);
+                        const py = card.y + teamHeaderH + 8 + pt.idx * playerRowH;
+
+                        ctx.save();
+                        ctx.globalAlpha = cEase * pEase;
+                        ctx.translate((1 - pEase) * 10, 0);
+
+                        drawRoundedRect(ctx, card.x + 8, py, card.w - 16, playerRowH - 5, 8);
+                        ctx.fillStyle = pt.idx % 2 === 1 ? 'rgba(30, 41, 59, 0.78)' : 'rgba(30, 41, 59, 0.42)';
+                        ctx.fill();
+
+                        const nameMaxW = card.w - (pt.player.isCap ? 64 : 34);
+                        ctx.textAlign = 'right';
+                        ctx.font = card.isThreeCol ? '700 14px Cairo, sans-serif' : '700 16px Cairo, sans-serif';
+                        const label = `${pt.idx + 1}. ${pt.player.name}`;
+                        ctx.fillStyle = '#f1f5f9';
+                        ctx.fillText(truncateCanvasText(ctx, label, nameMaxW), card.x + card.w - 16, py + 20);
+
+                        if (pt.player.isCap) {
+                            drawRoundedRect(ctx, card.x + 14, py + 5, 24, 18, 5);
+                            ctx.fillStyle = '#f59e0b';
+                            ctx.fill();
+                            ctx.textAlign = 'center';
+                            ctx.fillStyle = '#0f172a';
+                            ctx.font = '900 12px Cairo, sans-serif';
+                            ctx.fillText('C', card.x + 26, py + 18);
+                        }
+
+                        ctx.restore();
+                    }
+
+                    ctx.restore();
+                }
             }
-        }, 50);
+
+            if (elapsed >= rulesStartMs) {
+                const rT = Math.min(1, (elapsed - rulesStartMs) / 420);
+                const rEase = 1 - Math.pow(1 - rT, 3);
+
+                ctx.save();
+                ctx.globalAlpha = rEase;
+                ctx.translate(0, (1 - rEase) * 14);
+
+                drawRoundedRect(ctx, padX, rulesTop, W - padX * 2, rulesH, 14);
+                ctx.fillStyle = 'rgba(2, 6, 23, 0.78)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(51, 65, 85, 0.65)';
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+
+                drawRoundedRect(ctx, W - padX - 20, rulesTop + 14, 5, 18, 3);
+                ctx.fillStyle = '#34d399';
+                ctx.fill();
+
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#6ee7b7';
+                ctx.font = '900 17px Cairo, sans-serif';
+                ctx.fillText('نظام اللعب', W - padX - 30, rulesTop + 29);
+
+                ctx.strokeStyle = 'rgba(30, 41, 59, 0.9)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(padX + 16, rulesTop + 42);
+                ctx.lineTo(W - padX - 16, rulesTop + 42);
+                ctx.stroke();
+
+                ctx.fillStyle = '#e2e8f0';
+                ctx.font = '700 16px Cairo, sans-serif';
+                const maxRuleW = W - padX * 2 - 40;
+                activeRules.forEach((ruleStr, rIdx) => {
+                    ctx.fillText(truncateCanvasText(ctx, ruleStr, maxRuleW), W - padX - 20, rulesTop + 70 + rIdx * 28);
+                });
+
+                ctx.restore();
+            }
+
+            const sigStartMs = rulesStartMs + 220;
+            if (elapsed >= sigStartMs) {
+                const sT = Math.min(1, (elapsed - sigStartMs) / 450);
+                const sEase = 1 - Math.pow(1 - sT, 3);
+                ctx.save();
+                ctx.globalAlpha = sEase;
+                ctx.textAlign = 'center';
+                ctx.fillStyle = 'rgba(148, 163, 184, 0.52)';
+                ctx.font = '300 15px Cairo, sans-serif';
+                ctx.fillText('تطبيق من تصميم الموجي', W / 2, rulesTop + rulesH + 26);
+                ctx.restore();
+            }
+
+            ctx.restore();
+
+            if (elapsed < totalDurationMs) {
+                videoAnimFrame = requestAnimationFrame(renderFrame);
+            } else {
+                isRecordingVideo = false;
+                if (progressEl) progressEl.style.width = '100%';
+                if (canRecord && videoRecorder && videoRecorder.state === 'recording') {
+                    videoRecorder.stop();
+                } else {
+                    if (titleEl) titleEl.textContent = 'اكتمل عرض القرعة ✅';
+                    if (statusEl) statusEl.textContent = 'المتصفح الحالي لا يدعم تصدير الفيديو المباشر، لكن يمكنك حفظ النتيجة كصورة.';
+                    if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+                }
+            }
+        }
+
+        videoAnimFrame = requestAnimationFrame(renderFrame);
     }
 
-    // Initial render
-    setTeamCount(teamCount);
-    setMultiDrawCount(multiDrawCount);
-    updateTabStyles();
-    updateRoleButtons();
-    selectSkill(selectedSkill);
-    renderPlayers();
+    // Initialize app cleanly on load
+    window.addEventListener('DOMContentLoaded', () => {
+        try {
+            localStorage.removeItem('fives_players_v14');
+            localStorage.removeItem('fives_constraints_v14');
+        } catch (e) {}
+
+        setTeamCount(teamCount);
+        setMultiDrawCount(multiDrawCount);
+        updateTabStyles();
+        updateRoleButtons();
+        selectSkill(selectedSkill);
+        renderMatchRulesUI();
+        renderPlayers();
+
+        // Hide splash screen smoothly after staggered intro completes
+        const splash = document.getElementById('appSplash');
+        if (splash) {
+            setTimeout(() => {
+                splash.classList.add('splash-hide');
+                setTimeout(() => splash.remove(), 620);
+            }, 1750);
+        }
+    });
 </script>
 </body>
 </html>
