@@ -1,0 +1,2738 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b1120">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>قسّم والعب</title>
+
+    <!-- App Logo Favicon: Ball in Net -->
+    <link rel="icon" type="image/svg+xml" href='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"%3E%3Cdefs%3E%3ClinearGradient id="fp" x1="0" y1="0" x2="1" y2="1"%3E%3Cstop offset="0%25" stop-color="%2334d399"/%3E%3Cstop offset="100%25" stop-color="%2338bdf8"/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d="M12 52 V17 Q12 12 17 12 H47 Q52 12 52 17 V52" stroke="url(%23fp)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/%3E%3Cpath d="M15 21 H49 M15 30 H49 M15 39 H49 M23 14 V50 M32 14 V50 M41 14 V50" stroke="%2394a3b8" stroke-opacity="0.55" stroke-width="1.5"/%3E%3Cpath d="M10 47 L22 39 M12 52 L24 44" stroke="%23fbbf24" stroke-width="2.6" stroke-linecap="round"/%3E%3Ccircle cx="38" cy="33" r="12" fill="%23ffffff" stroke="%230f172a" stroke-width="1.8"/%3E%3Cpolygon points="38,27.5 42.8,31 41,36.8 35,36.8 33.2,31" fill="%230f172a"/%3E%3Cpath d="M38 27.5 V21.5 M42.8 31 L48.8 29 M41 36.8 L44.8 42.2 M35 36.8 L31.2 42.2 M33.2 31 L27.2 29" stroke="%230f172a" stroke-width="1.5" stroke-linecap="round"/%3E%3C/svg%3E'>
+
+    <!-- PWA Manifest Inline -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"قسّم والعب","short_name":"قسّم والعب","start_url":".","display":"standalone","background_color":"#0b1120","theme_color":"#0b1120","icons":[{"src":"logo.png","sizes":"512x512","type":"image/png"}]}'>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        * {
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+            word-break: normal;
+            overflow-wrap: break-word;
+        }
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+        body {
+            background-color: #0b1120;
+            color: #f8fafc;
+            margin: 0;
+            padding-bottom: 35px;
+        }
+        .glass-card {
+            background: #131c31;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.4);
+        }
+        .btn-active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            border-color: #34d399;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+        }
+        .pro-card-bg {
+            background: linear-gradient(160deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+        .team-header-0 { background: linear-gradient(90deg, #059669, #10b981); }
+        .team-header-1 { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+        .team-header-2 { background: linear-gradient(90deg, #d97706, #f59e0b); }
+        .team-header-3 { background: linear-gradient(90deg, #7c3aed, #8b5cf6); }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0b1120; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+
+        /* Hide default browser number spinners for clean custom counter */
+        #multiDrawCountInput::-webkit-outer-spin-button,
+        #multiDrawCountInput::-webkit-inner-spin-button,
+        #randomCountInput::-webkit-outer-spin-button,
+        #randomCountInput::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        #multiDrawCountInput,
+        #randomCountInput {
+            -moz-appearance: textfield;
+        }
+        .signature-font {
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col gap-2 w-full max-w-xs px-3"></div>
+
+    <div class="max-w-md mx-auto px-2.5 pt-3 space-y-2.5">
+        
+        <!-- App Header -->
+        <header class="flex items-center justify-between py-1 px-1">
+            <div class="flex items-center gap-2.5">
+                <!-- Clean Transparent Logo: Soccer Ball Smashing into Goal Net -->
+                <div class="w-11 h-11 shrink-0 flex items-center justify-center select-none" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" class="w-full h-full block" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="goalPostGrad" x1="8" y1="10" x2="56" y2="54" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#34d399"/>
+                                <stop offset="55%" stop-color="#10b981"/>
+                                <stop offset="100%" stop-color="#38bdf8"/>
+                            </linearGradient>
+                            <linearGradient id="netFillGrad" x1="32" y1="12" x2="32" y2="52" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.16"/>
+                                <stop offset="100%" stop-color="#10b981" stop-opacity="0.04"/>
+                            </linearGradient>
+                            <linearGradient id="speedStreakGrad" x1="8" y1="50" x2="30" y2="34" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.15"/>
+                                <stop offset="100%" stop-color="#fbbf24" stop-opacity="1"/>
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Subtle Goal Net Back Fill -->
+                        <path d="M13 51 V17 Q13 13 17 13 H47 Q51 13 51 17 V51 Z" fill="url(#netFillGrad)"/>
+
+                        <!-- Curved Net Mesh (Bulging slightly behind the ball) -->
+                        <path d="M14 21 Q32 23 50 21 M14 30 Q36 33 50 29 M14 39 Q36 42 50 38 M14 47 Q32 49 50 47" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="1.35" stroke-linecap="round"/>
+                        <path d="M22 14 Q23 32 21 50 M31 14 Q34 32 31 50 M40 14 Q45 32 41 50" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="1.35" stroke-linecap="round"/>
+
+                        <!-- Goal Frame / Posts -->
+                        <path d="M11 52 V17 Q11 11 17 11 H47 Q53 11 53 17 V52" stroke="url(#goalPostGrad)" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
+
+                        <!-- Golden Motion Streaks (Shot Power) -->
+                        <path d="M8 46 L23 36" stroke="url(#speedStreakGrad)" stroke-width="2.6" stroke-linecap="round"/>
+                        <path d="M12 52 L25 43" stroke="url(#speedStreakGrad)" stroke-width="2.2" stroke-linecap="round"/>
+                        <path d="M10 38 L19 32" stroke="#34d399" stroke-opacity="0.85" stroke-width="1.8" stroke-linecap="round"/>
+
+                        <!-- Soccer Ball Crashing into the Net -->
+                        <g transform="translate(38, 33)">
+                            <circle cx="0" cy="0" r="12" fill="#ffffff" stroke="#0f172a" stroke-width="1.8"/>
+                            <!-- Center Pentagon -->
+                            <polygon points="0,-5.4 5.1,-1.7 3.2,4.3 -3.2,4.3 -5.1,-1.7" fill="#0f172a"/>
+                            <!-- Seam Lines -->
+                            <path d="M0 -5.4 L0 -11.4 M5.1 -1.7 L11 -3.8 M3.2 4.3 L6.8 9.6 M-3.2 4.3 L-6.8 9.6 M-5.1 -1.7 L-11 -3.8" stroke="#0f172a" stroke-width="1.45" stroke-linecap="round"/>
+                            <!-- Subtle Inner Edge Highlight -->
+                            <path d="M-7 -7.5 A10 10 0 0 1 6 -8" stroke="#e2e8f0" stroke-width="1.2" stroke-linecap="round"/>
+                        </g>
+                    </svg>
+                </div>
+                <h1 class="text-xl font-black tracking-tight text-white">قسّم والعب</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="clearAllPlayers()" title="مسح وإعادة ضبط" class="px-2.5 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 font-extrabold transition active:scale-95 text-xs flex items-center gap-1">
+                    <span>🗑️</span>
+                    <span>تصفير</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Player Add Section Toggles -->
+        <section class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="toggleSection('single')" id="btn-tab-single" class="glass-card py-2 px-2.5 flex items-center justify-center gap-1.5 border border-emerald-500/50 bg-emerald-500/10 text-emerald-300 font-extrabold text-xs transition select-none">
+                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <line x1="19" y1="8" x2="19" y2="14"/>
+                    <line x1="22" y1="11" x2="16" y2="11"/>
+                </svg>
+                <span>إضافة لاعب</span>
+            </button>
+            <button type="button" onclick="toggleSection('bulk')" id="btn-tab-bulk" class="glass-card py-2 px-2.5 flex items-center justify-center gap-1.5 text-slate-300 hover:bg-slate-800/80 font-extrabold text-xs transition select-none">
+                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <span>إضافة مجموعة</span>
+            </button>
+        </section>
+
+        <!-- Panel 1: Single Add -->
+        <section id="panel-single" class="glass-card p-2.5 space-y-2 border border-emerald-500/20">
+            <input type="text" id="playerNameInput" placeholder="اكتب اسم اللاعب..." onkeypress="if(event.key==='Enter') addSinglePlayer()" class="w-full bg-slate-900/90 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition" />
+
+            <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" onclick="toggleRoleInput('isGk')" id="gkRoleBtn" class="py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-900/80 flex items-center justify-between text-xs font-extrabold text-slate-400 transition hover:border-slate-600">
+                    <span>🧤 حارس مرمى</span>
+                    <span id="gkRoleCheck" class="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center text-[9px]"></span>
+                </button>
+                <button type="button" onclick="toggleRoleInput('isCap')" id="capRoleBtn" class="py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-900/80 flex items-center justify-between text-xs font-extrabold text-slate-400 transition hover:border-slate-600">
+                    <span class="flex items-center gap-1.5">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <rect x="2" y="5" width="20" height="14" rx="4" fill="#f59e0b" fill-opacity="0.2" stroke="#fbbf24" stroke-width="1.8"/>
+                            <path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"/>
+                        </svg>
+                        <span>رأس مجموعة</span>
+                    </span>
+                    <span id="capRoleCheck" class="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center text-[9px]"></span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" onclick="selectSkill(1)" id="skill-btn-1" class="py-1.5 rounded-lg text-xs font-extrabold border border-emerald-500 bg-emerald-500/20 text-emerald-300 transition shadow-sm">
+                    🔥 لعّيب
+                </button>
+                <button type="button" onclick="selectSkill(2)" id="skill-btn-2" class="py-1.5 rounded-lg text-xs font-extrabold border border-slate-700 bg-slate-900/80 text-slate-400 transition">
+                    ⚡ جامد
+                </button>
+            </div>
+
+            <button type="button" onclick="addSinglePlayer()" class="w-full py-2 rounded-lg font-extrabold text-xs btn-active transition active:scale-[0.98] shadow-md">
+                ➕ إضافة اللاعب للقائمة
+            </button>
+        </section>
+
+        <!-- Panel 2: Bulk Add (5 Lines Height Fixed) -->
+        <section id="panel-bulk" class="glass-card p-2.5 space-y-2 hidden border border-amber-500/20">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                    <h3 class="text-xs font-extrabold text-amber-300">⚡ لصق أسماء مجموعة لاعبين</h3>
+                    <span id="bulkLineCountBadge" class="text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded-md">0 اسم</span>
+                </div>
+                <span class="text-[10px] text-slate-400">كل اسم في سطر</span>
+            </div>
+            <textarea id="bulkNamesInput" rows="5" oninput="updateBulkCount(this)" placeholder="أحمد&#10;محمد&#10;محمود&#10;إبراهيم..." class="w-full bg-slate-900/90 border border-slate-700 rounded-lg p-2.5 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition resize-none h-[130px] overflow-y-auto leading-relaxed"></textarea>
+            <button type="button" onclick="addBulkPlayers()" class="w-full py-2 rounded-lg font-extrabold text-xs bg-amber-500 hover:bg-amber-600 text-slate-950 transition shadow-md">
+                إضافة المجموعة دفعة واحدة
+            </button>
+        </section>
+
+        <!-- Rules & Constraints Card Container -->
+        <section id="rulesCard" class="glass-card overflow-hidden border border-indigo-500/30 transition-all">
+            <div onclick="toggleRulesVisibility()" class="p-2.5 bg-indigo-950/40 hover:bg-indigo-950/60 cursor-pointer flex items-center justify-between transition border-b border-indigo-500/20 select-none">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs">⚙️</span>
+                    <span class="text-xs font-extrabold text-indigo-200">شروط واساسيات تقسيم الفرق</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="rulesCountBadge" class="text-[10px] font-extrabold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1.5 py-0.5 rounded-md hidden">0 شرط</span>
+                    <span id="rulesToggleArrow" class="text-xs text-indigo-400 transition-transform duration-200">▼</span>
+                </div>
+            </div>
+
+            <div id="rulesListBody" class="p-2 space-y-2 hidden">
+                <!-- Sub-Card 1: Link Rules (لاعبين معاً) -->
+                <div class="bg-emerald-950/40 border border-emerald-500/50 rounded-xl p-2 space-y-1.5 shadow-sm">
+                    <div class="flex items-center gap-1.5 text-emerald-300 border-b border-emerald-500/30 pb-1">
+                        <span class="text-xs">🔗</span>
+                        <span class="text-xs font-black">لاعبين معاً (في نفس الفريق حتماً)</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <div class="relative" id="picker-container-linkP1">
+                            <input type="text" id="picker-search-linkP1" placeholder="بحث الأول..." onfocus="openCustomPicker('linkP1')" oninput="filterCustomPicker('linkP1')" class="w-full bg-slate-950 border border-emerald-500/40 rounded-lg px-2 py-1 text-xs font-bold text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400 truncate" />
+                            <input type="hidden" id="linkP1" value="" />
+                            <div id="picker-list-linkP1" class="absolute right-0 left-0 top-full mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl max-h-36 overflow-y-auto hidden z-30 p-1 space-y-0.5"></div>
+                        </div>
+                        <div class="relative" id="picker-container-linkP2">
+                            <input type="text" id="picker-search-linkP2" placeholder="بحث الثاني..." onfocus="openCustomPicker('linkP2')" oninput="filterCustomPicker('linkP2')" class="w-full bg-slate-950 border border-emerald-500/40 rounded-lg px-2 py-1 text-xs font-bold text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400 truncate" />
+                            <input type="hidden" id="linkP2" value="" />
+                            <div id="picker-list-linkP2" class="absolute right-0 left-0 top-full mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl max-h-36 overflow-y-auto hidden z-30 p-1 space-y-0.5"></div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addConstraint('link')" class="w-full py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 border border-emerald-400 text-white text-xs font-black transition shadow active:scale-[0.98]">
+                        🔗 تثبيت شرط اللعب معاً
+                    </button>
+                </div>
+
+                <!-- Sub-Card 2: Avoid Rules (لاعبين لا يلعبوا معاً) -->
+                <div class="bg-rose-950/40 border border-rose-500/50 rounded-xl p-2 space-y-1.5 shadow-sm">
+                    <div class="flex items-center gap-1.5 text-rose-300 border-b border-rose-500/30 pb-1">
+                        <span class="text-xs">❌</span>
+                        <span class="text-xs font-black">لاعبين لا يلعبوا معاً (فرق مختلفة)</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <div class="relative" id="picker-container-avoidP1">
+                            <input type="text" id="picker-search-avoidP1" placeholder="بحث الأول..." onfocus="openCustomPicker('avoidP1')" oninput="filterCustomPicker('avoidP1')" class="w-full bg-slate-950 border border-rose-500/40 rounded-lg px-2 py-1 text-xs font-bold text-white placeholder-slate-500 focus:outline-none focus:border-rose-400 truncate" />
+                            <input type="hidden" id="avoidP1" value="" />
+                            <div id="picker-list-avoidP1" class="absolute right-0 left-0 top-full mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl max-h-36 overflow-y-auto hidden z-30 p-1 space-y-0.5"></div>
+                        </div>
+                        <div class="relative" id="picker-container-avoidP2">
+                            <input type="text" id="picker-search-avoidP2" placeholder="بحث الثاني..." onfocus="openCustomPicker('avoidP2')" oninput="filterCustomPicker('avoidP2')" class="w-full bg-slate-950 border border-rose-500/40 rounded-lg px-2 py-1 text-xs font-bold text-white placeholder-slate-500 focus:outline-none focus:border-rose-400 truncate" />
+                            <input type="hidden" id="avoidP2" value="" />
+                            <div id="picker-list-avoidP2" class="absolute right-0 left-0 top-full mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl max-h-36 overflow-y-auto hidden z-30 p-1 space-y-0.5"></div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addConstraint('avoid')" class="w-full py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 border border-rose-400 text-white text-xs font-black transition shadow active:scale-[0.98]">
+                        ❌ تثبيت شرط الاستبعاد
+                    </button>
+                </div>
+
+                <!-- Active Constraints List -->
+                <div id="constraintsList" class="flex flex-wrap gap-1.5 pt-0.5"></div>
+            </div>
+        </section>
+
+        <!-- Players List Card -->
+        <section class="glass-card overflow-hidden border border-emerald-500/30 transition-all">
+            <div onclick="togglePlayersListVisibility()" class="p-2.5 bg-emerald-950/40 hover:bg-emerald-950/60 cursor-pointer flex items-center justify-between transition border-b border-emerald-500/20 select-none">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs">📋</span>
+                    <span class="text-xs font-extrabold text-emerald-200">قائمة اللاعبين</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1 text-[10px] font-extrabold flex-wrap">
+                        <span class="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-0.5" title="إجمالي اللاعبين">
+                            <span>👥</span>
+                            <span id="badgeTotalCount">0</span>
+                        </span>
+                        <span class="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-0.5" title="رؤوس المجموعات (الكباتن)">
+                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <rect x="2" y="5" width="20" height="14" rx="4" fill="#f59e0b" fill-opacity="0.25" stroke="#fbbf24" stroke-width="1.8"/>
+                                <path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"/>
+                            </svg>
+                            <span id="badgeCapCount">0</span>
+                        </span>
+                        <span class="px-1.5 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 flex items-center gap-0.5" title="حراس المرمى">
+                            <span>🧤</span>
+                            <span id="badgeGkCount">0</span>
+                        </span>
+                        <span class="px-1.5 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-0.5" title="اللاعبين الجامدين">
+                            <span>⚡</span>
+                            <span id="badgeProCount">0</span>
+                        </span>
+                    </div>
+                    <span id="rosterToggleArrow" class="text-xs text-emerald-400 transition-transform duration-200 rotate-180">▼</span>
+                </div>
+            </div>
+
+            <div id="playersListBody" class="p-2.5 space-y-2">
+                <!-- 50/50 Equal Action Buttons -->
+                <div class="grid grid-cols-2 gap-2 pb-1.5 border-b border-slate-800/80">
+                    <button type="button" onclick="openRandomNamesModal()" class="py-1.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-xs font-extrabold transition flex items-center justify-center gap-1">
+                        <span>🎲</span>
+                        <span>أسماء عشوائية</span>
+                    </button>
+                    <button type="button" onclick="clearAllPlayers()" class="py-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 text-xs font-extrabold transition flex items-center justify-center gap-1">
+                        <span>🗑️</span>
+                        <span>مسح الكل</span>
+                    </button>
+                </div>
+
+                <div id="playersContainer" class="space-y-1 max-h-72 overflow-y-auto pr-0.5">
+                    <p class="text-center text-xs text-slate-500 py-5">لا يوجد لاعبين .. قم بإضافة لاعبين</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Generate Draw Interactive Card -->
+        <section class="glass-card overflow-hidden border border-emerald-500/40 shadow-lg transition-all">
+            <button type="button" onclick="toggleDrawPanel()" class="w-full py-2 px-3 font-black text-xs btn-active flex items-center justify-between active:scale-[0.99] transition select-none">
+                <span class="flex items-center gap-1.5">
+                    <span>🎲</span>
+                    <span>اعمل القرعة وقسّم الفرق</span>
+                </span>
+                <span id="drawPanelArrow" class="text-[11px] transition-transform duration-200 rotate-180">▼</span>
+            </button>
+
+            <div id="drawPanelBody" class="p-2 space-y-1.5 bg-slate-900/75 border-t border-emerald-500/20">
+                <!-- Row 1: Team Count + Single Draw -->
+                <div class="grid grid-cols-12 gap-1.5">
+                    <!-- 1. Team Count Rectangular Bar -->
+                    <div class="col-span-7 h-9 px-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-between gap-1 select-none">
+                        <div class="flex items-center gap-1 min-w-0">
+                            <span class="text-xs shrink-0">🔢</span>
+                            <span class="text-[11px] font-extrabold text-cyan-100 truncate">عدد الفرق</span>
+                        </div>
+                        <div dir="ltr" class="flex items-center gap-0.5 bg-slate-950/90 p-0.5 rounded-md border border-cyan-500/30 shrink-0">
+                            <button type="button" id="btnDecTeam" onclick="changeTeamCount(-1)" aria-label="تقليل عدد الفرق" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-cyan-300 font-black text-xs flex items-center justify-center transition disabled:opacity-35 disabled:pointer-events-none">
+                                −
+                            </button>
+                            <span id="teamCountDisplay" class="w-6 text-center text-xs font-black text-white tabular-nums">3</span>
+                            <button type="button" id="btnIncTeam" onclick="changeTeamCount(1)" aria-label="زيادة عدد الفرق" class="w-5 h-5 rounded bg-cyan-500/20 hover:bg-cyan-500/30 active:scale-95 border border-cyan-500/40 text-cyan-300 font-black text-xs flex items-center justify-center transition disabled:opacity-35 disabled:pointer-events-none">
+                                +
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Single Draw Rectangular Button -->
+                    <button type="button" id="btnDrawOnce" onclick="generateTeams()" class="col-span-5 h-9 px-2 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/45 text-emerald-200 font-extrabold text-[11px] flex items-center justify-center gap-1 transition active:scale-[0.98] shadow-sm disabled:opacity-50">
+                        <span class="text-xs shrink-0">🎯</span>
+                        <span class="truncate">قسّم مرة واحدة</span>
+                    </button>
+                </div>
+
+                <!-- Row 2: Multi Draw + Clear Divisions -->
+                <div class="grid grid-cols-12 gap-1.5">
+                    <!-- 3. Multi Draw Rectangular Bar with Embedded Counter -->
+                    <div class="col-span-7 h-9 px-2 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-400/40 flex items-center justify-between gap-1 shadow-sm transition select-none">
+                        <button type="button" id="btnDrawMulti" onclick="generateTeamsMultiple()" class="flex-1 h-full text-indigo-200 font-extrabold text-[11px] flex items-center justify-start gap-1 active:scale-[0.98] transition disabled:opacity-50 min-w-0">
+                            <span class="text-xs shrink-0">🔁</span>
+                            <span id="btnDrawMultiText" class="truncate">قسّم أكتر من مرة</span>
+                        </button>
+
+                        <!-- Compact Inline Counter: Unified Minus & Plus Controls -->
+                        <div dir="ltr" onclick="event.stopPropagation()" class="flex items-center gap-0.5 bg-slate-950/90 p-0.5 rounded-md border border-indigo-400/30 shrink-0">
+                            <button type="button" id="btnDecMulti" onclick="changeMultiDrawCount(-1)" aria-label="تقليل عدد المرات" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-indigo-300 font-black text-xs flex items-center justify-center transition disabled:opacity-35 disabled:pointer-events-none">
+                                −
+                            </button>
+                            <input type="number" id="multiDrawCountInput" value="3" min="2" max="20" oninput="syncMultiDrawInput(this)" onblur="finalizeMultiDrawInput(this)" aria-label="عدد المرات" class="w-6 h-5 bg-transparent rounded text-center text-xs font-black text-white tabular-nums focus:outline-none focus:bg-slate-900" />
+                            <button type="button" id="btnIncMulti" onclick="changeMultiDrawCount(1)" aria-label="زيادة عدد المرات" class="w-5 h-5 rounded bg-indigo-500/25 hover:bg-indigo-500/40 active:scale-95 border border-indigo-400/40 text-indigo-200 font-black text-xs flex items-center justify-center transition disabled:opacity-35 disabled:pointer-events-none">
+                                +
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4. Clear Divisions Rectangular Button -->
+                    <button type="button" id="btnClearDraw" onclick="clearGeneratedTeams()" class="col-span-5 h-9 px-2 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/35 text-rose-300 font-extrabold text-[11px] flex items-center justify-center gap-1 transition active:scale-[0.98] disabled:opacity-50">
+                        <span class="text-xs shrink-0">🧹</span>
+                        <span class="truncate">مسح التقسيمات</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Generated Teams Result Section -->
+        <section id="resultWrapper" class="hidden space-y-2.5 pt-1">
+            <div id="captureArea" class="pro-card-bg rounded-2xl p-2.5 space-y-2.5 shadow-2xl">
+                <div class="flex items-center justify-between border-b border-emerald-500/20 pb-2">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-sm">⚽</span>
+                        <h2 class="text-sm font-black text-white">تقسيمة المجموعات</h2>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" id="singleDrawCopyBtn" data-html2canvas-ignore="true" onclick="copyDrawToClipboard(0)" class="hidden px-2 py-0.5 rounded-full bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-500/40 text-emerald-200 text-[10px] font-extrabold flex items-center gap-1 transition active:scale-95">
+                            <span>📋</span>
+                            <span>نسخ</span>
+                        </button>
+                        <span id="resultHeaderBadge" class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"></span>
+                    </div>
+                </div>
+
+                <!-- Teams Divisions Output Container -->
+                <div id="teamsOutputGrid" class="space-y-2.5"></div>
+
+                <!-- Minimal Match Rules Box -->
+                <div class="rounded-xl bg-slate-950/75 border border-slate-700/60 p-2.5 space-y-1.5">
+                    <div class="flex items-center gap-1.5 pb-1 border-b border-slate-800/90">
+                        <span class="w-1 h-3.5 rounded-full bg-emerald-400"></span>
+                        <span class="text-[11px] font-black text-emerald-300">نظام اللعب</span>
+                    </div>
+                    <div class="space-y-1 text-[11px] font-bold text-slate-200">
+                        <p>⏱️ الماتش 15 دقيقة أو تسجيل 3 أهداف</p>
+                        <p>🎯 في حالة التعادل لعب ضربتين جزاء</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons Under Result -->
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="saveImgBtn" onclick="downloadResultImage()" class="py-2 px-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.98] shadow-md disabled:opacity-50">
+                    <span>📸</span>
+                    <span>حفظ كصورة</span>
+                </button>
+                <button type="button" onclick="recordDrawVideo()" class="py-2 px-2.5 rounded-xl bg-indigo-500/25 hover:bg-indigo-500/35 border border-indigo-400/50 text-indigo-100 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.98] shadow-md disabled:opacity-50">
+                    <span>🎬</span>
+                    <span>تسجيل فيديو</span>
+                </button>
+                <button type="button" id="redrawBtn" onclick="regenerateTeams()" class="py-2 px-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/45 text-amber-200 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.98] disabled:opacity-50">
+                    <span>🔄</span>
+                    <span>إعادة التقسيم</span>
+                </button>
+                <button type="button" onclick="clearGeneratedTeams()" class="py-2 px-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/40 text-rose-300 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.98]">
+                    <span>🧹</span>
+                    <span>مسح التقسيمات</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Designer Signature Footer -->
+        <footer class="pt-4 pb-1 text-center select-none">
+            <span class="signature-font text-xs text-slate-400/55">تطبيق من تصميم الموجي</span>
+        </footer>
+
+    </div>
+
+    <!-- Video Recording Preview Modal -->
+    <div id="videoRecordModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+        <div class="bg-slate-900 border border-indigo-500/40 rounded-2xl p-3 max-w-sm w-full space-y-2.5 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div class="flex items-center gap-1.5">
+                    <span id="videoRecDot" class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                    <h3 id="videoModalTitle" class="text-xs font-black text-white">جاري تسجيل فيديو القرعة...</h3>
+                </div>
+                <button type="button" onclick="closeVideoModal()" class="text-slate-400 hover:text-white text-xs px-1">✕</button>
+            </div>
+
+            <div class="relative rounded-xl overflow-hidden border border-slate-700/80 bg-slate-950 flex items-center justify-center">
+                <canvas id="drawVideoCanvas" class="w-full h-auto max-h-[62vh] object-contain block"></canvas>
+            </div>
+
+            <div class="space-y-1.5">
+                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div id="videoProgressBar" class="h-full bg-gradient-to-r from-emerald-400 to-indigo-400 transition-all duration-100" style="width: 0%"></div>
+                </div>
+                <p id="videoStatusText" class="text-[11px] font-bold text-slate-300 text-center">جاري تجهيز العرض الحماسي للقرعة...</p>
+            </div>
+
+            <div class="flex items-center gap-2 pt-0.5">
+                <button type="button" id="videoDownloadAgainBtn" onclick="triggerVideoDownload()" class="hidden flex-1 py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs transition active:scale-[0.98]">
+                    💾 حفظ الفيديو
+                </button>
+                <button type="button" onclick="closeVideoModal()" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition">
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom In-App Alert / Confirm Modal -->
+    <div id="customModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+        <div class="bg-slate-900 border border-slate-700 rounded-xl p-3.5 max-w-sm w-full space-y-2.5 shadow-2xl text-center">
+            <div id="modalIcon" class="text-2xl">⚠️</div>
+            <h3 id="modalTitle" class="text-xs font-extrabold text-white">تأكيد العمل</h3>
+            <p id="modalMessage" class="text-xs font-bold text-slate-300 leading-relaxed"></p>
+            <div class="flex items-center justify-center gap-2 pt-1">
+                <button type="button" id="modalConfirmBtn" class="py-1.5 px-3.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs transition">تأكيد</button>
+                <button type="button" id="modalCancelBtn" class="py-1.5 px-3.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Edit Player Modal -->
+    <div id="editPlayerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+        <div class="bg-slate-900 border border-slate-700 rounded-xl p-3.5 max-w-sm w-full space-y-3 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+                <h3 class="text-xs font-black text-white flex items-center gap-1">
+                    <span>✏️</span>
+                    <span>تعديل بيانات اللاعب</span>
+                </h3>
+                <button type="button" onclick="closeEditPlayerModal()" class="text-slate-400 hover:text-white text-xs">✕</button>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-extrabold text-slate-300 mb-1">اسم اللاعب</label>
+                <input type="text" id="editPlayerNameInput" onkeypress="if(event.key==='Enter') saveEditedPlayer()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-emerald-500" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" onclick="toggleEditRole('isGk')" id="editGkBtn" class="py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-950 flex items-center justify-between text-xs font-extrabold text-slate-400 transition">
+                    <span>🧤 حارس مرمى</span>
+                    <span id="editGkCheck" class="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center text-[9px]"></span>
+                </button>
+                <button type="button" onclick="toggleEditRole('isCap')" id="editCapBtn" class="py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-950 flex items-center justify-between text-xs font-extrabold text-slate-400 transition">
+                    <span class="flex items-center gap-1.5">
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <rect x="2" y="5" width="20" height="14" rx="4" fill="#f59e0b" fill-opacity="0.2" stroke="#fbbf24" stroke-width="1.8"/>
+                            <path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"/>
+                        </svg>
+                        <span>رأس مجموعة</span>
+                    </span>
+                    <span id="editCapCheck" class="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center text-[9px]"></span>
+                </button>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-extrabold text-slate-300 mb-1">مستوى المهارة</label>
+                <div class="grid grid-cols-2 gap-1.5">
+                    <button type="button" onclick="setEditSkill(1)" id="edit-skill-1" class="py-1.5 rounded-lg text-xs font-extrabold border border-emerald-500 bg-emerald-500/20 text-emerald-300">🔥 لعّيب</button>
+                    <button type="button" onclick="setEditSkill(2)" id="edit-skill-2" class="py-1.5 rounded-lg text-xs font-extrabold border border-slate-700 bg-slate-950 text-slate-400">⚡ جامد</button>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-800">
+                <button type="button" onclick="closeEditPlayerModal()" class="py-1.5 px-3 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold">إلغاء</button>
+                <button type="button" onclick="saveEditedPlayer()" class="py-1.5 px-4 rounded-lg bg-emerald-500 text-slate-950 font-black text-xs">حفظ التغييرات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Random Names Modal -->
+    <div id="randomNamesModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-2xl p-3.5 max-w-[320px] w-full space-y-3 shadow-2xl">
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800/90">
+                <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-lg bg-indigo-500/20 border border-indigo-500/35 flex items-center justify-center text-sm">🎲</span>
+                    <h3 class="text-xs font-black text-white">توليد أسماء عشوائية</h3>
+                </div>
+                <button type="button" onclick="closeRandomNamesModal()" aria-label="إغلاق" class="w-7 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white text-xs flex items-center justify-center transition active:scale-95">✕</button>
+            </div>
+
+            <!-- Centered Tactile Counter -->
+            <div dir="ltr" class="flex items-center justify-between gap-2 p-2 rounded-2xl bg-slate-950/80 border border-slate-800">
+                <button type="button" id="btnDecRandom" onclick="changeRandomCount(-1)" aria-label="تقليل العدد" class="w-11 h-11 rounded-xl bg-slate-800/90 hover:bg-slate-700 active:scale-95 border border-slate-700/90 text-slate-200 font-black text-lg flex items-center justify-center transition disabled:opacity-30 disabled:pointer-events-none">
+                    −
+                </button>
+                <div dir="rtl" class="flex-1 flex flex-col items-center justify-center leading-none">
+                    <input type="number" id="randomCountInput" value="15" min="2" max="30" oninput="updateRandomStepperState()" onblur="setRandomCountInput(this.value)" aria-label="عدد اللاعبين" class="w-16 h-8 bg-transparent rounded-lg text-2xl font-black text-white text-center tabular-nums focus:outline-none focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500/60 transition" />
+                    <span class="text-[10px] font-extrabold text-slate-400 mt-0.5 select-none">لاعب</span>
+                </div>
+                <button type="button" id="btnIncRandom" onclick="changeRandomCount(1)" aria-label="زيادة العدد" class="w-11 h-11 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 active:scale-95 border border-emerald-500/40 text-emerald-300 font-black text-lg flex items-center justify-center transition disabled:opacity-30 disabled:pointer-events-none">
+                    +
+                </button>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="generateRandomPlayersAction(false)" class="py-2.5 px-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/50 text-indigo-200 font-extrabold text-xs flex items-center justify-center gap-1 transition active:scale-[0.98]">
+                    <span>➕</span>
+                    <span>إضافة للقائمة</span>
+                </button>
+                <button type="button" onclick="generateRandomPlayersAction(true)" class="py-2.5 px-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs flex items-center justify-center gap-1 transition active:scale-[0.98] shadow-md">
+                    <span>🔄</span>
+                    <span>استبدال القائمة</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Application state persisted in localStorage
+    let players = JSON.parse(localStorage.getItem('fives_players_v14') || '[]');
+    let constraints = JSON.parse(localStorage.getItem('fives_constraints_v14') || '[]');
+    let teamCount = parseInt(localStorage.getItem('fives_teamCount_v14') || '3', 10);
+    let selectedSkill = 1;
+    let activeTab = 'single';
+    let isRosterVisible = true;
+    let isRulesVisible = false;
+    let isDrawPanelVisible = true;
+    let isMultiDrawing = false;
+    let multiDrawCount = 3;
+    let allGeneratedDraws = [];
+    let singleRoleState = { isGk: false, isCap: false };
+
+    // Reusable football captain armband ("C") SVG icons
+    const CAPTAIN_ICON_SVG = `<svg class="w-3.5 h-3.5 inline-block shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4" fill="currentColor" fill-opacity="0.18" stroke="currentColor" stroke-width="2"/><path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>`;
+    const CAPTAIN_BADGE_SOLID_SVG = `<svg class="w-4 h-4 inline-block shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4" fill="#f59e0b" stroke="#fef3c7" stroke-width="1.4"/><path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+
+    let editingPlayerId = null;
+    let tempEditState = { skill: 1, isGk: false, isCap: false };
+
+    const pickerKeys = ['linkP1', 'linkP2', 'avoidP1', 'avoidP2'];
+    const teamNames = [
+        'الفريق الأول', 'الفريق الثاني', 'الفريق الثالث', 'الفريق الرابع',
+        'الفريق الخامس', 'الفريق السادس', 'الفريق السابع', 'الفريق الثامن'
+    ];
+
+    const arabicSampleNames = [
+        'أحمد الموجي', 'حسام عبد المجيد', 'محمد الشناوي', 'محمد هاني', 'مصطفى شوبير',
+        'عمرو السولية', 'محمود كهربا', 'حسين الشحات', 'محمد عبد المنعم', 'أكرم توفيق',
+        'سيف الجزيري', 'صلاح محسن', 'مصطفى محمد', 'مروان عطية', 'إبراهيم عادل',
+        'عمر مرموش', 'كريم فؤاد', 'إمام عاشور', 'زياد طارق', 'أحمد سيد زيزو',
+        'طاهر محمد طاهر', 'يوسف أوباما', 'أحمد فتوح', 'ناصر ماهر', 'عبد الله السعيد',
+        'عمر كمال', 'رامي ربيعة', 'أحمد حجازي', 'طارق حامد', 'محمود تريزيجيه'
+    ];
+
+    function saveData() {
+        try {
+            localStorage.setItem('fives_players_v14', JSON.stringify(players));
+            localStorage.setItem('fives_constraints_v14', JSON.stringify(constraints));
+            localStorage.setItem('fives_teamCount_v14', String(teamCount));
+        } catch (e) { console.error(e); }
+    }
+
+    // Safely escape user-entered text before injecting into HTML templates
+    function escapeHtml(str) {
+        return String(str ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // Collect all player IDs transitively linked together via 'link' constraints
+    function getLinkedGroupIds(startId, extraLink = null) {
+        const links = constraints.filter(c => c.type === 'link');
+        if (extraLink) links.push(extraLink);
+        const visited = new Set([startId]);
+        const queue = [startId];
+        while (queue.length) {
+            const cur = queue.shift();
+            for (const l of links) {
+                if (l.p1 === cur && !visited.has(l.p2)) {
+                    visited.add(l.p2);
+                    queue.push(l.p2);
+                } else if (l.p2 === cur && !visited.has(l.p1)) {
+                    visited.add(l.p1);
+                    queue.push(l.p1);
+                }
+            }
+        }
+        return visited;
+    }
+
+    function showToast(msg, icon = 'ℹ️', duration = 3000) {
+        try {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'bg-slate-900/95 border border-amber-500/40 text-amber-200 px-3 py-2 rounded-xl text-xs font-extrabold shadow-2xl flex items-center gap-2 transition-all duration-300 opacity-0 translate-y-[-10px] pointer-events-auto backdrop-blur-md';
+            toast.innerHTML = `<span>${icon}</span><span class="truncate">${escapeHtml(msg)}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('opacity-0', 'translate-y-[-10px]'), 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        } catch (e) { console.error(e); }
+    }
+
+    function openModal({ icon, title, msg, confirmText, showCancel, onConfirm }) {
+        try {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalIcon').textContent = icon;
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = msg;
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+            const cancelBtn = document.getElementById('modalCancelBtn');
+
+            const close = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            };
+
+            confirmBtn.textContent = confirmText;
+            cancelBtn.classList.toggle('hidden', !showCancel);
+            confirmBtn.onclick = () => { close(); if (onConfirm) onConfirm(); };
+            cancelBtn.onclick = close;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        } catch (e) { console.error(e); }
+    }
+
+    function showAlert(msg, icon = 'ℹ️') {
+        openModal({ icon, title: 'تنبيه', msg, confirmText: 'حسناً', showCancel: false });
+    }
+
+    function showConfirm(msg, onConfirm) {
+        openModal({ icon: '🗑️', title: 'تأكيد العمل', msg, confirmText: 'تأكيد المسح', showCancel: true, onConfirm });
+    }
+
+    // Team count stepper controls (2 to 8)
+    function setTeamCount(count) {
+        const clamped = Math.min(8, Math.max(2, parseInt(count, 10) || 3));
+        teamCount = clamped;
+        const display = document.getElementById('teamCountDisplay');
+        const btnDec = document.getElementById('btnDecTeam');
+        const btnInc = document.getElementById('btnIncTeam');
+        if (display) display.textContent = clamped;
+        if (btnDec) btnDec.disabled = clamped <= 2;
+        if (btnInc) btnInc.disabled = clamped >= 8;
+        saveData();
+    }
+
+    function changeTeamCount(delta) {
+        setTeamCount(teamCount + delta);
+    }
+
+    // Tabs for Single vs Bulk player add (click active tab again to collapse)
+    function toggleSection(tab) {
+        activeTab = activeTab === tab ? null : tab;
+        updateTabStyles();
+    }
+
+    function updateTabStyles() {
+        const base = 'glass-card py-2 px-2.5 flex items-center justify-center gap-1.5 font-extrabold text-xs transition select-none';
+        const inactive = `${base} text-slate-300 hover:bg-slate-800/80`;
+
+        document.getElementById('panel-single')?.classList.toggle('hidden', activeTab !== 'single');
+        document.getElementById('panel-bulk')?.classList.toggle('hidden', activeTab !== 'bulk');
+
+        const singleBtn = document.getElementById('btn-tab-single');
+        const bulkBtn = document.getElementById('btn-tab-bulk');
+        if (singleBtn) singleBtn.className = activeTab === 'single' ? `${base} border border-emerald-500/50 bg-emerald-500/10 text-emerald-300` : inactive;
+        if (bulkBtn) bulkBtn.className = activeTab === 'bulk' ? `${base} border border-amber-500/50 bg-amber-500/10 text-amber-300` : inactive;
+    }
+
+    // Shared style helpers for role & skill toggle buttons
+    function applyRoleBtnStyle(btnId, checkId, active, tone, idleBg) {
+        const btn = document.getElementById(btnId);
+        const check = document.getElementById(checkId);
+        if (!btn || !check) return;
+
+        if (active) {
+            const activeColors = tone === 'sky'
+                ? 'border-sky-400 bg-sky-500/20 text-sky-300'
+                : 'border-amber-400 bg-amber-500/20 text-amber-300';
+            const checkBg = tone === 'sky' ? 'bg-sky-400' : 'bg-amber-400';
+            btn.className = `py-1.5 px-2 rounded-lg border ${activeColors} flex items-center justify-between text-xs font-extrabold transition`;
+            check.className = `w-3.5 h-3.5 rounded-full ${checkBg} text-slate-950 font-black flex items-center justify-center text-[9px]`;
+            check.textContent = '✓';
+        } else {
+            btn.className = `py-1.5 px-2 rounded-lg border border-slate-700 ${idleBg} flex items-center justify-between text-xs font-extrabold text-slate-400 transition hover:border-slate-600`;
+            check.className = 'w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center text-[9px]';
+            check.textContent = '';
+        }
+    }
+
+    function applySkillBtnsStyle(btn1Id, btn2Id, level, idleBg) {
+        const btn1 = document.getElementById(btn1Id);
+        const btn2 = document.getElementById(btn2Id);
+        if (!btn1 || !btn2) return;
+        const idle = `py-1.5 rounded-lg text-xs font-extrabold border border-slate-700 ${idleBg} text-slate-400 transition`;
+        btn1.className = level === 1
+            ? 'py-1.5 rounded-lg text-xs font-extrabold border border-emerald-500 bg-emerald-500/20 text-emerald-300 transition shadow-sm'
+            : idle;
+        btn2.className = level === 2
+            ? 'py-1.5 rounded-lg text-xs font-extrabold border border-amber-500 bg-amber-500/20 text-amber-300 transition shadow-sm'
+            : idle;
+    }
+
+    // Role and skill toggles in Single Add form
+    function toggleRoleInput(role) {
+        singleRoleState[role] = !singleRoleState[role];
+        updateRoleButtons();
+    }
+
+    function updateRoleButtons() {
+        applyRoleBtnStyle('gkRoleBtn', 'gkRoleCheck', singleRoleState.isGk, 'sky', 'bg-slate-900/80');
+        applyRoleBtnStyle('capRoleBtn', 'capRoleCheck', singleRoleState.isCap, 'amber', 'bg-slate-900/80');
+    }
+
+    function selectSkill(level) {
+        selectedSkill = level;
+        applySkillBtnsStyle('skill-btn-1', 'skill-btn-2', level, 'bg-slate-900/80');
+    }
+
+    function addSinglePlayer() {
+        const nameInput = document.getElementById('playerNameInput');
+        const name = (nameInput?.value || '').trim();
+        if (!name) {
+            showToast('اكتب اسم اللاعب الأول!', '⚠️');
+            nameInput?.focus();
+            return;
+        }
+
+        const { isGk, isCap } = singleRoleState;
+
+        if (isCap) {
+            const currentCaps = players.filter(p => p.isCap).length;
+            if (currentCaps >= teamCount) {
+                showToast(`الحد الأقصى لرؤوس المجموعات هو ${teamCount} (بعدَد الفرق)!`, '⚠️');
+                return;
+            }
+        }
+
+        players.push({
+            id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+            name,
+            skill: selectedSkill,
+            isGk,
+            isCap
+        });
+
+        nameInput.value = '';
+        singleRoleState = { isGk: false, isCap: false };
+        updateRoleButtons();
+        saveData();
+        renderPlayers();
+        showToast(`تمت إضافة "${name}" بنجاح`, '✅', 2000);
+        nameInput.focus();
+    }
+
+    function updateBulkCount(textarea) {
+        const lines = (textarea.value || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const badge = document.getElementById('bulkLineCountBadge');
+        if (badge) badge.textContent = `${lines.length} اسم`;
+    }
+
+    function addBulkPlayers() {
+        const textarea = document.getElementById('bulkNamesInput');
+        const lines = (textarea?.value || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        if (!lines.length) {
+            showToast('اكتب أو الصق أسماء اللاعبين أولاً!', '⚠️');
+            return;
+        }
+
+        lines.forEach((name, idx) => {
+            players.push({
+                id: 'p_' + Date.now() + '_' + idx + '_' + Math.random().toString(36).slice(2, 6),
+                name,
+                skill: 1,
+                isGk: false,
+                isCap: false
+            });
+        });
+
+        textarea.value = '';
+        updateBulkCount(textarea);
+        saveData();
+        renderPlayers();
+        showToast(`تمت إضافة ${lines.length} لاعب بنجاح! ⚡`, '✅');
+    }
+
+    function removePlayer(id) {
+        players = players.filter(p => p.id !== id);
+        constraints = constraints.filter(c => c.p1 !== id && c.p2 !== id);
+        saveData();
+        renderPlayers();
+    }
+
+    function togglePlayerProp(id, prop) {
+        const player = players.find(p => p.id === id);
+        if (!player) return;
+
+        if (prop === 'skill') {
+            player.skill = player.skill === 2 ? 1 : 2;
+        } else if (prop === 'isCap') {
+            if (!player.isCap) {
+                const currentCaps = players.filter(p => p.isCap).length;
+                if (currentCaps >= teamCount) {
+                    showToast(`الحد الأقصى لرؤوس المجموعات هو ${teamCount} (بعدَد الفرق)!`, '⚠️');
+                    return;
+                }
+                const linkedIds = getLinkedGroupIds(id);
+                const linkedCap = players.find(p => p.id !== id && linkedIds.has(p.id) && p.isCap);
+                if (linkedCap) {
+                    showToast(`مينفعش يكون كابتن لأنه مرتبط في نفس الفريق مع الكابتن "${linkedCap.name}"!`, '⚠️');
+                    return;
+                }
+            }
+            player.isCap = !player.isCap;
+        } else if (prop === 'isGk') {
+            if (!player.isGk) {
+                const linkedIds = getLinkedGroupIds(id);
+                const linkedGk = players.find(p => p.id !== id && linkedIds.has(p.id) && p.isGk);
+                if (linkedGk) {
+                    showToast(`مينفعش يكون حارس لأنه مرتبط في نفس الفريق مع الحارس "${linkedGk.name}"!`, '⚠️');
+                    return;
+                }
+            }
+            player.isGk = !player.isGk;
+        }
+
+        saveData();
+        renderPlayers();
+    }
+
+    function clearAllPlayers() {
+        if (!players.length && !constraints.length) {
+            showToast('القائمة فارغة بالفعل!', 'ℹ️');
+            return;
+        }
+        showConfirm('هل أنت متأكد من مسح جميع اللاعبين والشروط والبدء من جديد؟', () => {
+            players = [];
+            constraints = [];
+            allGeneratedDraws = [];
+            document.getElementById('resultWrapper')?.classList.add('hidden');
+            saveData();
+            renderPlayers();
+            showToast('تم مسح القائمة بالكامل', '🗑️');
+        });
+    }
+
+    // Edit Player Modal handlers
+    function openEditPlayerModal(id) {
+        const player = players.find(p => p.id === id);
+        if (!player) return;
+        editingPlayerId = id;
+        tempEditState = { skill: player.skill, isGk: player.isGk, isCap: player.isCap };
+
+        const nameInput = document.getElementById('editPlayerNameInput');
+        if (nameInput) nameInput.value = player.name;
+
+        updateEditModalUI();
+        const modal = document.getElementById('editPlayerModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeEditPlayerModal() {
+        editingPlayerId = null;
+        const modal = document.getElementById('editPlayerModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function toggleEditRole(role) {
+        if (role === 'isCap' && !tempEditState.isCap) {
+            const otherCaps = players.filter(p => p.isCap && p.id !== editingPlayerId).length;
+            if (otherCaps >= teamCount) {
+                showToast(`الحد الأقصى لرؤوس المجموعات هو ${teamCount}!`, '⚠️');
+                return;
+            }
+            const linkedIds = getLinkedGroupIds(editingPlayerId);
+            const linkedCap = players.find(p => p.id !== editingPlayerId && linkedIds.has(p.id) && p.isCap);
+            if (linkedCap) {
+                showToast(`مينفعش يكون كابتن لأنه مرتبط مع الكابتن "${linkedCap.name}"!`, '⚠️');
+                return;
+            }
+        }
+        if (role === 'isGk' && !tempEditState.isGk) {
+            const linkedIds = getLinkedGroupIds(editingPlayerId);
+            const linkedGk = players.find(p => p.id !== editingPlayerId && linkedIds.has(p.id) && p.isGk);
+            if (linkedGk) {
+                showToast(`مينفعش يكون حارس لأنه مرتبط مع الحارس "${linkedGk.name}"!`, '⚠️');
+                return;
+            }
+        }
+        tempEditState[role] = !tempEditState[role];
+        updateEditModalUI();
+    }
+
+    function setEditSkill(level) {
+        tempEditState.skill = level;
+        updateEditModalUI();
+    }
+
+    function updateEditModalUI() {
+        applyRoleBtnStyle('editGkBtn', 'editGkCheck', tempEditState.isGk, 'sky', 'bg-slate-950');
+        applyRoleBtnStyle('editCapBtn', 'editCapCheck', tempEditState.isCap, 'amber', 'bg-slate-950');
+        applySkillBtnsStyle('edit-skill-1', 'edit-skill-2', tempEditState.skill, 'bg-slate-950');
+    }
+
+    function saveEditedPlayer() {
+        const player = players.find(p => p.id === editingPlayerId);
+        if (!player) return;
+        const newName = (document.getElementById('editPlayerNameInput')?.value || '').trim();
+        if (!newName) {
+            showToast('اسم اللاعب مينفعش يكون فاضي!', '⚠️');
+            return;
+        }
+        player.name = newName;
+        player.skill = tempEditState.skill;
+        player.isGk = tempEditState.isGk;
+        player.isCap = tempEditState.isCap;
+
+        saveData();
+        renderPlayers();
+        closeEditPlayerModal();
+        showToast('تم تحديث بيانات اللاعب', '✅', 2000);
+    }
+
+    // Random Names Modal handlers
+    function openRandomNamesModal() {
+        const modal = document.getElementById('randomNamesModal');
+        updateRandomStepperState();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeRandomNamesModal() {
+        const modal = document.getElementById('randomNamesModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function setRandomCountInput(num) {
+        const clamped = Math.min(30, Math.max(2, parseInt(num, 10) || 15));
+        const input = document.getElementById('randomCountInput');
+        if (input) input.value = clamped;
+        updateRandomStepperState();
+    }
+
+    function changeRandomCount(delta) {
+        const current = parseInt(document.getElementById('randomCountInput')?.value || '15', 10);
+        setRandomCountInput(current + delta);
+    }
+
+    function updateRandomStepperState() {
+        const val = parseInt(document.getElementById('randomCountInput')?.value || '15', 10);
+        const btnDec = document.getElementById('btnDecRandom');
+        const btnInc = document.getElementById('btnIncRandom');
+        if (btnDec) btnDec.disabled = val <= 2;
+        if (btnInc) btnInc.disabled = val >= 30;
+    }
+
+    function generateRandomPlayersAction(replaceCurrent) {
+        const count = Math.min(30, Math.max(2, parseInt(document.getElementById('randomCountInput')?.value || '15', 10)));
+        const shuffledNames = shuffle(arabicSampleNames);
+
+        if (replaceCurrent) {
+            players = [];
+            constraints = [];
+        }
+
+        for (let i = 0; i < count; i++) {
+            const baseName = shuffledNames[i % shuffledNames.length];
+            const suffix = i >= shuffledNames.length ? ` ${Math.floor(i / shuffledNames.length) + 1}` : '';
+            players.push({
+                id: 'p_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2, 6),
+                name: baseName + suffix,
+                skill: Math.random() < 0.35 ? 2 : 1,
+                isGk: false,
+                isCap: false
+            });
+        }
+
+        saveData();
+        renderPlayers();
+        closeRandomNamesModal();
+        showToast(`تم توليد ${count} لاعب عشوائي بنجاح! 🎲`, '✅');
+    }
+
+    // Custom searchable pickers for rules
+    function openCustomPicker(key) {
+        try {
+            pickerKeys.forEach(k => {
+                if (k !== key) document.getElementById(`picker-list-${k}`)?.classList.add('hidden');
+            });
+            const list = document.getElementById(`picker-list-${key}`);
+            if (list) {
+                filterCustomPicker(key);
+                list.classList.remove('hidden');
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    function filterCustomPicker(key) {
+        try {
+            const searchInput = document.getElementById(`picker-search-${key}`);
+            const hiddenInput = document.getElementById(key);
+            const rawSearch = (searchInput?.value || '').trim();
+            const searchVal = rawSearch.toLowerCase();
+            const list = document.getElementById(`picker-list-${key}`);
+            if (!list) return;
+
+            // Clear stale selection if user edited or erased the search text
+            if (hiddenInput && hiddenInput.value) {
+                const selectedPlayer = players.find(p => p.id === hiddenInput.value);
+                if (!selectedPlayer || selectedPlayer.name.trim() !== rawSearch) {
+                    hiddenInput.value = '';
+                }
+            }
+
+            const selectedVal = hiddenInput?.value;
+            const filtered = players.filter(p => p.name.toLowerCase().includes(searchVal));
+
+            if (!filtered.length) {
+                list.innerHTML = `<div class="text-[11px] text-slate-500 text-center py-1.5">لا يوجد لاعب مطابق</div>`;
+                return;
+            }
+
+            list.innerHTML = filtered.map(p => {
+                const isSelected = p.id === selectedVal;
+                const roleBadge = p.isCap
+                    ? `<span class="text-amber-400 inline-flex items-center" title="كابتن رأس مجموعة">${CAPTAIN_ICON_SVG}</span>`
+                    : p.isGk ? '🧤' : (p.skill === 2 ? '⚡' : '🔥');
+                return `
+                <div onclick="selectPickerPlayer('${key}', '${p.id}')" class="px-2 py-1 rounded cursor-pointer text-xs font-bold flex items-center justify-between hover:bg-slate-800 transition ${isSelected ? 'bg-emerald-500/20 text-emerald-300' : 'text-slate-200'}">
+                    <span class="truncate">${escapeHtml(p.name)}</span>
+                    <span class="text-[10px] opacity-90 flex items-center">${roleBadge}</span>
+                </div>
+                `;
+            }).join('');
+        } catch (e) { console.error(e); }
+    }
+
+    function selectPickerPlayer(key, playerId) {
+        try {
+            const p = players.find(x => x.id === playerId);
+            if (!p) return;
+
+            const otherKey = key === 'linkP1' ? 'linkP2' : key === 'linkP2' ? 'linkP1' : key === 'avoidP1' ? 'avoidP2' : 'avoidP1';
+            const otherVal = document.getElementById(otherKey)?.value;
+            if (otherVal && otherVal === playerId) {
+                showToast('مينفعش تختار نفس اللاعب في الطرفين!', '⚠️');
+                return;
+            }
+
+            document.getElementById(key).value = p.id;
+            const searchInput = document.getElementById(`picker-search-${key}`);
+            if (searchInput) searchInput.value = p.name;
+            document.getElementById(`picker-list-${key}`)?.classList.add('hidden');
+        } catch (e) { console.error(e); }
+    }
+
+    function updateSelectDropdowns() {
+        pickerKeys.forEach(k => {
+            const hidden = document.getElementById(k);
+            const search = document.getElementById(`picker-search-${k}`);
+            if (hidden && hidden.value && !players.some(p => p.id === hidden.value)) {
+                hidden.value = '';
+                if (search) search.value = '';
+            }
+        });
+    }
+
+    document.addEventListener('click', (e) => {
+        try {
+            pickerKeys.forEach(k => {
+                const container = document.getElementById(`picker-container-${k}`);
+                if (container && !container.contains(e.target)) {
+                    document.getElementById(`picker-list-${k}`)?.classList.add('hidden');
+                }
+            });
+        } catch (err) { console.error(err); }
+    });
+
+    // Constraints management
+    function addConstraint(type) {
+        const k1 = type === 'link' ? 'linkP1' : 'avoidP1';
+        const k2 = type === 'link' ? 'linkP2' : 'avoidP2';
+        const p1 = document.getElementById(k1)?.value;
+        const p2 = document.getElementById(k2)?.value;
+
+        if (!p1 || !p2) {
+            showToast('اختر اللاعبين الأول قبل تثبيت الشرط!', '⚠️');
+            return;
+        }
+        if (p1 === p2) {
+            showToast('مينفعش تختار نفس اللاعب مرتين!', '⚠️');
+            return;
+        }
+
+        const exists = constraints.some(c =>
+            (c.p1 === p1 && c.p2 === p2) || (c.p1 === p2 && c.p2 === p1)
+        );
+        if (exists) {
+            showToast('يوجد شرط بالفعل بين هذين اللاعبين!', '⚠️');
+            return;
+        }
+
+        if (type === 'link') {
+            const mergedGroup = getLinkedGroupIds(p1, { type: 'link', p1, p2 });
+            const groupPlayers = players.filter(p => mergedGroup.has(p.id));
+
+            // Prevent linking 2 captains in the same team (directly or transitively)
+            if (groupPlayers.filter(p => p.isCap).length > 1) {
+                showToast('مينفعش تربط كابتنين في نفس الفريق! كل كابتن لازم يكون في مجموعة لوحده.', '⚠️', 3500);
+                return;
+            }
+            // Prevent linking 2 goalkeepers in the same team (directly or transitively)
+            if (groupPlayers.filter(p => p.isGk).length > 1) {
+                showToast('مينفعش تربط حارسين في نفس الفريق! كل حارس لازم يكون في مجموعة لوحده.', '⚠️', 3500);
+                return;
+            }
+            // Prevent linking players that conflict with an existing avoid rule
+            const hasAvoidConflict = constraints.some(c =>
+                c.type === 'avoid' && mergedGroup.has(c.p1) && mergedGroup.has(c.p2)
+            );
+            if (hasAvoidConflict) {
+                showToast('يوجد تعارض! هذا الربط يجمع لاعبين بينهم شرط استبعاد ❌', '⚠️', 3500);
+                return;
+            }
+        } else if (type === 'avoid') {
+            // Prevent avoiding players who are already linked together
+            const linkedGroup = getLinkedGroupIds(p1);
+            if (linkedGroup.has(p2)) {
+                showToast('مينفعش تستبعد لاعبين مرتبطين معاً في نفس الفريق 🔗', '⚠️', 3500);
+                return;
+            }
+        }
+
+        constraints.push({
+            id: 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            type,
+            p1,
+            p2
+        });
+
+        document.getElementById(k1).value = '';
+        document.getElementById(k2).value = '';
+        document.getElementById(`picker-search-${k1}`).value = '';
+        document.getElementById(`picker-search-${k2}`).value = '';
+
+        saveData();
+        renderConstraints();
+        showToast(type === 'link' ? 'تم تثبيت شرط اللعب معاً 🔗' : 'تم تثبيت شرط الاستبعاد ❌', '✅', 2000);
+    }
+
+    function removeConstraint(id) {
+        constraints = constraints.filter(c => c.id !== id);
+        saveData();
+        renderConstraints();
+    }
+
+    function renderConstraints() {
+        const list = document.getElementById('constraintsList');
+        const badge = document.getElementById('rulesCountBadge');
+        if (!list) return;
+
+        if (badge) {
+            if (constraints.length > 0) {
+                badge.textContent = `${constraints.length} شرط`;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        if (!constraints.length) {
+            list.innerHTML = '';
+            return;
+        }
+
+        list.innerHTML = constraints.map(c => {
+            const pl1 = players.find(p => p.id === c.p1);
+            const pl2 = players.find(p => p.id === c.p2);
+            if (!pl1 || !pl2) return '';
+            const isLink = c.type === 'link';
+            return `
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-900/80 border border-slate-800 text-[11px] text-slate-200 max-w-full">
+                <span class="truncate">${escapeHtml(pl1.name)}</span>
+                <span class="font-black ${isLink ? 'text-emerald-400' : 'text-rose-400'}">${isLink ? '+' : '≠'}</span>
+                <span class="truncate">${escapeHtml(pl2.name)}</span>
+                <button type="button" onclick="removeConstraint('${c.id}')" title="حذف الشرط" class="text-slate-500 hover:text-rose-400 text-[10px] mr-0.5 transition">✕</button>
+            </span>
+            `;
+        }).join('');
+    }
+
+    function canGenerateTeams() {
+        if (players.length < teamCount) {
+            showAlert(`لازم تضيف على الأقل ${teamCount} لاعبين عشان تقسمهم على ${teamCount} فرق!`);
+            return false;
+        }
+        const caps = players.filter(p => p.isCap);
+        if (caps.length > teamCount) {
+            showAlert(`عدد رؤوس المجموعات (${caps.length}) أكبر من عدد الفرق (${teamCount})! قلّل عدد الكباتن أو زوّد عدد الفرق.`, '⚠️');
+            return false;
+        }
+        return true;
+    }
+
+    // Collapsible sections
+    function setCollapsibleState(bodyId, arrowId, isOpen) {
+        document.getElementById(bodyId)?.classList.toggle('hidden', !isOpen);
+        const arrow = document.getElementById(arrowId);
+        if (arrow) arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+
+    function toggleRulesVisibility() {
+        isRulesVisible = !isRulesVisible;
+        setCollapsibleState('rulesListBody', 'rulesToggleArrow', isRulesVisible);
+        document.getElementById('rulesCard')?.classList.toggle('border-indigo-500/60', isRulesVisible);
+    }
+
+    function togglePlayersListVisibility() {
+        isRosterVisible = !isRosterVisible;
+        setCollapsibleState('playersListBody', 'rosterToggleArrow', isRosterVisible);
+    }
+
+    function toggleDrawPanel() {
+        isDrawPanelVisible = !isDrawPanelVisible;
+        setCollapsibleState('drawPanelBody', 'drawPanelArrow', isDrawPanelVisible);
+    }
+
+    // Multi-draw counter controls
+    function setMultiDrawCount(val) {
+        const clamped = Math.min(20, Math.max(2, parseInt(val, 10) || 2));
+        multiDrawCount = clamped;
+        const input = document.getElementById('multiDrawCountInput');
+        if (input) input.value = clamped;
+        updateMultiDrawButtonsState();
+    }
+
+    function changeMultiDrawCount(delta) {
+        setMultiDrawCount(multiDrawCount + delta);
+    }
+
+    function syncMultiDrawInput(el) {
+        const parsed = parseInt(el.value, 10);
+        if (!isNaN(parsed)) {
+            multiDrawCount = Math.min(20, Math.max(2, parsed));
+            updateMultiDrawButtonsState();
+        }
+    }
+
+    function finalizeMultiDrawInput(el) {
+        setMultiDrawCount(el.value);
+    }
+
+    function updateMultiDrawButtonsState() {
+        const btnDec = document.getElementById('btnDecMulti');
+        const btnInc = document.getElementById('btnIncMulti');
+        if (btnDec) btnDec.disabled = multiDrawCount <= 2;
+        if (btnInc) btnInc.disabled = multiDrawCount >= 20;
+    }
+
+    // Render players roster & live counters
+    function renderPlayers() {
+        const container = document.getElementById('playersContainer');
+        if (!container) return;
+
+        const totalBadge = document.getElementById('badgeTotalCount');
+        const capBadge = document.getElementById('badgeCapCount');
+        const gkBadge = document.getElementById('badgeGkCount');
+        const proBadge = document.getElementById('badgeProCount');
+
+        if (totalBadge) totalBadge.textContent = players.length;
+        if (capBadge) capBadge.textContent = players.filter(p => p.isCap).length;
+        if (gkBadge) gkBadge.textContent = players.filter(p => p.isGk).length;
+        if (proBadge) proBadge.textContent = players.filter(p => p.skill === 2).length;
+
+        if (!players.length) {
+            container.innerHTML = `<p class="text-center text-xs text-slate-500 py-5">لا يوجد لاعبين .. قم بإضافة لاعبين</p>`;
+            updateSelectDropdowns();
+            renderConstraints();
+            return;
+        }
+
+        container.innerHTML = players.map((p, idx) => `
+            <div class="flex items-center justify-between gap-1.5 px-2 py-1.5 rounded-lg bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition">
+                <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-[10px] font-extrabold text-slate-500 w-4 shrink-0 text-center tabular-nums">${idx + 1}.</span>
+                    <span class="text-xs font-bold text-slate-100 truncate">${escapeHtml(p.name)}</span>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <button type="button" onclick="togglePlayerProp('${p.id}', 'skill')" title="تبديل المستوى (لعّيب / جامد)" class="h-6 px-1.5 min-w-[50px] rounded-md border text-[10px] font-extrabold flex items-center justify-center gap-0.5 transition active:scale-95 ${p.skill === 2 ? 'bg-purple-500/25 border-purple-400 text-purple-200 shadow-sm' : 'bg-emerald-500/15 border-emerald-500/35 text-emerald-300'}">
+                        <span>${p.skill === 2 ? '⚡' : '🔥'}</span>
+                        <span>${p.skill === 2 ? 'جامد' : 'لعّيب'}</span>
+                    </button>
+                    <button type="button" onclick="togglePlayerProp('${p.id}', 'isCap')" title="كابتن رأس مجموعة" class="w-6 h-6 rounded-md border flex items-center justify-center transition ${p.isCap ? 'bg-amber-500/25 border-amber-400 text-amber-300' : 'bg-slate-950 border-slate-800 text-slate-500 hover:text-slate-300'}">
+                        ${CAPTAIN_ICON_SVG}
+                    </button>
+                    <button type="button" onclick="togglePlayerProp('${p.id}', 'isGk')" title="حارس مرمى" class="w-6 h-6 rounded-md border text-[11px] flex items-center justify-center transition ${p.isGk ? 'bg-sky-500/25 border-sky-400 text-sky-300' : 'bg-slate-950 border-slate-800 text-slate-500 opacity-60 hover:opacity-100'}">
+                        🧤
+                    </button>
+                    <button type="button" onclick="openEditPlayerModal('${p.id}')" title="تعديل" class="w-6 h-6 rounded-md bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] flex items-center justify-center transition">
+                        ✏️
+                    </button>
+                    <button type="button" onclick="removePlayer('${p.id}')" title="حذف" class="w-6 h-6 rounded-md bg-rose-500/15 hover:bg-rose-500/30 border border-rose-500/30 text-rose-400 text-[10px] font-black flex items-center justify-center transition">
+                        ✕
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+        updateSelectDropdowns();
+        renderConstraints();
+    }
+
+    // Fisher-Yates shuffle helper returning a new shuffled array
+    function shuffle(array) {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // Build a deterministic signature of a division to encourage variety in multi-draws
+    function getDivisionSignature(teams) {
+        return teams
+            .map(t => t.map(p => p.id).sort().join(','))
+            .sort()
+            .join('|');
+    }
+
+    // Fair team-generation solver strictly respecting Captains, GKs, Skill balance, Links & Avoids
+    function computeBalancedTeams(usedSignatures = null) {
+        const avoids = constraints.filter(c => c.type === 'avoid');
+        const totalGks = players.filter(p => p.isGk).length;
+        const maxTeamSize = Math.ceil(players.length / teamCount);
+
+        // Build adjacency map for fast avoid-rule lookups during placement
+        const avoidMap = new Map();
+        for (const av of avoids) {
+            if (!avoidMap.has(av.p1)) avoidMap.set(av.p1, new Set());
+            if (!avoidMap.has(av.p2)) avoidMap.set(av.p2, new Set());
+            avoidMap.get(av.p1).add(av.p2);
+            avoidMap.get(av.p2).add(av.p1);
+        }
+
+        // Group all players into connected 'link' units once (with avoid-constraint priority degree)
+        const baseUnits = [];
+        const visited = new Set();
+        for (const p of players) {
+            if (visited.has(p.id)) continue;
+            const groupIds = getLinkedGroupIds(p.id);
+            const groupPlayers = players.filter(x => groupIds.has(x.id));
+            groupPlayers.forEach(x => visited.add(x.id));
+
+            // Count distinct external players this unit must avoid
+            const externalAvoids = new Set();
+            for (const m of groupPlayers) {
+                const blocked = avoidMap.get(m.id);
+                if (blocked) {
+                    for (const bId of blocked) {
+                        if (!groupIds.has(bId)) externalAvoids.add(bId);
+                    }
+                }
+            }
+
+            baseUnits.push({
+                members: groupPlayers,
+                ids: groupIds,
+                capCount: groupPlayers.filter(x => x.isCap).length,
+                gkCount: groupPlayers.filter(x => x.isGk).length,
+                proCount: groupPlayers.filter(x => x.skill === 2).length,
+                skillSum: groupPlayers.reduce((s, x) => s + x.skill, 0),
+                size: groupPlayers.length,
+                avoidDegree: externalAvoids.size
+            });
+        }
+
+        // Evaluate a full division of unit arrays (preserves all link units intact)
+        function evaluateDivision(unitTeams) {
+            const teamStats = unitTeams.map(units => {
+                const ids = new Set();
+                let size = 0, capCount = 0, gkCount = 0, proCount = 0, skillSum = 0;
+                for (const u of units) {
+                    size += u.size;
+                    capCount += u.capCount;
+                    gkCount += u.gkCount;
+                    proCount += u.proCount;
+                    skillSum += u.skillSum;
+                    for (const id of u.ids) ids.add(id);
+                }
+                return { ids, size, capCount, gkCount, proCount, skillSum };
+            });
+
+            let penalty = 0;
+            let capViolations = 0;
+            let gkViolations = 0;
+            let avoidViolations = 0;
+
+            for (const av of avoids) {
+                if (teamStats.some(t => t.ids.has(av.p1) && t.ids.has(av.p2))) {
+                    avoidViolations++;
+                    penalty += 300000;
+                }
+            }
+
+            for (const t of teamStats) {
+                if (t.capCount > 1) {
+                    capViolations += (t.capCount - 1);
+                    penalty += 500000 * (t.capCount - 1);
+                }
+                if (totalGks <= teamCount && t.gkCount > 1) {
+                    gkViolations += (t.gkCount - 1);
+                    penalty += 200000 * (t.gkCount - 1);
+                }
+            }
+
+            const sizes = teamStats.map(t => t.size);
+            const skills = teamStats.map(t => t.skillSum);
+            const pros = teamStats.map(t => t.proCount);
+            const gks = teamStats.map(t => t.gkCount);
+
+            const sizeSpread = Math.max(...sizes) - Math.min(...sizes);
+            const gkSpread = Math.max(...gks) - Math.min(...gks);
+            const skillSpread = Math.max(...skills) - Math.min(...skills);
+            const proSpread = Math.max(...pros) - Math.min(...pros);
+
+            penalty += sizeSpread * 6000 + (sizeSpread > 1 ? 60000 : 0);
+            penalty += gkSpread * 25000;
+            penalty += skillSpread * 45;
+            penalty += proSpread * 65;
+
+            // Variance penalties keep middle teams closely balanced too
+            const avgSkill = skills.reduce((a, b) => a + b, 0) / teamCount;
+            const skillVariance = skills.reduce((acc, s) => acc + Math.pow(s - avgSkill, 2), 0);
+            const avgPro = pros.reduce((a, b) => a + b, 0) / teamCount;
+            const proVariance = pros.reduce((acc, p) => acc + Math.pow(p - avgPro, 2), 0);
+            penalty += skillVariance * 18 + proVariance * 22;
+
+            if (usedSignatures) {
+                const rawTeams = unitTeams.map(units => units.flatMap(u => u.members));
+                if (usedSignatures.has(getDivisionSignature(rawTeams))) {
+                    penalty += 250;
+                }
+            }
+
+            return { penalty, capViolations, gkViolations, avoidViolations, sizeSpread };
+        }
+
+        let bestUnitTeams = null;
+        let bestEval = { penalty: Infinity, capViolations: 0, gkViolations: 0, avoidViolations: 0, sizeSpread: 0 };
+
+        for (let attempt = 0; attempt < 900; attempt++) {
+            const teams = Array.from({ length: teamCount }, () => ({
+                units: [],
+                ids: new Set(),
+                size: 0,
+                capCount: 0,
+                gkCount: 0,
+                proCount: 0,
+                skillSum: 0
+            }));
+
+            // Shuffle first for genuine variety, then sort by constraint & balance priority
+            const orderedUnits = shuffle(baseUnits).sort((a, b) => {
+                if ((b.capCount > 0) !== (a.capCount > 0)) return b.capCount - a.capCount;
+                if ((b.gkCount > 0) !== (a.gkCount > 0)) return b.gkCount - a.gkCount;
+                if (b.size !== a.size) return b.size - a.size;
+                if (b.avoidDegree !== a.avoidDegree) return b.avoidDegree - a.avoidDegree;
+                if (b.proCount !== a.proCount) return b.proCount - a.proCount;
+                return b.skillSum - a.skillSum;
+            });
+
+            // Assign each unit to the best-fitting team while actively avoiding conflicts
+            for (const unit of orderedUnits) {
+                let bestIdx = 0;
+                let minCost = Infinity;
+
+                for (let i = 0; i < teamCount; i++) {
+                    const t = teams[i];
+                    let cost = 0;
+
+                    // 1. Never place 2 captains in the same team
+                    if (unit.capCount > 0 && t.capCount > 0) cost += 600000 * t.capCount;
+
+                    // 2. Actively avoid placing conflicting 'avoid' pairs together
+                    let avoidHits = 0;
+                    for (const m of unit.members) {
+                        const blocked = avoidMap.get(m.id);
+                        if (blocked) {
+                            for (const bId of blocked) {
+                                if (t.ids.has(bId)) avoidHits++;
+                            }
+                        }
+                    }
+                    if (avoidHits > 0) cost += 250000 * avoidHits;
+
+                    // 3. Never place 2 goalkeepers in the same team (when totalGks <= teamCount)
+                    if (unit.gkCount > 0 && t.gkCount > 0) {
+                        cost += (totalGks <= teamCount ? 180000 : 18000) * t.gkCount;
+                    }
+
+                    // 4. Keep team sizes strictly balanced
+                    const newSize = t.size + unit.size;
+                    if (newSize > maxTeamSize) cost += 12000 * (newSize - maxTeamSize);
+                    cost += t.size * 140;
+
+                    // 5. Balance skill level (total skill + 'جامد' players) across teams
+                    cost += (t.skillSum + unit.skillSum) * 28;
+                    cost += (t.proCount + unit.proCount) * 36;
+
+                    // 6. Small random jitter to break ties and diversify draws
+                    cost += Math.random() * 14;
+
+                    if (cost < minCost) {
+                        minCost = cost;
+                        bestIdx = i;
+                    }
+                }
+
+                const chosen = teams[bestIdx];
+                chosen.units.push(unit);
+                unit.ids.forEach(id => chosen.ids.add(id));
+                chosen.size += unit.size;
+                chosen.capCount += unit.capCount;
+                chosen.gkCount += unit.gkCount;
+                chosen.proCount += unit.proCount;
+                chosen.skillSum += unit.skillSum;
+            }
+
+            const unitTeams = teams.map(t => t.units);
+            const evalRes = evaluateDivision(unitTeams);
+            if (evalRes.penalty < bestEval.penalty) {
+                bestEval = evalRes;
+                bestUnitTeams = unitTeams;
+            }
+        }
+
+        // Local Swap & Move Polish: fine-tune the best division to guarantee optimal fairness
+        if (bestUnitTeams) {
+            for (let pass = 0; pass < 35; pass++) {
+                let improved = false;
+
+                // Try swapping two units across different teams
+                for (let i = 0; i < teamCount; i++) {
+                    for (let j = i + 1; j < teamCount; j++) {
+                        for (let a = 0; a < bestUnitTeams[i].length; a++) {
+                            for (let b = 0; b < bestUnitTeams[j].length; b++) {
+                                const tmp = bestUnitTeams[i][a];
+                                bestUnitTeams[i][a] = bestUnitTeams[j][b];
+                                bestUnitTeams[j][b] = tmp;
+
+                                const cand = evaluateDivision(bestUnitTeams);
+                                if (cand.penalty + 1e-6 < bestEval.penalty) {
+                                    bestEval = cand;
+                                    improved = true;
+                                } else {
+                                    // Revert swap
+                                    bestUnitTeams[j][b] = bestUnitTeams[i][a];
+                                    bestUnitTeams[i][a] = tmp;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Try moving a single unit from one team to another if it improves balance
+                for (let i = 0; i < teamCount; i++) {
+                    if (bestUnitTeams[i].length <= 1) continue;
+                    for (let a = bestUnitTeams[i].length - 1; a >= 0; a--) {
+                        const unit = bestUnitTeams[i][a];
+                        let moved = false;
+                        for (let j = 0; j < teamCount; j++) {
+                            if (i === j) continue;
+                            bestUnitTeams[i].splice(a, 1);
+                            bestUnitTeams[j].push(unit);
+
+                            const cand = evaluateDivision(bestUnitTeams);
+                            if (cand.penalty + 1e-6 < bestEval.penalty) {
+                                bestEval = cand;
+                                improved = true;
+                                moved = true;
+                                break;
+                            } else {
+                                bestUnitTeams[j].pop();
+                                bestUnitTeams[i].splice(a, 0, unit);
+                            }
+                        }
+                        if (moved) break;
+                    }
+                }
+
+                if (!improved) break;
+            }
+        }
+
+        const bestTeams = (bestUnitTeams || []).map(units => units.flatMap(u => u.members));
+
+        // Place each team's captain at the top and shuffle team slot order for fairness
+        const orderedTeams = shuffle(bestTeams).map(t => {
+            const cap = t.find(p => p.isCap);
+            const others = shuffle(t.filter(p => !p.isCap));
+            return cap ? [cap, ...others] : others;
+        });
+
+        const warnings = [];
+        if (bestEval.capViolations > 0) warnings.push('اجتماع كابتنين بسبب شروط ربط متعارضة');
+        if (bestEval.gkViolations > 0) warnings.push('اجتماع حارسين بسبب شروط ربط متعارضة');
+        if (bestEval.avoidViolations > 0) warnings.push('تعذّر تطبيق أحد شروط الاستبعاد بسبب التعارض');
+        if (bestEval.sizeSpread > 1) warnings.push('يوجد فرق في عدد اللاعبين بين الفرق بسبب حجم مجموعة مربوطة 🔗');
+
+        return { teams: orderedTeams, warnings };
+    }
+
+    // Single team generation
+    function generateTeams(shouldScroll = true) {
+        if (!canGenerateTeams()) return false;
+
+        const { teams, warnings } = computeBalancedTeams();
+        allGeneratedDraws = [teams];
+        renderAllResults(shouldScroll);
+        if (warnings.length) {
+            showToast(`تنبيه: ${warnings[0]}`, '⚠️', 4000);
+        }
+        return true;
+    }
+
+    // Multiple consecutive draws stacked under each other
+    async function generateTeamsMultiple(customRounds = null) {
+        if (isMultiDrawing) return;
+
+        const inputEl = document.getElementById('multiDrawCountInput');
+        if (inputEl && customRounds === null) setMultiDrawCount(inputEl.value);
+
+        if (!canGenerateTeams()) return;
+
+        isMultiDrawing = true;
+        const btnMulti = document.getElementById('btnDrawMulti');
+        const btnMultiText = document.getElementById('btnDrawMultiText');
+        const btnOnce = document.getElementById('btnDrawOnce');
+        const btnClear = document.getElementById('btnClearDraw');
+        const btnRedraw = document.getElementById('redrawBtn');
+        const origLabel = 'قسّم أكتر من مرة';
+
+        if (btnMulti) btnMulti.disabled = true;
+        if (btnOnce) btnOnce.disabled = true;
+        if (btnClear) btnClear.disabled = true;
+        if (btnRedraw) btnRedraw.disabled = true;
+
+        try {
+            const totalRounds = customRounds !== null ? customRounds : multiDrawCount;
+            allGeneratedDraws = [];
+            const usedSignatures = new Set();
+            let firstWarning = '';
+
+            for (let round = 1; round <= totalRounds; round++) {
+                if (btnMultiText) {
+                    btnMultiText.textContent = `جولة ${round} / ${totalRounds}...`;
+                }
+                const { teams, warnings } = computeBalancedTeams(usedSignatures);
+                usedSignatures.add(getDivisionSignature(teams));
+                if (!firstWarning && warnings.length) firstWarning = warnings[0];
+
+                allGeneratedDraws.push(teams);
+                renderAllResults(round === 1);
+
+                if (round < totalRounds) {
+                    await new Promise(resolve => setTimeout(resolve, 260));
+                }
+            }
+            if (firstWarning) {
+                showToast(`تم عمل ${totalRounds} تقسيمات (تنبيه: ${firstWarning})`, '⚠️', 4000);
+            } else {
+                showToast(`تم عمل ${totalRounds} تقسيمات مختلفة تحت بعض بنجاح! 🎲`, '✅');
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            isMultiDrawing = false;
+            if (btnMulti) btnMulti.disabled = false;
+            if (btnOnce) btnOnce.disabled = false;
+            if (btnClear) btnClear.disabled = false;
+            if (btnRedraw) btnRedraw.disabled = false;
+            if (btnMultiText) btnMultiText.textContent = origLabel;
+        }
+    }
+
+    // Clear only generated team divisions without affecting the players roster
+    function clearGeneratedTeams() {
+        if (isMultiDrawing) return;
+        const wrapper = document.getElementById('resultWrapper');
+        const grid = document.getElementById('teamsOutputGrid');
+
+        if (!allGeneratedDraws.length && wrapper?.classList.contains('hidden')) {
+            showToast('لا توجد تقسيمات حالية لمسحها!', 'ℹ️', 2000);
+            return;
+        }
+
+        allGeneratedDraws = [];
+        if (grid) grid.innerHTML = '';
+        if (wrapper) wrapper.classList.add('hidden');
+        showToast('تم مسح التقسيمات بنجاح 🧹', '✅', 2000);
+    }
+
+    // Re-draw teams respecting all constraints (keeps single or multi-draw count)
+    function regenerateTeams() {
+        if (isMultiDrawing) return;
+        if (allGeneratedDraws.length > 1) {
+            generateTeamsMultiple(allGeneratedDraws.length);
+        } else {
+            if (generateTeams(false)) {
+                showToast('تم إعادة التقسيم بمراعاة جميع الشروط 🔄', '✅', 2200);
+            }
+        }
+    }
+
+    // Copy a specific division cleanly to the clipboard
+    function copyDrawToClipboard(drawIdx) {
+        try {
+            const teams = allGeneratedDraws[drawIdx];
+            if (!teams || !teams.length) return;
+
+            const isMulti = allGeneratedDraws.length > 1;
+            let text = isMulti ? `⚽ التقسيمة ${drawIdx + 1}\n` : `⚽ تقسيمة المجموعات\n`;
+            text += `━━━━━━━━━━━━━━\n`;
+
+            teams.forEach((team, idx) => {
+                text += `\n🔹 ${teamNames[idx] || `الفريق ${idx + 1}`}\n`;
+                team.forEach((p, i) => {
+                    text += `${i + 1}. ${p.name}${p.isCap ? ' (C)' : ''}\n`;
+                });
+            });
+
+            text += `\n🏆 نظام اللعب:\n`;
+            text += `⏱️ الماتش 15 دقيقة أو تسجيل 3 أهداف\n`;
+            text += `🎯 في حالة التعادل لعب ضربتين جزاء`;
+
+            const tempArea = document.createElement('textarea');
+            tempArea.value = text;
+            tempArea.style.position = 'fixed';
+            tempArea.style.opacity = '0';
+            tempArea.style.pointerEvents = 'none';
+            document.body.appendChild(tempArea);
+            tempArea.focus();
+            tempArea.select();
+            const ok = document.execCommand('copy');
+            document.body.removeChild(tempArea);
+
+            if (ok) {
+                showToast(isMulti ? `تم نسخ التقسيمة ${drawIdx + 1} بنجاح 📋` : 'تم نسخ التقسيمة بنجاح 📋', '✅', 2200);
+            } else {
+                showToast('تعذر النسخ، حاول مرة أخرى', '⚠️');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('حدث خطأ أثناء النسخ', '⚠️');
+        }
+    }
+
+    // Build side-by-side team cards HTML for a single division (numbered names, no player count badge)
+    function buildSingleDrawGridHTML(teams) {
+        const isThreeCol = teams.length === 3 || teams.length === 6;
+        const gridClass = isThreeCol ? 'grid grid-cols-3 gap-1.5' : 'grid grid-cols-2 gap-2';
+
+        return `
+            <div class="${gridClass} items-stretch">
+                ${teams.map((team, idx) => `
+                    <div class="rounded-xl bg-slate-900/90 border border-slate-700/70 overflow-hidden flex flex-col shadow-md">
+                        <div class="team-header-${idx % 4} py-1.5 px-1.5 text-center">
+                            <h3 class="${isThreeCol ? 'text-[11px]' : 'text-xs'} font-black text-white truncate">${teamNames[idx] || `الفريق ${idx + 1}`}</h3>
+                        </div>
+                        <div class="p-1.5 space-y-1 flex-1">
+                            ${team.map((p, i) => `
+                                <div class="flex items-center justify-between gap-1 px-1.5 py-1 rounded-md ${i % 2 === 1 ? 'bg-slate-800/70' : 'bg-slate-800/35'}">
+                                    <div class="flex items-center gap-1 min-w-0">
+                                        <span class="${isThreeCol ? 'text-[10px]' : 'text-[11px]'} font-black text-emerald-400 shrink-0 tabular-nums">${i + 1}.</span>
+                                        <span class="${isThreeCol ? 'text-[10px]' : 'text-xs'} font-bold text-slate-100 truncate">${escapeHtml(p.name)}</span>
+                                    </div>
+                                    ${p.isCap ? `<span class="shrink-0 flex items-center" title="كابتن رأس مجموعة">${CAPTAIN_BADGE_SOLID_SVG}</span>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // Render one or multiple divisions stacked cleanly under each other
+    function renderAllResults(shouldScroll = true) {
+        const wrapper = document.getElementById('resultWrapper');
+        const container = document.getElementById('teamsOutputGrid');
+        const headerBadge = document.getElementById('resultHeaderBadge');
+        const singleCopyBtn = document.getElementById('singleDrawCopyBtn');
+        if (!wrapper || !container) return;
+
+        const isMulti = allGeneratedDraws.length > 1;
+        if (headerBadge) {
+            headerBadge.classList.toggle('hidden', !isMulti);
+            headerBadge.textContent = isMulti ? `${allGeneratedDraws.length} تقسيمات` : '';
+        }
+        if (singleCopyBtn) {
+            singleCopyBtn.classList.toggle('hidden', isMulti);
+        }
+
+        container.innerHTML = allGeneratedDraws.map((drawTeams, dIdx) => {
+            if (!isMulti) {
+                return buildSingleDrawGridHTML(drawTeams);
+            }
+            return `
+                <div class="rounded-xl bg-slate-950/55 border border-indigo-500/30 p-2 space-y-2 shadow-inner">
+                    <div class="flex items-center justify-between px-1 pb-1 border-b border-indigo-500/20">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-5 h-5 rounded-md bg-indigo-500/25 border border-indigo-400/40 text-indigo-200 text-[10px] font-black flex items-center justify-center tabular-nums">${dIdx + 1}</span>
+                            <span class="text-xs font-black text-indigo-200">التقسيمة ${dIdx + 1}</span>
+                        </div>
+                        <button type="button" data-html2canvas-ignore="true" onclick="copyDrawToClipboard(${dIdx})" class="px-2 py-0.5 rounded-md bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-500/40 text-emerald-200 text-[10px] font-extrabold flex items-center gap-1 transition active:scale-95">
+                            <span>📋</span>
+                            <span>نسخ</span>
+                        </button>
+                    </div>
+                    ${buildSingleDrawGridHTML(drawTeams)}
+                </div>
+            `;
+        }).join('');
+
+        wrapper.classList.remove('hidden');
+        if (shouldScroll) {
+            wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    // Export crisp high-DPI PNG directly via native Canvas (avoids html2canvas Arabic text clipping)
+    async function downloadResultImage() {
+        const draws = allGeneratedDraws;
+        const btn = document.getElementById('saveImgBtn');
+        if (!draws.length) {
+            showToast('اعمل القرعة الأول عشان تحفظ الصورة!', '⚠️');
+            return;
+        }
+        try {
+            if (btn) btn.disabled = true;
+            if (document.fonts && document.fonts.ready) {
+                await document.fonts.ready;
+            }
+
+            const isMultiDraw = draws.length > 1;
+            const W = 720;
+            const outerPad = 18;
+            const cardPad = 20;
+            const contentX = outerPad + cardPad;
+            const contentW = W - contentX * 2;
+            const headerH = 56;
+            const colGap = 12;
+            const rowGap = 12;
+            const drawGap = 16;
+            const teamHeaderH = 40;
+            const playerRowH = 36;
+            const rulesH = 114;
+
+            const teamHeaderColors = [
+                ['#059669', '#10b981'],
+                ['#2563eb', '#3b82f6'],
+                ['#d97706', '#f59e0b'],
+                ['#7c3aed', '#8b5cf6']
+            ];
+
+            // Pre-calculate vertical layout for all divisions
+            let cursorY = outerPad + cardPad + headerH + 14;
+            const drawLayouts = draws.map((drawTeams, dIdx) => {
+                const isThreeCol = drawTeams.length === 3 || drawTeams.length === 6;
+                const cols = isThreeCol ? 3 : 2;
+                const boxPad = isMultiDraw ? 14 : 0;
+                const boxHeaderH = isMultiDraw ? 42 : 0;
+                const innerX = contentX + boxPad;
+                const innerW = contentW - boxPad * 2;
+                const cardW = (innerW - (cols - 1) * colGap) / cols;
+
+                const boxTop = cursorY;
+                let rowY = boxTop + boxPad + boxHeaderH;
+                const cards = [];
+                const gridRows = Math.ceil(drawTeams.length / cols);
+
+                for (let r = 0; r < gridRows; r++) {
+                    const rowTeams = drawTeams.slice(r * cols, (r + 1) * cols);
+                    const maxPlayers = Math.max(...rowTeams.map(t => t.length), 1);
+                    const cardH = teamHeaderH + 16 + maxPlayers * playerRowH;
+
+                    rowTeams.forEach((team, cIdx) => {
+                        const teamIdx = r * cols + cIdx;
+                        const cardX = innerX + (cols - 1 - cIdx) * (cardW + colGap);
+                        cards.push({ teamIdx, team, x: cardX, y: rowY, w: cardW, h: cardH, isThreeCol });
+                    });
+                    rowY += cardH + (r < gridRows - 1 ? rowGap : 0);
+                }
+
+                const boxH = (rowY - boxTop) + boxPad;
+                cursorY = boxTop + boxH + drawGap;
+                return { drawIdx: dIdx, boxTop, boxH, cards };
+            });
+
+            const rulesTop = cursorY;
+            const sigH = 34;
+            const proCardH = (rulesTop + rulesH + sigH + cardPad - 6) - outerPad;
+            const H = proCardH + outerPad * 2;
+
+            const scale = 2;
+            const canvas = document.createElement('canvas');
+            canvas.width = W * scale;
+            canvas.height = H * scale;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) throw new Error('Canvas context unavailable');
+
+            ctx.scale(scale, scale);
+            ctx.direction = 'rtl';
+            ctx.textBaseline = 'middle';
+
+            // 1. Page background
+            ctx.fillStyle = '#0b1120';
+            ctx.fillRect(0, 0, W, H);
+
+            // 2. Main Pro Card background & border
+            drawRoundedRect(ctx, outerPad, outerPad, W - outerPad * 2, proCardH, 22);
+            const cardGrad = ctx.createLinearGradient(outerPad, outerPad, W - outerPad, outerPad + proCardH);
+            cardGrad.addColorStop(0, '#0f172a');
+            cardGrad.addColorStop(0.5, '#1e293b');
+            cardGrad.addColorStop(1, '#0f172a');
+            ctx.fillStyle = cardGrad;
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(52, 211, 153, 0.32)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // 3. Header row
+            const headerMidY = outerPad + cardPad + headerH / 2 - 4;
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '900 24px Cairo, sans-serif';
+            ctx.fillText('⚽ تقسيمة المجموعات', W - contentX, headerMidY);
+
+            if (isMultiDraw) {
+                const badgeText = `${draws.length} تقسيمات`;
+                ctx.font = '800 14px Cairo, sans-serif';
+                const badgeW = Math.max(88, ctx.measureText(badgeText).width + 26);
+                const badgeH = 28;
+                drawRoundedRect(ctx, contentX, headerMidY - badgeH / 2, badgeW, badgeH, 14);
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.18)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.35)';
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#6ee7b7';
+                ctx.fillText(badgeText, contentX + badgeW / 2, headerMidY);
+            }
+
+            // Header divider
+            const headerLineY = outerPad + cardPad + headerH;
+            ctx.strokeStyle = 'rgba(16, 185, 129, 0.22)';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.moveTo(contentX, headerLineY);
+            ctx.lineTo(W - contentX, headerLineY);
+            ctx.stroke();
+
+            // 4. Divisions & Team Cards
+            for (const dl of drawLayouts) {
+                if (isMultiDraw) {
+                    drawRoundedRect(ctx, contentX, dl.boxTop, contentW, dl.boxH, 16);
+                    ctx.fillStyle = 'rgba(2, 6, 23, 0.55)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(99, 102, 241, 0.32)';
+                    ctx.lineWidth = 1.2;
+                    ctx.stroke();
+
+                    // Division number badge + title
+                    const numSize = 24;
+                    const divMidY = dl.boxTop + 26;
+                    const badgeX = W - contentX - 14 - numSize;
+                    drawRoundedRect(ctx, badgeX, divMidY - numSize / 2, numSize, numSize, 7);
+                    ctx.fillStyle = 'rgba(99, 102, 241, 0.25)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(129, 140, 248, 0.45)';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#c7d2fe';
+                    ctx.font = '900 13px Cairo, sans-serif';
+                    ctx.fillText(String(dl.drawIdx + 1), badgeX + numSize / 2, divMidY);
+
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = '#c7d2fe';
+                    ctx.font = '900 16px Cairo, sans-serif';
+                    ctx.fillText(`التقسيمة ${dl.drawIdx + 1}`, badgeX - 10, divMidY);
+
+                    ctx.strokeStyle = 'rgba(99, 102, 241, 0.22)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(contentX + 14, dl.boxTop + 44);
+                    ctx.lineTo(W - contentX - 14, dl.boxTop + 44);
+                    ctx.stroke();
+                }
+
+                for (const card of dl.cards) {
+                    drawRoundedRect(ctx, card.x, card.y, card.w, card.h, 14);
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(51, 65, 85, 0.75)';
+                    ctx.lineWidth = 1.2;
+                    ctx.stroke();
+
+                    // Colored team header
+                    const [c1, c2] = teamHeaderColors[card.teamIdx % teamHeaderColors.length];
+                    const hGrad = ctx.createLinearGradient(card.x, card.y, card.x + card.w, card.y);
+                    hGrad.addColorStop(0, c1);
+                    hGrad.addColorStop(1, c2);
+                    ctx.save();
+                    drawRoundedRect(ctx, card.x, card.y, card.w, card.h, 14);
+                    ctx.clip();
+                    ctx.fillStyle = hGrad;
+                    ctx.fillRect(card.x, card.y, card.w, teamHeaderH);
+                    ctx.restore();
+
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = card.isThreeCol ? '900 16px Cairo, sans-serif' : '900 18px Cairo, sans-serif';
+                    ctx.fillText(teamNames[card.teamIdx] || `الفريق ${card.teamIdx + 1}`, card.x + card.w / 2, card.y + teamHeaderH / 2);
+
+                    // Numbered players
+                    card.team.forEach((p, idx) => {
+                        const rowTop = card.y + teamHeaderH + 8 + idx * playerRowH;
+                        const rowH = playerRowH - 6;
+                        const rowMidY = rowTop + rowH / 2;
+
+                        drawRoundedRect(ctx, card.x + 8, rowTop, card.w - 16, rowH, 8);
+                        ctx.fillStyle = idx % 2 === 1 ? 'rgba(30, 41, 59, 0.72)' : 'rgba(30, 41, 59, 0.36)';
+                        ctx.fill();
+
+                        const numStr = `${idx + 1}.`;
+                        ctx.textAlign = 'right';
+                        ctx.font = card.isThreeCol ? '900 13px Cairo, sans-serif' : '900 14px Cairo, sans-serif';
+                        ctx.fillStyle = '#34d399';
+                        const rightAnchor = card.x + card.w - 15;
+                        ctx.fillText(numStr, rightAnchor, rowMidY);
+                        const numW = ctx.measureText(numStr).width;
+
+                        ctx.font = card.isThreeCol ? '700 14px Cairo, sans-serif' : '700 16px Cairo, sans-serif';
+                        const maxNameW = card.w - 30 - numW - 6 - (p.isCap ? 30 : 0);
+                        ctx.fillStyle = '#f1f5f9';
+                        ctx.fillText(truncateCanvasText(ctx, p.name, Math.max(40, maxNameW)), rightAnchor - numW - 6, rowMidY);
+
+                        if (p.isCap) {
+                            const capW = 22;
+                            const capH = 18;
+                            drawRoundedRect(ctx, card.x + 13, rowMidY - capH / 2, capW, capH, 5);
+                            ctx.fillStyle = '#f59e0b';
+                            ctx.fill();
+                            ctx.strokeStyle = '#fef3c7';
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                            ctx.textAlign = 'center';
+                            ctx.fillStyle = '#0f172a';
+                            ctx.font = '900 12px Cairo, sans-serif';
+                            ctx.fillText('C', card.x + 13 + capW / 2, rowMidY);
+                        }
+                    });
+                }
+            }
+
+            // 5. Match Rules Box
+            drawRoundedRect(ctx, contentX, rulesTop, contentW, rulesH, 14);
+            ctx.fillStyle = 'rgba(2, 6, 23, 0.78)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(51, 65, 85, 0.65)';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            const rulesRight = W - contentX;
+            drawRoundedRect(ctx, rulesRight - 20, rulesTop + 14, 5, 18, 3);
+            ctx.fillStyle = '#34d399';
+            ctx.fill();
+
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#6ee7b7';
+            ctx.font = '900 16px Cairo, sans-serif';
+            ctx.fillText('نظام اللعب', rulesRight - 30, rulesTop + 23);
+
+            ctx.strokeStyle = 'rgba(30, 41, 59, 0.9)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(contentX + 16, rulesTop + 42);
+            ctx.lineTo(rulesRight - 16, rulesTop + 42);
+            ctx.stroke();
+
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = '700 16px Cairo, sans-serif';
+            ctx.fillText('⏱️ الماتش 15 دقيقة أو تسجيل 3 أهداف', rulesRight - 18, rulesTop + 68);
+            ctx.fillText('🎯 في حالة التعادل لعب ضربتين جزاء', rulesRight - 18, rulesTop + 96);
+
+            // 6. Subtle Signature Footer
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'rgba(148, 163, 184, 0.52)';
+            ctx.font = '300 14px Cairo, sans-serif';
+            ctx.fillText('تطبيق من تصميم الموجي', W / 2, rulesTop + rulesH + 22);
+
+            // Download PNG cleanly
+            const fileName = `تقسيمة-الفرق-${Date.now()}.png`;
+            const saveFromUrl = (url, shouldRevoke = false) => {
+                const link = document.createElement('a');
+                link.download = fileName;
+                link.href = url;
+                link.rel = 'noopener';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                if (shouldRevoke) {
+                    setTimeout(() => URL.revokeObjectURL(url), 4000);
+                }
+            };
+
+            if (typeof canvas.toBlob === 'function') {
+                await new Promise((resolve) => {
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            saveFromUrl(URL.createObjectURL(blob), true);
+                        } else {
+                            saveFromUrl(canvas.toDataURL('image/png'));
+                        }
+                        resolve();
+                    }, 'image/png');
+                });
+            } else {
+                saveFromUrl(canvas.toDataURL('image/png'));
+            }
+
+            showToast('تم حفظ صورة التقسيمة على جهازك! 📸', '✅');
+        } catch (err) {
+            console.error(err);
+            showAlert('حدث خطأ أثناء حفظ الصورة، حاول مرة أخرى.', '⚠️');
+        } finally {
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    // =========================================================
+    // Smooth & Exciting Canvas Video Recording for the Draw
+    // =========================================================
+    let videoRecorder = null;
+    let videoAnimFrame = null;
+    let recordedVideoUrl = null;
+    let recordedVideoExt = 'webm';
+    let isRecordingVideo = false;
+    let videoCancelled = false;
+
+    function triggerVideoDownload() {
+        if (!recordedVideoUrl) return;
+        const link = document.createElement('a');
+        link.href = recordedVideoUrl;
+        link.download = `قرعة-قسم-والعب-${Date.now()}.${recordedVideoExt}`;
+        link.rel = 'noopener';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('تم حفظ فيديو القرعة على جهازك! 🎬', '✅');
+    }
+
+    function closeVideoModal() {
+        if (isRecordingVideo) {
+            videoCancelled = true;
+        }
+        if (videoAnimFrame) {
+            cancelAnimationFrame(videoAnimFrame);
+            videoAnimFrame = null;
+        }
+        if (videoRecorder && videoRecorder.state === 'recording') {
+            try { videoRecorder.stop(); } catch (e) {}
+        }
+        isRecordingVideo = false;
+        const modal = document.getElementById('videoRecordModal');
+        modal?.classList.add('hidden');
+        modal?.classList.remove('flex');
+    }
+
+    function drawRoundedRect(ctx, x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+    }
+
+    function truncateCanvasText(ctx, text, maxWidth) {
+        if (ctx.measureText(text).width <= maxWidth) return text;
+        let str = text;
+        while (str.length > 1 && ctx.measureText(str + '…').width > maxWidth) {
+            str = str.slice(0, -1);
+        }
+        return str + '…';
+    }
+
+    async function recordDrawVideo() {
+        const draws = allGeneratedDraws;
+        if (!draws.length) {
+            showToast('اعمل القرعة الأول عشان تسجّل الفيديو!', '⚠️');
+            return;
+        }
+        if (isRecordingVideo) return;
+
+        const modal = document.getElementById('videoRecordModal');
+        const canvas = document.getElementById('drawVideoCanvas');
+        const titleEl = document.getElementById('videoModalTitle');
+        const statusEl = document.getElementById('videoStatusText');
+        const progressEl = document.getElementById('videoProgressBar');
+        const dotEl = document.getElementById('videoRecDot');
+        const dlBtn = document.getElementById('videoDownloadAgainBtn');
+
+        if (!canvas || !modal) return;
+
+        if (document.fonts && document.fonts.ready) {
+            await document.fonts.ready;
+        }
+
+        if (recordedVideoUrl) {
+            URL.revokeObjectURL(recordedVideoUrl);
+            recordedVideoUrl = null;
+        }
+
+        // Open modal & reset UI
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (titleEl) titleEl.textContent = 'جاري تسجيل فيديو القرعة...';
+        if (statusEl) statusEl.textContent = draws.length > 1
+            ? `يتم الآن تسجيل ${draws.length} تقسيمات تحت بعضها بشكل انسيابي...`
+            : 'يتم الآن تسجيل فيديو القرعة بشكل انسيابي...';
+        if (progressEl) progressEl.style.width = '0%';
+        if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse';
+        dlBtn?.classList.add('hidden');
+
+        // Layout dimensions for all stacked divisions
+        const W = 720;
+        const isMultiDraw = draws.length > 1;
+        const padX = 28;
+        const colGap = 14;
+        const rowGap = 14;
+        const headerH = 88;
+        const teamHeaderH = 40;
+        const playerRowH = 34;
+        const drawGap = 20;
+        const rulesH = 116;
+        const bottomPad = 28;
+        const teamHeaderColors = [
+            ['#059669', '#10b981'],
+            ['#2563eb', '#3b82f6'],
+            ['#d97706', '#f59e0b'],
+            ['#7c3aed', '#8b5cf6']
+        ];
+
+        // Pre-calculate vertical layout for all stacked divisions
+        let cursorY = headerH + 8;
+        let currentStartMs = 360;
+        const drawLayouts = draws.map((drawTeams, dIdx) => {
+            const isThreeCol = drawTeams.length === 3 || drawTeams.length === 6;
+            const cols = isThreeCol ? 3 : 2;
+            const boxPad = isMultiDraw ? 14 : 0;
+            const boxHeaderH = isMultiDraw ? 38 : 0;
+            const innerX = padX + boxPad;
+            const innerW = W - padX * 2 - boxPad * 2;
+            const cardW = (innerW - (cols - 1) * colGap) / cols;
+
+            const boxTop = cursorY;
+            const drawStartMs = currentStartMs;
+            let rowY = boxTop + boxPad + boxHeaderH;
+            const cards = [];
+
+            const gridRows = Math.ceil(drawTeams.length / cols);
+            let maxRowEndMs = drawStartMs + (isMultiDraw ? 220 : 80);
+
+            for (let r = 0; r < gridRows; r++) {
+                const rowTeams = drawTeams.slice(r * cols, (r + 1) * cols);
+                const maxPlayersInRow = Math.max(...rowTeams.map(t => t.length), 1);
+                const cardH = teamHeaderH + 14 + maxPlayersInRow * playerRowH;
+                const rowStartMs = maxRowEndMs;
+
+                rowTeams.forEach((team, cIdx) => {
+                    const teamIdx = r * cols + cIdx;
+                    // RTL placement: Team 1 on the right
+                    const cardX = innerX + (cols - 1 - cIdx) * (cardW + colGap);
+                    const cardStartMs = rowStartMs + cIdx * 90;
+                    const playersTiming = team.map((player, pIdx) => {
+                        const pStart = cardStartMs + 130 + pIdx * 70;
+                        if (pStart + 220 > maxRowEndMs) maxRowEndMs = pStart + 220;
+                        return { player, idx: pIdx, startMs: pStart };
+                    });
+                    cards.push({
+                        teamIdx,
+                        x: cardX,
+                        y: rowY,
+                        w: cardW,
+                        h: cardH,
+                        startMs: cardStartMs,
+                        playersTiming,
+                        isThreeCol
+                    });
+                });
+
+                rowY += cardH + (r < gridRows - 1 ? rowGap : 0);
+            }
+
+            const boxH = (rowY - boxTop) + boxPad;
+            cursorY = boxTop + boxH + drawGap;
+            currentStartMs = maxRowEndMs + 180;
+
+            return {
+                drawIdx: dIdx,
+                boxTop,
+                boxH,
+                startMs: drawStartMs,
+                cards
+            };
+        });
+
+        const rulesTop = cursorY;
+        const rulesStartMs = currentStartMs + 80;
+        const sigH = 38;
+        const totalContentH = rulesTop + rulesH + sigH + bottomPad;
+
+        // Viewport canvas height (capped for clean 9:16-friendly video with smooth auto-scroll)
+        const H = Math.min(1280, Math.max(760, totalContentH));
+        const maxScroll = Math.max(0, totalContentH - H);
+        const totalDurationMs = rulesStartMs + 1900;
+
+        canvas.width = W;
+        canvas.height = H;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.direction = 'rtl';
+
+        // Setup MediaRecorder if supported by browser
+        const chunks = [];
+        let canRecord = typeof canvas.captureStream === 'function' && typeof MediaRecorder !== 'undefined';
+        if (canRecord) {
+            try {
+                const stream = canvas.captureStream(30);
+                const mimeCandidates = [
+                    { mime: 'video/webm;codecs=vp9', ext: 'webm' },
+                    { mime: 'video/webm;codecs=vp8', ext: 'webm' },
+                    { mime: 'video/webm', ext: 'webm' },
+                    { mime: 'video/mp4', ext: 'mp4' }
+                ];
+                let chosen = null;
+                for (const c of mimeCandidates) {
+                    if (MediaRecorder.isTypeSupported(c.mime)) {
+                        chosen = c;
+                        break;
+                    }
+                }
+                recordedVideoExt = chosen ? chosen.ext : 'webm';
+                videoRecorder = chosen
+                    ? new MediaRecorder(stream, { mimeType: chosen.mime, videoBitsPerSecond: 3500000 })
+                    : new MediaRecorder(stream);
+
+                videoRecorder.ondataavailable = (e) => {
+                    if (e.data && e.data.size > 0) chunks.push(e.data);
+                };
+                videoRecorder.onstop = () => {
+                    if (videoCancelled) return;
+                    if (chunks.length > 0) {
+                        const blob = new Blob(chunks, { type: chosen ? chosen.mime : 'video/webm' });
+                        recordedVideoUrl = URL.createObjectURL(blob);
+                        dlBtn?.classList.remove('hidden');
+                        if (titleEl) titleEl.textContent = 'اكتمل تسجيل فيديو القرعة ✅';
+                        if (statusEl) statusEl.textContent = 'اضغط على "حفظ الفيديو" لتحميله على جهازك.';
+                        if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+                    }
+                };
+                videoRecorder.start(100);
+            } catch (err) {
+                console.error('MediaRecorder fallback:', err);
+                canRecord = false;
+            }
+        }
+
+        videoCancelled = false;
+        isRecordingVideo = true;
+        const startTime = performance.now();
+        let currentScrollY = 0;
+
+        function renderFrame(now) {
+            if (!isRecordingVideo) return;
+
+            const elapsed = now - startTime;
+            const progress = Math.min(1, elapsed / totalDurationMs);
+            if (progressEl) progressEl.style.width = `${Math.round(progress * 100)}%`;
+
+            // Determine target camera scroll smoothly following active content
+            let targetScroll = 0;
+            if (maxScroll > 0) {
+                let focusBottomY = headerH;
+                for (const dl of drawLayouts) {
+                    if (elapsed >= dl.startMs) {
+                        focusBottomY = Math.max(focusBottomY, dl.boxTop + dl.boxH + 24);
+                    }
+                }
+                if (elapsed >= rulesStartMs - 150) {
+                    focusBottomY = totalContentH;
+                }
+                targetScroll = Math.min(maxScroll, Math.max(0, focusBottomY - H + 20));
+                currentScrollY += (targetScroll - currentScrollY) * 0.08;
+            }
+
+            // 1. Background gradient + subtle ambient glow
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+            bgGrad.addColorStop(0, '#0b1120');
+            bgGrad.addColorStop(0.5, '#131c31');
+            bgGrad.addColorStop(1, '#0b1120');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, W, H);
+
+            const glowGrad = ctx.createRadialGradient(W / 2, 80, 20, W / 2, 80, 380);
+            glowGrad.addColorStop(0, 'rgba(16, 185, 129, 0.14)');
+            glowGrad.addColorStop(1, 'rgba(16, 185, 129, 0)');
+            ctx.fillStyle = glowGrad;
+            ctx.fillRect(0, 0, W, H);
+
+            ctx.save();
+            ctx.translate(0, -currentScrollY);
+
+            // 2. Top Title Banner
+            const titleT = Math.min(1, elapsed / 420);
+            const titleEase = 1 - Math.pow(1 - titleT, 3);
+            ctx.save();
+            ctx.globalAlpha = titleEase;
+            ctx.translate(0, (1 - titleEase) * 14);
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '900 36px Cairo, sans-serif';
+            ctx.fillText('⚽ تقسيمة المجموعات', W / 2, 62);
+            ctx.restore();
+
+            // 3. All Stacked Divisions Flowing Seamlessly Under Each Other
+            for (const dl of drawLayouts) {
+                if (elapsed < dl.startMs) continue;
+                const dT = Math.min(1, (elapsed - dl.startMs) / 300);
+                const dEase = 1 - Math.pow(1 - dT, 3);
+
+                if (isMultiDraw) {
+                    ctx.save();
+                    ctx.globalAlpha = dEase;
+                    drawRoundedRect(ctx, padX, dl.boxTop, W - padX * 2, dl.boxH, 16);
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.65)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(99, 102, 241, 0.35)';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+
+                    // Division title on right
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = '#c7d2fe';
+                    ctx.font = '900 18px Cairo, sans-serif';
+                    ctx.fillText(`التقسيمة ${dl.drawIdx + 1}`, W - padX - 18, dl.boxTop + 30);
+
+                    // Divider line
+                    ctx.strokeStyle = 'rgba(99, 102, 241, 0.22)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(padX + 14, dl.boxTop + 42);
+                    ctx.lineTo(W - padX - 14, dl.boxTop + 42);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                // Draw each team card in this division
+                for (const card of dl.cards) {
+                    if (elapsed < card.startMs) continue;
+                    const cT = Math.min(1, (elapsed - card.startMs) / 260);
+                    const cEase = 1 - Math.pow(1 - cT, 3);
+
+                    ctx.save();
+                    ctx.globalAlpha = cEase;
+                    ctx.translate(0, (1 - cEase) * 14);
+
+                    // Card body
+                    drawRoundedRect(ctx, card.x, card.y, card.w, card.h, 14);
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
+                    ctx.lineWidth = 1.2;
+                    ctx.stroke();
+
+                    // Team colored header
+                    const [c1, c2] = teamHeaderColors[card.teamIdx % teamHeaderColors.length];
+                    const hGrad = ctx.createLinearGradient(card.x, card.y, card.x + card.w, card.y);
+                    hGrad.addColorStop(0, c1);
+                    hGrad.addColorStop(1, c2);
+                    ctx.save();
+                    drawRoundedRect(ctx, card.x, card.y, card.w, card.h, 14);
+                    ctx.clip();
+                    ctx.fillStyle = hGrad;
+                    ctx.fillRect(card.x, card.y, card.w, teamHeaderH);
+                    ctx.restore();
+
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = card.isThreeCol ? '900 17px Cairo, sans-serif' : '900 19px Cairo, sans-serif';
+                    ctx.fillText(teamNames[card.teamIdx] || `الفريق ${card.teamIdx + 1}`, card.x + card.w / 2, card.y + 26);
+
+                    // Numbered players
+                    for (const pt of card.playersTiming) {
+                        if (elapsed < pt.startMs) continue;
+                        const pT = Math.min(1, (elapsed - pt.startMs) / 220);
+                        const pEase = 1 - Math.pow(1 - pT, 3);
+                        const py = card.y + teamHeaderH + 8 + pt.idx * playerRowH;
+
+                        ctx.save();
+                        ctx.globalAlpha = cEase * pEase;
+                        ctx.translate((1 - pEase) * 10, 0);
+
+                        drawRoundedRect(ctx, card.x + 8, py, card.w - 16, playerRowH - 5, 8);
+                        ctx.fillStyle = pt.idx % 2 === 1 ? 'rgba(30, 41, 59, 0.78)' : 'rgba(30, 41, 59, 0.42)';
+                        ctx.fill();
+
+                        const nameMaxW = card.w - (pt.player.isCap ? 64 : 34);
+                        ctx.textAlign = 'right';
+                        ctx.font = card.isThreeCol ? '700 14px Cairo, sans-serif' : '700 16px Cairo, sans-serif';
+                        const label = `${pt.idx + 1}. ${pt.player.name}`;
+                        ctx.fillStyle = '#f1f5f9';
+                        ctx.fillText(truncateCanvasText(ctx, label, nameMaxW), card.x + card.w - 16, py + 20);
+
+                        // Golden Captain badge ("C") on left
+                        if (pt.player.isCap) {
+                            drawRoundedRect(ctx, card.x + 14, py + 5, 24, 18, 5);
+                            ctx.fillStyle = '#f59e0b';
+                            ctx.fill();
+                            ctx.textAlign = 'center';
+                            ctx.fillStyle = '#0f172a';
+                            ctx.font = '900 12px Cairo, sans-serif';
+                            ctx.fillText('C', card.x + 26, py + 18);
+                        }
+
+                        ctx.restore();
+                    }
+
+                    ctx.restore();
+                }
+            }
+
+            // 4. Clean & Minimal Match Rules Section
+            if (elapsed >= rulesStartMs) {
+                const rT = Math.min(1, (elapsed - rulesStartMs) / 420);
+                const rEase = 1 - Math.pow(1 - rT, 3);
+
+                ctx.save();
+                ctx.globalAlpha = rEase;
+                ctx.translate(0, (1 - rEase) * 14);
+
+                drawRoundedRect(ctx, padX, rulesTop, W - padX * 2, rulesH, 14);
+                ctx.fillStyle = 'rgba(2, 6, 23, 0.78)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(51, 65, 85, 0.65)';
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+
+                // Green vertical accent bar + "نظام اللعب" title
+                drawRoundedRect(ctx, W - padX - 20, rulesTop + 14, 5, 18, 3);
+                ctx.fillStyle = '#34d399';
+                ctx.fill();
+
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#6ee7b7';
+                ctx.font = '900 17px Cairo, sans-serif';
+                ctx.fillText('نظام اللعب', W - padX - 30, rulesTop + 29);
+
+                // Subtle divider line
+                ctx.strokeStyle = 'rgba(30, 41, 59, 0.9)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(padX + 16, rulesTop + 42);
+                ctx.lineTo(W - padX - 16, rulesTop + 42);
+                ctx.stroke();
+
+                // Rule lines
+                ctx.fillStyle = '#e2e8f0';
+                ctx.font = '700 16px Cairo, sans-serif';
+                ctx.fillText('⏱️ الماتش 15 دقيقة أو تسجيل 3 أهداف', W - padX - 20, rulesTop + 70);
+                ctx.fillText('🎯 في حالة التعادل لعب ضربتين جزاء', W - padX - 20, rulesTop + 98);
+
+                ctx.restore();
+            }
+
+            // 5. Subtle Signature Footer
+            const sigStartMs = rulesStartMs + 220;
+            if (elapsed >= sigStartMs) {
+                const sT = Math.min(1, (elapsed - sigStartMs) / 450);
+                const sEase = 1 - Math.pow(1 - sT, 3);
+                ctx.save();
+                ctx.globalAlpha = sEase;
+                ctx.textAlign = 'center';
+                ctx.fillStyle = 'rgba(148, 163, 184, 0.52)';
+                ctx.font = '300 15px Cairo, sans-serif';
+                ctx.fillText('تطبيق من تصميم الموجي', W / 2, rulesTop + rulesH + 26);
+                ctx.restore();
+            }
+
+            ctx.restore();
+
+            if (elapsed < totalDurationMs) {
+                videoAnimFrame = requestAnimationFrame(renderFrame);
+            } else {
+                isRecordingVideo = false;
+                if (progressEl) progressEl.style.width = '100%';
+                if (canRecord && videoRecorder && videoRecorder.state === 'recording') {
+                    videoRecorder.stop();
+                } else {
+                    if (titleEl) titleEl.textContent = 'اكتمل عرض القرعة ✅';
+                    if (statusEl) statusEl.textContent = 'المتصفح الحالي لا يدعم تصدير الفيديو المباشر، لكن يمكنك حفظ النتيجة كصورة.';
+                    if (dotEl) dotEl.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+                }
+            }
+        }
+
+        videoAnimFrame = requestAnimationFrame(renderFrame);
+    }
+
+    // Initialize app on load
+    window.addEventListener('DOMContentLoaded', () => {
+        setTeamCount(teamCount);
+        setMultiDrawCount(multiDrawCount);
+        updateTabStyles();
+        updateRoleButtons();
+        selectSkill(selectedSkill);
+        renderPlayers();
+    });
+</script>
+</body>
+</html>
