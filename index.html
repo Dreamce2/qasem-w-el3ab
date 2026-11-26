@@ -55,6 +55,18 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 14px;
             box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.4);
+            transition: border-color 0.15s ease !important;
+        }
+        /* Prevent mobile compositor-layer jitter/flicker across sibling buttons */
+        button, div[onclick] {
+            touch-action: manipulation;
+            transition-property: background-color, border-color, color, opacity !important;
+            transition-duration: 120ms !important;
+        }
+        button:not(#coinDisc):active,
+        div[onclick]:active {
+            transform: none !important;
+            opacity: 0.82;
         }
         .btn-active {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -680,7 +692,7 @@
     </div>
 
     <!-- Edit Match Rules Modal (Single Multi-line Textarea) -->
-    <div id="editMatchRulesModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="editMatchRulesModal" onclick="if(event.target===this) closeMatchRulesModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl p-3.5 max-w-sm w-full space-y-3 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                 <h3 class="text-xs font-black text-white flex items-center gap-1.5">
@@ -711,7 +723,7 @@
     </div>
 
     <!-- Video Recording Preview Modal -->
-    <div id="videoRecordModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="videoRecordModal" onclick="if(event.target===this && !isRecordingVideo) closeVideoModal()" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-indigo-500/40 rounded-2xl p-3 max-w-sm w-full space-y-2.5 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                 <div class="flex items-center gap-1.5">
@@ -744,7 +756,7 @@
     </div>
 
     <!-- Custom In-App Alert / Confirm Modal -->
-    <div id="customModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="customModal" onclick="if(event.target===this){ this.classList.add('hidden'); this.classList.remove('flex'); }" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-slate-700 rounded-xl p-3.5 max-w-sm w-full space-y-2.5 shadow-2xl text-center">
             <div id="modalIcon" class="text-2xl">⚠️</div>
             <h3 id="modalTitle" class="text-xs font-extrabold text-white">تأكيد العمل</h3>
@@ -757,7 +769,7 @@
     </div>
 
     <!-- Custom Edit Player Modal -->
-    <div id="editPlayerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="editPlayerModal" onclick="if(event.target===this) closeEditPlayerModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-slate-700 rounded-xl p-3.5 max-w-sm w-full space-y-3 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
                 <h3 class="text-xs font-black text-white flex items-center gap-1">
@@ -812,7 +824,7 @@
     </div>
 
     <!-- Random Names Modal -->
-    <div id="randomNamesModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="randomNamesModal" onclick="if(event.target===this) closeRandomNamesModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-slate-700/80 rounded-2xl p-3.5 max-w-[320px] w-full space-y-3 shadow-2xl">
             <!-- Header -->
             <div class="flex items-center justify-between pb-2 border-b border-slate-800/90">
@@ -852,7 +864,7 @@
     </div>
 
     <!-- Saved Squad (Regular Players) Modal -->
-    <div id="savedSquadModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="savedSquadModal" onclick="if(event.target===this) closeSavedSquadModal()" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-amber-500/40 rounded-2xl p-3.5 max-w-sm w-full space-y-2.5 shadow-2xl flex flex-col max-h-[85vh]">
             <!-- Header -->
             <div class="flex items-center justify-between pb-2 border-b border-slate-800/90 shrink-0">
@@ -903,7 +915,7 @@
     </div>
 
     <!-- Match Timer, Scoreboard & Toss Modal -->
-    <div id="matchTimerModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="matchTimerModal" onclick="if(event.target===this) closeMatchTimerModal()" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl p-3.5 max-w-sm w-full h-[555px] max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             <!-- Header -->
             <div class="flex items-center justify-between pb-2 border-b border-slate-800/90 shrink-0">
@@ -1735,7 +1747,7 @@
             ? 'py-1.5 rounded-lg text-xs font-extrabold border border-emerald-500 bg-emerald-500/20 text-emerald-300 flex items-center justify-center gap-1.5 transition active:scale-[0.97] shadow-sm'
             : idle;
         btn2.className = level === 2
-            ? 'py-1.5 rounded-lg text-xs font-extrabold border border-amber-500 bg-amber-500/20 text-amber-300 flex items-center justify-center gap-1.5 transition active:scale-[0.97] shadow-sm'
+            ? 'py-1.5 rounded-lg text-xs font-extrabold border border-purple-400 bg-purple-500/20 text-purple-200 flex items-center justify-center gap-1.5 transition active:scale-[0.97] shadow-sm'
             : idle;
     }
 
@@ -4090,11 +4102,50 @@
     let scoreTeamAText = 'الفريق الأول';
     let scoreTeamBText = 'الفريق الثاني';
     let whistleAudioCtx = null;
+    let matchWakeLock = null;
+
+    // Keep the phone screen awake while the match timer is actively running
+    async function requestMatchWakeLock() {
+        try {
+            if (!('wakeLock' in navigator) || !timerRunning || matchWakeLock) return;
+            matchWakeLock = await navigator.wakeLock.request('screen');
+            matchWakeLock.addEventListener('release', () => {
+                matchWakeLock = null;
+            });
+        } catch (err) {
+            matchWakeLock = null;
+        }
+    }
+
+    function releaseMatchWakeLock() {
+        try {
+            if (matchWakeLock) {
+                matchWakeLock.release().catch(() => {});
+                matchWakeLock = null;
+            }
+        } catch (err) {
+            matchWakeLock = null;
+        }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && timerRunning) {
+            requestMatchWakeLock();
+        }
+    });
+
+    let matchModalTab = 'timer';
+    let tossTeamCount = 3;
+    let tossCustomNames = [...teamNames];
+    let isTossingTeams = false;
+    let isFlippingCoin = false;
 
     function openMatchTimerModal() {
+        tossTeamCount = Math.min(8, Math.max(2, teamCount || 3));
+        renderTossTeamInputs();
         updateMatchTimerUI();
         updateScoreboardUI();
-        updateTossTabMeta();
+        switchMatchModalTab(matchModalTab);
         const modal = document.getElementById('matchTimerModal');
         modal?.classList.remove('hidden');
         modal?.classList.add('flex');
@@ -4106,96 +4157,66 @@
         modal?.classList.remove('flex');
     }
 
-    // =========================================================
-    // Match Modal Tabs + Team Order Toss + Coin Flip
-    // =========================================================
-    let activeMatchModalTab = 'timer';
-    let tossTeamCount = 3;
-    let tossTeamNames = [...teamNames];
-    let isTossingTeams = false;
-    let isFlippingCoin = false;
-
     function switchMatchModalTab(tab) {
-        activeMatchModalTab = tab;
+        matchModalTab = tab === 'toss' ? 'toss' : 'timer';
         const timerPanel = document.getElementById('matchTab-timer');
         const tossPanel = document.getElementById('matchTab-toss');
         const timerBtn = document.getElementById('matchTabBtn-timer');
         const tossBtn = document.getElementById('matchTabBtn-toss');
 
-        if (timerPanel) timerPanel.classList.toggle('hidden', tab !== 'timer');
-        if (tossPanel) tossPanel.classList.toggle('hidden', tab !== 'toss');
+        timerPanel?.classList.toggle('hidden', matchModalTab !== 'timer');
+        tossPanel?.classList.toggle('hidden', matchModalTab !== 'toss');
 
-        if (timerBtn) {
-            timerBtn.className = tab === 'timer'
-                ? 'py-1.5 px-2 rounded-lg bg-emerald-500/20 border border-emerald-500/45 text-emerald-300 font-extrabold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.97]'
-                : 'py-1.5 px-2 rounded-lg bg-transparent border border-transparent text-slate-400 hover:text-slate-200 font-extrabold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.97]';
-        }
-        if (tossBtn) {
-            tossBtn.className = tab === 'toss'
-                ? 'py-1.5 px-2 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 font-extrabold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.97]'
-                : 'py-1.5 px-2 rounded-lg bg-transparent border border-transparent text-slate-400 hover:text-slate-200 font-extrabold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.97]';
-        }
-        // Ensure coin animation never replays automatically when switching tabs
-        if (!isFlippingCoin) {
-            document.getElementById('coinDisc')?.classList.remove('coin-spin-anim');
-        }
-        if (tab === 'toss') updateTossTabMeta();
+        const activeCls = 'py-1.5 px-2 rounded-lg bg-emerald-500/20 border border-emerald-500/45 text-emerald-300 font-extrabold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.97]';
+        const idleCls = 'py-1.5 px-2 rounded-lg bg-transparent border border-transparent text-slate-400 hover:text-slate-200 font-extrabold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.97]';
+
+        if (timerBtn) timerBtn.className = matchModalTab === 'timer' ? activeCls : idleCls;
+        if (tossBtn) tossBtn.className = matchModalTab === 'toss' ? activeCls : idleCls;
     }
 
-    function updateTossTabMeta() {
-        const display = document.getElementById('tossTeamCountDisplay');
-        const btnDec = document.getElementById('btnDecTossTeam');
-        const btnInc = document.getElementById('btnIncTossTeam');
-        if (display) display.textContent = `${tossTeamCount} فرق`;
-        if (btnDec) btnDec.disabled = tossTeamCount <= 2;
-        if (btnInc) btnInc.disabled = tossTeamCount >= 8;
-        renderTossTeamInputs();
-    }
-
-    function changeTossTeamCount(delta) {
-        const next = Math.min(8, Math.max(2, tossTeamCount + delta));
-        if (next === tossTeamCount) return;
-        tossTeamCount = next;
-        updateTossTabMeta();
+    function onTossTeamNameInput(idx, val) {
+        tossCustomNames[idx] = val;
     }
 
     function renderTossTeamInputs() {
         const grid = document.getElementById('tossTeamNamesGrid');
-        if (!grid) return;
-        const isThreeCol = tossTeamCount === 3 || tossTeamCount === 6;
-        grid.className = isThreeCol ? 'grid grid-cols-3 gap-1.5' : 'grid grid-cols-2 gap-1.5';
+        const countEl = document.getElementById('tossTeamCountDisplay');
+        const btnDec = document.getElementById('btnDecTossTeam');
+        const btnInc = document.getElementById('btnIncTossTeam');
 
+        if (countEl) countEl.textContent = `${tossTeamCount} فرق`;
+        if (btnDec) btnDec.disabled = tossTeamCount <= 2;
+        if (btnInc) btnInc.disabled = tossTeamCount >= 8;
+        if (!grid) return;
+
+        const colsClass = tossTeamCount === 2 || tossTeamCount === 4 ? 'grid-cols-2' : 'grid-cols-3';
+        grid.className = `grid ${colsClass} gap-1.5`;
         grid.innerHTML = Array.from({ length: tossTeamCount }, (_, i) => {
-            const val = tossTeamNames[i] || `الفريق ${i + 1}`;
+            const val = tossCustomNames[i] || teamNames[i] || `الفريق ${i + 1}`;
             return `
-                <input type="text" value="${escapeHtml(val)}" maxlength="18" oninput="updateTossTeamName(${i}, this.value)" onblur="finalizeTossTeamName(${i}, this)" placeholder="الفريق ${i + 1}" class="w-full bg-slate-900/90 hover:bg-slate-800/80 focus:bg-slate-900 border border-slate-700/80 focus:border-emerald-400/80 rounded-lg px-2 py-1 text-[11px] font-bold text-slate-100 text-center focus:outline-none transition" />
+                <input type="text" value="${escapeHtml(val)}" maxlength="18" oninput="onTossTeamNameInput(${i}, this.value)" aria-label="اسم الفريق ${i + 1}" class="w-full bg-slate-900 border border-slate-700/80 focus:border-emerald-400 rounded-lg px-2 py-1.5 text-[11px] font-extrabold text-slate-100 text-center focus:outline-none transition" />
             `;
         }).join('');
     }
 
-    function updateTossTeamName(idx, val) {
-        tossTeamNames[idx] = val;
-    }
-
-    function finalizeTossTeamName(idx, el) {
-        const cleaned = (el?.value || '').trim();
-        const fallback = teamNames[idx] || `الفريق ${idx + 1}`;
-        tossTeamNames[idx] = cleaned || fallback;
-        if (el) el.value = tossTeamNames[idx];
+    function changeTossTeamCount(delta) {
+        tossTeamCount = Math.min(8, Math.max(2, tossTeamCount + delta));
+        renderTossTeamInputs();
     }
 
     function runTeamOrderToss() {
         if (isTossingTeams) return;
         isTossingTeams = true;
 
-        const btn = document.getElementById('btnRunTeamToss');
         const box = document.getElementById('teamTossResultBox');
+        const btn = document.getElementById('btnRunTeamToss');
         if (btn) btn.disabled = true;
 
         const activeNames = Array.from({ length: tossTeamCount }, (_, i) => {
-            const custom = (tossTeamNames[i] || '').trim();
+            const custom = (tossCustomNames[i] || '').trim();
             return custom || teamNames[i] || `الفريق ${i + 1}`;
         });
+
         let ticks = 0;
         const maxTicks = 10;
 
@@ -4349,6 +4370,7 @@
             timerIntervalId = null;
         }
         timerRunning = false;
+        releaseMatchWakeLock();
         timerDurationSec = mins * 60;
         timerRemainingSec = timerDurationSec;
         updateMatchTimerUI();
@@ -4373,6 +4395,7 @@
         if (timerRunning) {
             // Pause timer (no whistle on pause/resume)
             timerRunning = false;
+            releaseMatchWakeLock();
             if (timerIntervalId) {
                 clearInterval(timerIntervalId);
                 timerIntervalId = null;
@@ -4389,6 +4412,7 @@
         const isFreshStart = timerRemainingSec === timerDurationSec;
         timerRunning = true;
         timerEndTimestamp = Date.now() + timerRemainingSec * 1000;
+        requestMatchWakeLock();
 
         // Play start whistle ONLY on a fresh match start, not on resume after pause
         if (isFreshStart) {
@@ -4405,6 +4429,7 @@
                 clearInterval(timerIntervalId);
                 timerIntervalId = null;
                 timerRunning = false;
+                releaseMatchWakeLock();
                 updateMatchTimerUI();
                 playRefereeWhistle(true);
                 showToast('انتهى وقت الماتش 🏁', '⏱️', 2600);
@@ -4418,6 +4443,7 @@
             timerIntervalId = null;
         }
         timerRunning = false;
+        releaseMatchWakeLock();
         timerRemainingSec = timerDurationSec;
         updateMatchTimerUI();
     }
