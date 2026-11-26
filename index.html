@@ -55,18 +55,6 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 14px;
             box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.4);
-            transition: border-color 0.15s ease !important;
-        }
-        /* Prevent mobile compositor-layer jitter/flicker across sibling buttons */
-        button, div[onclick] {
-            touch-action: manipulation;
-            transition-property: background-color, border-color, color, opacity !important;
-            transition-duration: 120ms !important;
-        }
-        button:not(#coinDisc):active,
-        div[onclick]:active {
-            transform: none !important;
-            opacity: 0.82;
         }
         .btn-active {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
