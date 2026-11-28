@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0b1120">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -18,7 +18,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 
     <style>
         * {
@@ -28,9 +28,31 @@
             word-break: normal;
             overflow-wrap: break-word;
         }
+        :root {
+            /* Status-bar safe area: native env() first, Capacitor SystemBars variable as fallback */
+            --sat: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+            --sab: max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px));
+        }
         html, body {
             overflow-x: hidden;
             width: 100%;
+        }
+        /* Instant taps: no 300ms delay / double-tap zoom on any control */
+        button, a, input, textarea, select, label, [onclick] {
+            touch-action: manipulation;
+        }
+        /* Solid strip behind the phone status bar so clock & battery stay readable while scrolling */
+        #statusBarSafe {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--sat);
+            background: #0b1120;
+            z-index: 95;
+            pointer-events: none;
+        }
+        /* Save battery: freeze all animations while the app is in the background */
+        html.app-hidden *, html.app-hidden *::before, html.app-hidden *::after {
+            animation-play-state: paused !important;
         }
         body {
             background-color: #0b1120;
@@ -44,11 +66,11 @@
             width: 100%;
             display: flex;
             flex-direction: column;
-            padding-top: max(3.25rem, calc(env(safe-area-inset-top, 0px) + 2.75rem));
-            padding-bottom: max(2rem, calc(env(safe-area-inset-bottom, 0px) + 1.5rem));
+            padding-top: calc(var(--sat) + 0.75rem);
+            padding-bottom: calc(var(--sab) + 1.5rem);
         }
         #toastContainer {
-            top: max(0.75rem, env(safe-area-inset-top, 0.75rem));
+            top: calc(var(--sat) + 0.5rem);
         }
         .glass-card {
             background: #131c31;
@@ -92,43 +114,43 @@
 
         /* Video-Style Smooth Staggered Division Reveal Animations */
         @keyframes drawBoxIn {
-            0% { opacity: 0; transform: translateY(10px); }
+            0% { opacity: 0; transform: translateY(6px); }
             100% { opacity: 1; transform: translateY(0); }
         }
         @keyframes drawCardIn {
-            0% { opacity: 0; transform: translateY(14px); }
+            0% { opacity: 0; transform: translateY(8px); }
             100% { opacity: 1; transform: translateY(0); }
         }
         @keyframes drawPlayerIn {
-            0% { opacity: 0; transform: translateX(10px); }
+            0% { opacity: 0; transform: translateX(6px); }
             100% { opacity: 1; transform: translateX(0); }
         }
         .draw-box-anim {
             opacity: 0;
-            animation: drawBoxIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: drawBoxIn 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .draw-card-anim {
             opacity: 0;
-            animation: drawCardIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: drawCardIn 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .draw-player-anim {
             opacity: 0;
-            animation: drawPlayerIn 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: drawPlayerIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         @keyframes swapFlash {
-            0% { background-color: rgba(16, 185, 129, 0.45); transform: scale(1.03); }
+            0% { background-color: rgba(16, 185, 129, 0.45); transform: scale(1.02); }
             100% { transform: scale(1); }
         }
         .swap-flash-anim {
-            animation: swapFlash 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: swapFlash 0.45s cubic-bezier(0.16, 1, 0.3, 1);
         }
         @keyframes scorePop {
             0% { transform: scale(1); }
-            40% { transform: scale(1.26); }
+            40% { transform: scale(1.18); }
             100% { transform: scale(1); }
         }
         .score-pop-anim {
-            animation: scorePop 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: scorePop 0.24s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .coin-stage {
             perspective: 700px;
@@ -180,14 +202,39 @@
             opacity: 0;
             animation: splashTextIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) 0.24s forwards;
         }
+
+        /* ===== Unified, light button system (colors + press animation) ===== */
+        button[type="button"], button:not([type]) {
+            transition: transform .14s cubic-bezier(.2,.8,.2,1), background-color .16s ease, border-color .16s ease, color .16s ease, opacity .16s ease, box-shadow .16s ease;
+            -webkit-user-select: none; user-select: none;
+        }
+        button[type="button"]:active:not(:disabled) { transform: scale(.97); }
+        button:disabled { cursor: not-allowed; }
+        div[onclick]:not(.fixed) { transition: transform .14s cubic-bezier(.2,.8,.2,1), background-color .16s ease; }
+        div[onclick]:not(.fixed):active { transform: scale(.99); }
+        /* Solid primary (emerald) */
+        button.bg-emerald-500 { background-image: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: inset 0 0 0 1px rgba(52,211,153,.55); }
+        button.bg-emerald-500:hover:not(:disabled) { background-image: linear-gradient(135deg, #059669 0%, #047857 100%); }
+        /* Solid secondary (amber) */
+        button.bg-amber-500 { background-image: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: inset 0 0 0 1px rgba(251,191,36,.55); }
+        button.bg-amber-500:hover:not(:disabled), button.bg-amber-400:hover:not(:disabled) { background-image: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+        /* Neutral (cancel / close) */
+        button.bg-slate-800:not([class*="border"]) { box-shadow: inset 0 0 0 1px rgba(71,85,105,.75); }
+        button.bg-slate-800:not([class*="border"]):hover:not(:disabled) { background-color: #334155; }
+        /* Results header: no glow when the panel is closed, same look as the other cards */
+        #captureArea.results-closed { background: #131c31; border-color: rgba(255,255,255,.08); box-shadow: 0 8px 20px -4px rgba(0,0,0,.4); }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+        }
     </style>
 </head>
 <body>
+    <div id="statusBarSafe" aria-hidden="true"></div>
 
     <!-- Seamless In-App Splash: Fixed Center Logo + Smooth Text Reveal Below -->
     <div id="appSplash" class="fixed inset-0 z-[100] bg-[#0b1120] flex items-center justify-center select-none px-4 overflow-hidden">
         <div class="relative flex items-center justify-center">
-            <div class="splash-glow-anim absolute -inset-12 rounded-full bg-emerald-500/12 blur-3xl pointer-events-none"></div>
+            <div class="splash-glow-anim absolute -inset-12 rounded-full pointer-events-none" style="background: radial-gradient(circle, rgba(16,185,129,0.20) 0%, rgba(16,185,129,0) 68%);"></div>
             <img
                 src="logo.png"
                 onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/Dreamce2/qasem-w-el3ab/main/logo.png';"
@@ -317,15 +364,12 @@
 
             <div class="grid grid-cols-2 gap-1.5">
                 <button type="button" onclick="toggleRoleInput('isGk')" id="gkRoleBtn" class="py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-900/80 flex items-center justify-between text-xs font-extrabold text-slate-400 transition active:scale-[0.97] hover:border-slate-600">
-                    <span>🧤 حارس مرمى</span>
+                    <span class="flex items-center gap-1.5"><svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg><span>حارس مرمى</span></span>
                     <span id="gkRoleCheck" class="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center text-[9px]"></span>
                 </button>
                 <button type="button" onclick="toggleRoleInput('isCap')" id="capRoleBtn" class="py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-900/80 flex items-center justify-between text-xs font-extrabold text-slate-400 transition active:scale-[0.97] hover:border-slate-600">
                     <span class="flex items-center gap-1.5">
-                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <rect x="2" y="5" width="20" height="14" rx="4" fill="#f59e0b" fill-opacity="0.2" stroke="#fbbf24" stroke-width="1.8"/>
-                            <path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"/>
-                        </svg>
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6"/></svg>
                         <span>رأس مجموعة</span>
                     </span>
                     <span id="capRoleCheck" class="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center text-[9px]"></span>
@@ -352,7 +396,7 @@
         <section id="panel-bulk" class="glass-card p-2.5 space-y-2 hidden border border-amber-500/20">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-1.5">
-                    <h3 class="text-xs font-extrabold text-amber-300">⚡ لصق أسماء مجموعة لاعبين</h3>
+                    <h3 class="text-xs font-extrabold text-amber-300 flex items-center gap-1.5"><svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg><span>لصق أسماء مجموعة لاعبين</span></h3>
                     <span id="bulkLineCountBadge" class="text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded-md">0 اسم</span>
                 </div>
                 <span class="text-[10px] text-slate-400">كل اسم في سطر</span>
@@ -364,27 +408,24 @@
         </section>
 
         <!-- Players List Card (Above Rules) -->
-        <section class="glass-card overflow-hidden border border-emerald-500/30 transition-all">
+        <section class="glass-card overflow-hidden border border-emerald-500/30 transition-colors">
             <div onclick="togglePlayersListVisibility()" class="p-2.5 bg-emerald-950/40 hover:bg-emerald-950/60 cursor-pointer flex items-center justify-between transition active:scale-[0.98] border-b border-emerald-500/20 select-none">
                 <div class="flex items-center gap-1.5">
-                    <span class="text-xs">📋</span>
+                    <svg class="w-4 h-4 text-emerald-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     <span class="text-xs font-extrabold text-emerald-200">قائمة اللاعبين</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <div class="flex items-center gap-1 text-[10px] font-extrabold flex-wrap">
                         <span class="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-0.5" title="إجمالي اللاعبين">
-                            <span>👥</span>
+                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                             <span id="badgeTotalCount">0</span>
                         </span>
                         <span class="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-0.5" title="رؤوس المجموعات (الكباتن)">
-                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <rect x="2" y="5" width="20" height="14" rx="4" fill="#f59e0b" fill-opacity="0.25" stroke="#fbbf24" stroke-width="1.8"/>
-                                <path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"/>
-                            </svg>
+                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6"/></svg>
                             <span id="badgeCapCount">0</span>
                         </span>
                         <span class="px-1.5 py-0.5 rounded-md bg-sky-500/20 text-sky-300 border border-sky-500/30 flex items-center gap-0.5" title="حراس المرمى">
-                            <span>🧤</span>
+                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
                             <span id="badgeGkCount">0</span>
                         </span>
                         <span class="px-1.5 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-0.5" title="اللاعبين الجامدين">
@@ -394,19 +435,18 @@
                             <span id="badgeProCount">0</span>
                         </span>
                     </div>
-                    <span id="rosterToggleArrow" class="text-xs text-emerald-400 transition-transform duration-200 rotate-180">▼</span>
+                    <span id="rosterToggleArrow" class="text-xs text-emerald-400 transition-transform duration-200 rotate-180 inline-flex"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
                 </div>
             </div>
 
             <div id="playersListBody" class="p-2.5 space-y-2">
                 <!-- Quick Action Buttons: Saved Squad, Random Names & Instant Clear All -->
-                <div class="grid grid-cols-3 gap-1.5 pb-1.5 border-b border-slate-800/80">
+                <div class="grid grid-cols-[1fr_1fr_1fr_auto] gap-1.5 pb-1.5 border-b border-slate-800/80">
                     <button type="button" onclick="openSavedSquadModal()" class="py-1.5 px-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 text-[11px] font-extrabold transition flex items-center justify-center gap-1.5 active:scale-95">
                         <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                         </svg>
                         <span>المحفوظين</span>
-                        <span id="savedSquadCountBadge" class="hidden px-1 py-0.2 rounded bg-amber-500/25 text-amber-200 text-[9px] tabular-nums">0</span>
                     </button>
                     <button type="button" onclick="openRandomNamesModal()" class="py-1.5 px-1 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-[11px] font-extrabold transition flex items-center justify-center gap-1.5 active:scale-95">
                         <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -428,6 +468,7 @@
                         </svg>
                         <span>مسح الكل</span>
                     </button>
+                    <button type="button" onclick="copyPlayerNames()" title="نسخ الأسماء" aria-label="نسخ الأسماء" class="w-9 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/40 text-sky-300 flex items-center justify-center transition active:scale-95"><svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
                 </div>
 
                 <div id="playersContainer" class="space-y-1 max-h-52 overflow-y-auto pr-0.5">
@@ -437,15 +478,15 @@
         </section>
 
         <!-- Rules & Constraints Card Container (Below Players List) -->
-        <section id="rulesCard" class="glass-card relative z-20 border border-indigo-500/30 transition-all">
+        <section id="rulesCard" class="glass-card relative z-20 border border-indigo-500/30 transition-colors">
             <div onclick="toggleRulesVisibility()" class="p-2.5 bg-indigo-950/40 hover:bg-indigo-950/60 cursor-pointer flex items-center justify-between transition active:scale-[0.98] rounded-[13px] select-none">
                 <div class="flex items-center gap-1.5">
-                    <span class="text-xs">⚙️</span>
+                    <svg class="w-4 h-4 text-indigo-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="21" y1="4" x2="14" y2="4"/><line x1="10" y1="4" x2="3" y2="4"/><line x1="21" y1="12" x2="12" y2="12"/><line x1="8" y1="12" x2="3" y2="12"/><line x1="21" y1="20" x2="16" y2="20"/><line x1="12" y1="20" x2="3" y2="20"/><line x1="14" y1="2" x2="14" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="16" y1="18" x2="16" y2="22"/></svg>
                     <span class="text-xs font-extrabold text-indigo-200">شروط واساسيات تقسيم الفرق</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span id="rulesCountBadge" class="text-[10px] font-extrabold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1.5 py-0.5 rounded-md hidden">0 شرط</span>
-                    <span id="rulesToggleArrow" class="text-xs text-indigo-400 transition-transform duration-200">▼</span>
+                    <span id="rulesToggleArrow" class="text-xs text-indigo-400 transition-transform duration-200 inline-flex"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
                 </div>
             </div>
 
@@ -502,13 +543,13 @@
         </section>
 
         <!-- Generate Draw Interactive Card -->
-        <section id="drawCard" class="glass-card overflow-hidden border border-sky-500/30 transition-all">
+        <section id="drawCard" class="glass-card overflow-hidden border border-sky-500/30 transition-colors">
             <div onclick="toggleDrawPanel()" class="p-2.5 bg-sky-950/40 hover:bg-sky-950/60 cursor-pointer flex items-center justify-between transition active:scale-[0.98] border-b border-sky-500/20 select-none">
                 <div class="flex items-center gap-1.5">
-                    <span class="text-xs">🎲</span>
+                    <svg class="w-4 h-4 text-sky-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1" fill="currentColor" stroke="none"/></svg>
                     <span class="text-xs font-extrabold text-sky-200">اعمل القرعة وقسّم الفرق</span>
                 </div>
-                <span id="drawPanelArrow" class="text-xs text-sky-400 transition-transform duration-200 rotate-180">▼</span>
+                <span id="drawPanelArrow" class="text-xs text-sky-400 transition-transform duration-200 rotate-180 inline-flex"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
             </div>
 
             <div id="drawPanelBody" class="p-2 space-y-1.5 bg-slate-900/75">
@@ -527,12 +568,12 @@
                         </div>
                         <div dir="ltr" class="flex items-center gap-0.5 bg-slate-950/90 p-0.5 rounded-md border border-sky-500/30 shrink-0">
                             <button type="button" id="btnDecTeam" onclick="changeTeamCount(-1)" aria-label="تقليل عدد الفرق" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-sky-300 font-black text-xs flex items-center justify-center transition disabled:opacity-35 disabled:pointer-events-none">
-                                −
-                            </button>
+<svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
                             <span id="teamCountDisplay" class="w-6 text-center text-xs font-black text-white tabular-nums">3</span>
                             <button type="button" id="btnIncTeam" onclick="changeTeamCount(1)" aria-label="زيادة عدد الفرق" class="w-5 h-5 rounded bg-sky-500/20 hover:bg-sky-500/30 active:scale-95 border border-sky-500/40 text-sky-300 font-black text-xs flex items-center justify-center transition disabled:opacity-35 disabled:pointer-events-none">
-                                +
-                            </button>
+<svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
                         </div>
                     </div>
 
@@ -559,18 +600,18 @@
                                 <polyline points="2 12 12 17 22 12"/>
                                 <polyline points="2 17 12 22 22 17"/>
                             </svg>
-                            <span id="btnDrawMultiText" class="truncate">تقسيم أكتر</span>
+                            <span id="btnDrawMultiText" class="truncate">قسم أكتر</span>
                         </button>
 
                         <!-- Compact Inline Counter: Stepper Only (No Manual Typing) -->
                         <div dir="ltr" onclick="event.stopPropagation()" class="flex items-center gap-0.5 bg-slate-950/90 p-0.5 rounded-md border border-indigo-400/30 shrink-0">
                             <button type="button" id="btnDecMulti" onclick="changeMultiDrawCount(-1)" aria-label="تقليل عدد المرات" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 text-indigo-300 font-black text-xs flex items-center justify-center transition disabled:opacity-35 disabled:pointer-events-none">
-                                −
-                            </button>
+<svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
                             <span id="multiDrawCountDisplay" class="w-6 text-center text-xs font-black text-white tabular-nums select-none">3</span>
                             <button type="button" id="btnIncMulti" onclick="changeMultiDrawCount(1)" aria-label="زيادة عدد المرات" class="w-5 h-5 rounded bg-indigo-500/25 hover:bg-indigo-500/40 active:scale-95 border border-indigo-400/40 text-indigo-200 font-black text-xs flex items-center justify-center transition disabled:opacity-35 disabled:pointer-events-none">
-                                +
-                            </button>
+<svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
                         </div>
                     </div>
 
@@ -593,12 +634,12 @@
                 <!-- Collapsible Header Bar -->
                 <div onclick="toggleResultsPanel()" id="resultsHeaderBar" class="relative p-3 flex items-center justify-between cursor-pointer hover:bg-emerald-950/35 transition active:scale-[0.99] border-b border-emerald-500/20 select-none">
                     <div class="flex items-center gap-1.5">
-                        <span class="text-base">⚽</span>
+                        <svg class="w-5 h-5 text-emerald-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="12 8 15.5 10.5 14.2 14.6 9.8 14.6 8.5 10.5"/><path d="M12 8V2.2M15.5 10.5l5.2-1.7M14.2 14.6l3.2 4.4M9.8 14.6l-3.2 4.4M8.5 10.5L3.3 8.8"/></svg>
                         <h2 class="text-sm font-black text-white tracking-tight">تقسيمة المجموعات</h2>
                     </div>
                     <div class="flex items-center gap-2">
                         <span id="resultHeaderBadge" class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"></span>
-                        <span id="resultsToggleArrow" class="text-xs text-emerald-400 transition-transform duration-200 rotate-180">▼</span>
+                        <span id="resultsToggleArrow" class="text-xs text-emerald-400 transition-transform duration-200 rotate-180 inline-flex"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
                     </div>
                 </div>
 
@@ -607,7 +648,7 @@
                     <!-- Smooth Tap-to-Swap Active Selection Bar (Only shown when Swap Mode is toggled ON) -->
                     <div id="swapHintBar" data-html2canvas-ignore="true" class="hidden items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-400/45 text-amber-200 text-[11px] font-extrabold">
                         <div class="flex items-center gap-1.5 min-w-0">
-                            <span class="shrink-0">⇄</span>
+                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg>
                             <span id="swapHintText" class="truncate">اختر اللاعب الأول للتبديل</span>
                         </div>
                         <button type="button" onclick="cancelPlayerSwap()" class="px-2 py-0.5 rounded-md bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-bold shrink-0 transition active:scale-95">
@@ -626,7 +667,7 @@
                                 <span class="text-[11px] font-black text-emerald-300">نظام اللعب</span>
                             </div>
                             <button type="button" data-html2canvas-ignore="true" onclick="openMatchRulesModal()" class="px-2 py-0.5 rounded-md bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white text-[10px] font-extrabold flex items-center gap-1 transition active:scale-95">
-                                <span>✏️</span>
+                                <svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                                 <span>تعديل</span>
                             </button>
                         </div>
@@ -680,14 +721,14 @@
     </div>
 
     <!-- Edit Match Rules Modal (Single Multi-line Textarea) -->
-    <div id="editMatchRulesModal" onclick="if(event.target===this) closeMatchRulesModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="editMatchRulesModal" onclick="if(event.target===this) closeMatchRulesModal()" class="fixed inset-0 bg-slate-950/90 hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl p-3.5 max-w-sm w-full space-y-3 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                 <h3 class="text-xs font-black text-white flex items-center gap-1.5">
-                    <span>🏆</span>
+                    <svg class="w-4 h-4 text-amber-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
                     <span>تعديل نظام اللعب</span>
                 </h3>
-                <button type="button" onclick="closeMatchRulesModal()" class="text-slate-400 hover:text-white text-xs px-1">✕</button>
+                <button type="button" onclick="closeMatchRulesModal()" class="text-slate-400 hover:text-white text-xs px-1"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>
 
             <div class="space-y-1.5">
@@ -711,14 +752,14 @@
     </div>
 
     <!-- Video Recording Preview Modal -->
-    <div id="videoRecordModal" onclick="if(event.target===this && !isRecordingVideo) closeVideoModal()" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="videoRecordModal" onclick="if(event.target===this && !isRecordingVideo) closeVideoModal()" class="fixed inset-0 bg-slate-950/90 hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-indigo-500/40 rounded-2xl p-3 max-w-sm w-full space-y-2.5 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                 <div class="flex items-center gap-1.5">
                     <span id="videoRecDot" class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
                     <h3 id="videoModalTitle" class="text-xs font-black text-white">جاري تسجيل فيديو القرعة...</h3>
                 </div>
-                <button type="button" onclick="closeVideoModal()" class="text-slate-400 hover:text-white text-xs px-1">✕</button>
+                <button type="button" onclick="closeVideoModal()" class="text-slate-400 hover:text-white text-xs px-1"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>
 
             <div class="relative rounded-xl overflow-hidden border border-slate-700/80 bg-slate-950 flex items-center justify-center">
@@ -734,7 +775,7 @@
 
             <div class="flex items-center gap-2 pt-0.5">
                 <button type="button" id="videoDownloadAgainBtn" onclick="triggerVideoDownload()" class="hidden flex-1 py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs transition active:scale-[0.98]">
-                    💾 حفظ الفيديو
+                    <span class="inline-flex items-center justify-center gap-1.5"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><span>حفظ الفيديو</span></span>
                 </button>
                 <button type="button" onclick="closeVideoModal()" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition">
                     إغلاق
@@ -744,9 +785,9 @@
     </div>
 
     <!-- Custom In-App Alert / Confirm Modal -->
-    <div id="customModal" onclick="if(event.target===this){ this.classList.add('hidden'); this.classList.remove('flex'); }" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="customModal" onclick="if(event.target===this){ this.classList.add('hidden'); this.classList.remove('flex'); }" class="fixed inset-0 bg-slate-950/90 hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-slate-700 rounded-xl p-3.5 max-w-sm w-full space-y-2.5 shadow-2xl text-center">
-            <div id="modalIcon" class="text-2xl">⚠️</div>
+            <div id="modalIcon" class="flex items-center justify-center text-amber-300"><svg class="w-7 h-7 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
             <h3 id="modalTitle" class="text-xs font-extrabold text-white">تأكيد العمل</h3>
             <p id="modalMessage" class="text-xs font-bold text-slate-300 leading-relaxed"></p>
             <div class="flex items-center justify-center gap-2 pt-1">
@@ -757,14 +798,14 @@
     </div>
 
     <!-- Custom Edit Player Modal -->
-    <div id="editPlayerModal" onclick="if(event.target===this) closeEditPlayerModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="editPlayerModal" onclick="if(event.target===this) closeEditPlayerModal()" class="fixed inset-0 bg-slate-950/90 hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-slate-700 rounded-xl p-3.5 max-w-sm w-full space-y-3 shadow-2xl">
             <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
                 <h3 class="text-xs font-black text-white flex items-center gap-1">
-                    <span>✏️</span>
+                    <svg class="w-4 h-4 text-amber-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                     <span>تعديل بيانات اللاعب</span>
                 </h3>
-                <button type="button" onclick="closeEditPlayerModal()" class="text-slate-400 hover:text-white text-xs">✕</button>
+                <button type="button" onclick="closeEditPlayerModal()" class="text-slate-400 hover:text-white text-xs"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>
 
             <div>
@@ -774,15 +815,12 @@
 
             <div class="grid grid-cols-2 gap-1.5">
                 <button type="button" onclick="toggleEditRole('isGk')" id="editGkBtn" class="py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-950 flex items-center justify-between text-xs font-extrabold text-slate-400 transition active:scale-[0.97] hover:border-slate-600">
-                    <span>🧤 حارس مرمى</span>
+                    <span class="flex items-center gap-1.5"><svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg><span>حارس مرمى</span></span>
                     <span id="editGkCheck" class="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center text-[9px]"></span>
                 </button>
                 <button type="button" onclick="toggleEditRole('isCap')" id="editCapBtn" class="py-1.5 px-2 rounded-lg border border-slate-700 bg-slate-950 flex items-center justify-between text-xs font-extrabold text-slate-400 transition active:scale-[0.97] hover:border-slate-600">
                     <span class="flex items-center gap-1.5">
-                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <rect x="2" y="5" width="20" height="14" rx="4" fill="#f59e0b" fill-opacity="0.2" stroke="#fbbf24" stroke-width="1.8"/>
-                            <path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"/>
-                        </svg>
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6"/></svg>
                         <span>رأس مجموعة</span>
                     </span>
                     <span id="editCapCheck" class="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center text-[9px]"></span>
@@ -812,39 +850,39 @@
     </div>
 
     <!-- Random Names Modal -->
-    <div id="randomNamesModal" onclick="if(event.target===this) closeRandomNamesModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="randomNamesModal" onclick="if(event.target===this) closeRandomNamesModal()" class="fixed inset-0 bg-slate-950/90 hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-slate-700/80 rounded-2xl p-3.5 max-w-[320px] w-full space-y-3 shadow-2xl">
             <!-- Header -->
             <div class="flex items-center justify-between pb-2 border-b border-slate-800/90">
                 <div class="flex items-center gap-2">
-                    <span class="w-7 h-7 rounded-lg bg-indigo-500/20 border border-indigo-500/35 flex items-center justify-center text-sm">🎲</span>
+                    <span class="w-7 h-7 rounded-lg bg-indigo-500/20 border border-indigo-500/35 flex items-center justify-center text-indigo-300"><svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1" fill="currentColor" stroke="none"/></svg></span>
                     <h3 class="text-xs font-black text-white">توليد أسماء عشوائية</h3>
                 </div>
-                <button type="button" onclick="closeRandomNamesModal()" aria-label="إغلاق" class="w-7 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white text-xs flex items-center justify-center transition active:scale-95">✕</button>
+                <button type="button" onclick="closeRandomNamesModal()" aria-label="إغلاق" class="w-7 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white text-xs flex items-center justify-center transition active:scale-95"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>
 
             <!-- Centered Tactile Counter -->
             <div dir="ltr" class="flex items-center justify-between gap-2 p-2 rounded-2xl bg-slate-950/80 border border-slate-800">
                 <button type="button" id="btnDecRandom" onclick="changeRandomCount(-1)" aria-label="تقليل العدد" class="w-11 h-11 rounded-xl bg-slate-800/90 hover:bg-slate-700 active:scale-95 border border-slate-700/90 text-slate-200 font-black text-lg flex items-center justify-center transition disabled:opacity-30 disabled:pointer-events-none">
-                    −
-                </button>
+<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
                 <div dir="rtl" class="flex-1 flex flex-col items-center justify-center leading-none">
                     <input type="number" id="randomCountInput" value="15" min="2" max="30" oninput="updateRandomStepperState()" onblur="setRandomCountInput(this.value)" aria-label="عدد اللاعبين" class="w-16 h-8 bg-transparent rounded-lg text-2xl font-black text-white text-center tabular-nums focus:outline-none focus:bg-slate-900 focus:ring-1 focus:ring-emerald-500/60 transition" />
                     <span class="text-[10px] font-extrabold text-slate-400 mt-0.5 select-none">لاعب</span>
                 </div>
                 <button type="button" id="btnIncRandom" onclick="changeRandomCount(1)" aria-label="زيادة العدد" class="w-11 h-11 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 active:scale-95 border border-emerald-500/40 text-emerald-300 font-black text-lg flex items-center justify-center transition disabled:opacity-30 disabled:pointer-events-none">
-                    +
-                </button>
+<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
             </div>
 
             <!-- Action Buttons -->
             <div class="grid grid-cols-2 gap-2">
                 <button type="button" onclick="generateRandomPlayersAction(false)" class="py-2.5 px-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-400/50 text-indigo-200 font-extrabold text-xs flex items-center justify-center gap-1 transition active:scale-[0.98]">
-                    <span>➕</span>
+                    <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     <span>إضافة للقائمة</span>
                 </button>
                 <button type="button" onclick="generateRandomPlayersAction(true)" class="py-2.5 px-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs flex items-center justify-center gap-1 transition active:scale-[0.98] shadow-md">
-                    <span>🔄</span>
+                    <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
                     <span>استبدال القائمة</span>
                 </button>
             </div>
@@ -852,28 +890,32 @@
     </div>
 
     <!-- Saved Squad (Regular Players) Modal -->
-    <div id="savedSquadModal" onclick="if(event.target===this) closeSavedSquadModal()" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="savedSquadModal" onclick="if(event.target===this) closeSavedSquadModal()" class="fixed inset-0 bg-slate-950/85 hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-amber-500/40 rounded-2xl p-3.5 max-w-sm w-full space-y-2.5 shadow-2xl flex flex-col max-h-[85vh]">
             <!-- Header -->
             <div class="flex items-center justify-between pb-2 border-b border-slate-800/90 shrink-0">
                 <div class="flex items-center gap-2">
-                    <span class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/35 flex items-center justify-center text-sm">⭐</span>
+                    <span class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/35 flex items-center justify-center text-amber-300"><svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
                     <h3 class="text-xs font-black text-white">اللاعبين المحفوظين</h3>
+                    <span id="savedSquadTotalBadge" class="px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-extrabold tabular-nums">0 اسم</span>
                 </div>
-                <button type="button" onclick="closeSavedSquadModal()" aria-label="إغلاق" class="w-7 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white text-xs flex items-center justify-center transition active:scale-95">✕</button>
+                <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="copySavedNames()" title="نسخ الأسماء" aria-label="نسخ الأسماء" class="w-7 h-7 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/40 text-sky-300 flex items-center justify-center transition active:scale-95"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                    <button type="button" onclick="closeSavedSquadModal()" aria-label="إغلاق" class="w-7 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white text-xs flex items-center justify-center transition active:scale-95"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                </div>
             </div>
 
             <!-- Quick Add New Player to Saved Squad -->
             <div class="flex items-center gap-1.5 shrink-0">
                 <input type="text" id="savedSquadNewName" placeholder="اكتب اسم لاعب لحفظه..." onkeypress="if(event.key==='Enter') addPlayerToSavedSquad()" class="flex-1 bg-slate-950 border border-slate-700/90 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition" />
                 <button type="button" onclick="addPlayerToSavedSquad()" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition active:scale-95 shrink-0">
-                    ➕ حفظ
+                    <span class="inline-flex items-center gap-1"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>حفظ</span></span>
                 </button>
             </div>
 
             <!-- One-Tap Import From Current Roster -->
             <button type="button" id="importRosterBtn" onclick="importCurrentRosterToSaved()" class="w-full py-1.5 px-2.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-emerald-300 text-[11px] font-extrabold flex items-center justify-center gap-1.5 transition active:scale-[0.98] shrink-0">
-                <span>💾</span>
+                <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 <span>حفظ لاعبي القائمة الحالية هنا</span>
             </button>
 
@@ -892,7 +934,7 @@
             <!-- Footer Actions -->
             <div class="flex items-center gap-2 pt-2 border-t border-slate-800/90 shrink-0">
                 <button type="button" id="loadSavedSquadBtn" onclick="loadSelectedSavedSquadToMatch()" class="flex-1 py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-45 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.98] shadow-md">
-                    <span>➕</span>
+                    <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
                     <span id="loadSavedSquadBtnText">ضيف الأسماء</span>
                 </button>
                 <button type="button" onclick="closeSavedSquadModal()" class="py-2 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition active:scale-[0.98]">
@@ -903,37 +945,33 @@
     </div>
 
     <!-- Match Timer, Scoreboard & Toss Modal -->
-    <div id="matchTimerModal" onclick="if(event.target===this) closeMatchTimerModal()" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+    <div id="matchTimerModal" onclick="if(event.target===this) closeMatchTimerModal()" class="fixed inset-0 bg-slate-950/85 hidden items-center justify-center z-50 p-3">
         <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl p-3.5 max-w-sm w-full h-[555px] max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             <!-- Header -->
             <div class="flex items-center justify-between pb-2 border-b border-slate-800/90 shrink-0">
                 <div class="flex items-center gap-2">
-                    <span class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/35 flex items-center justify-center text-sm">⚽</span>
+                    <span class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/35 flex items-center justify-center text-emerald-300"><svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="12 8 15.5 10.5 14.2 14.6 9.8 14.6 8.5 10.5"/><path d="M12 8V2.2M15.5 10.5l5.2-1.7M14.2 14.6l3.2 4.4M9.8 14.6l-3.2 4.4M8.5 10.5L3.3 8.8"/></svg></span>
                     <h3 class="text-xs font-black text-white">إدارة الماتش</h3>
                 </div>
                 <div class="flex items-center gap-1.5">
                     <button type="button" id="timerSoundBtn" onclick="toggleTimerSound()" title="تشغيل/كتم صوت الصفارة" class="w-7 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 text-xs flex items-center justify-center transition active:scale-95">
-                        🔊
+                        <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
                     </button>
                     <button type="button" onclick="playRefereeWhistle(false)" title="صفارة حكم يدوية" class="w-7 h-7 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-xs flex items-center justify-center transition active:scale-95">
-                        📣
+                        <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
                     </button>
-                    <button type="button" onclick="closeMatchTimerModal()" aria-label="إغلاق" class="w-7 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white text-xs flex items-center justify-center transition active:scale-95">✕</button>
+                    <button type="button" onclick="closeMatchTimerModal()" aria-label="إغلاق" class="w-7 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white text-xs flex items-center justify-center transition active:scale-95"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                 </div>
             </div>
 
             <!-- Segmented Tabs: Timer & Scoreboard | Toss (Who Starts + Coin Flip) -->
             <div class="grid grid-cols-2 gap-1.5 p-1 mt-2.5 rounded-xl bg-slate-950/85 border border-slate-800 shrink-0">
                 <button type="button" id="matchTabBtn-timer" onclick="switchMatchModalTab('timer')" class="py-1.5 px-2 rounded-lg bg-emerald-500/20 border border-emerald-500/45 text-emerald-300 font-extrabold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.97]">
-                    <span>⏱️</span>
+                    <span class="inline-flex"><svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="10" y1="2" x2="14" y2="2"/><line x1="12" y1="14" x2="15" y2="11"/><circle cx="12" cy="14" r="8"/></svg></span>
                     <span>التايمر والنتيجة</span>
                 </button>
                 <button type="button" id="matchTabBtn-toss" onclick="switchMatchModalTab('toss')" class="py-1.5 px-2 rounded-lg bg-transparent border border-transparent text-slate-400 hover:text-slate-200 font-extrabold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.97]">
-                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <circle cx="12" cy="12" r="9.5" fill="#f59e0b" fill-opacity="0.2" stroke="currentColor" stroke-width="2"/>
-                        <circle cx="12" cy="12" r="6" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.5 2"/>
-                        <path d="M12 8.5v7M9.5 11.2L12 8.5l2.5 2.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v9M9.5 10l2.5-2.5 2.5 2.5"/></svg>
                     <span>القرعة</span>
                 </button>
             </div>
@@ -977,7 +1015,7 @@
                 <!-- Play / Pause / Reset -->
                 <div class="grid grid-cols-12 gap-2 pt-0.5">
                     <button type="button" id="timerStartPauseBtn" onclick="toggleMatchTimer()" class="col-span-8 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.97] shadow-md">
-                        <span>▶️</span>
+                        <span class="inline-flex"><svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg></span>
                         <span id="timerStartPauseText">ابدأ الماتش</span>
                     </button>
                     <button type="button" onclick="resetMatchTimer()" class="col-span-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-extrabold text-xs flex items-center justify-center gap-1 transition active:scale-[0.97]">
@@ -990,7 +1028,7 @@
             <!-- Live Scoreboard -->
             <div class="rounded-2xl bg-slate-950/75 border border-slate-800 p-2.5 space-y-2">
                 <div class="flex items-center justify-between px-1">
-                    <span class="text-[11px] font-black text-slate-300">⚽ عداد الأهداف <span class="text-[10px] font-bold text-slate-500">(اضغط على الرقم للزيادة)</span></span>
+                    <span class="text-[11px] font-black text-slate-300"><svg class="w-3.5 h-3.5 inline-block align-[-2px] ms-0 me-1.5 text-emerald-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="12 8 15.5 10.5 14.2 14.6 9.8 14.6 8.5 10.5"/><path d="M12 8V2.2M15.5 10.5l5.2-1.7M14.2 14.6l3.2 4.4M9.8 14.6l-3.2 4.4M8.5 10.5L3.3 8.8"/></svg>عداد الأهداف <span class="text-[10px] font-bold text-slate-500">(اضغط على الرقم للزيادة)</span></span>
                     <button type="button" onclick="resetMatchScores()" class="text-[10px] font-extrabold text-rose-400 hover:text-rose-300 px-1.5 py-0.5 rounded bg-rose-500/10 border border-rose-500/25 transition active:scale-95">تصفير</button>
                 </div>
 
@@ -1047,14 +1085,18 @@
                 <div class="rounded-2xl bg-slate-950/85 border border-slate-800 p-3 space-y-2.5">
                     <div class="flex items-center justify-between gap-2">
                         <span class="text-xs font-black text-emerald-300 flex items-center gap-1.5">
-                            <span>🏟️</span>
+                            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
                             <span>مين يبدأ الأول؟</span>
                         </span>
                         <!-- Direct Team Count Control Inside Toss -->
                         <div dir="ltr" class="flex items-center gap-1 bg-slate-900 px-1 py-0.5 rounded-lg border border-slate-700/80">
-                            <button type="button" id="btnDecTossTeam" onclick="changeTossTeamCount(-1)" aria-label="تقليل عدد الفرق" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-black text-xs flex items-center justify-center transition active:scale-90 disabled:opacity-35">−</button>
+                            <button type="button" id="btnDecTossTeam" onclick="changeTossTeamCount(-1)" aria-label="تقليل عدد الفرق" class="w-5 h-5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-black text-xs flex items-center justify-center transition active:scale-90 disabled:opacity-35">
+<svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
                             <span id="tossTeamCountDisplay" dir="rtl" class="px-1 text-[11px] font-extrabold text-slate-200 tabular-nums">3 فرق</span>
-                            <button type="button" id="btnIncTossTeam" onclick="changeTossTeamCount(1)" aria-label="زيادة عدد الفرق" class="w-5 h-5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-black text-xs flex items-center justify-center transition active:scale-90 disabled:opacity-35">+</button>
+                            <button type="button" id="btnIncTossTeam" onclick="changeTossTeamCount(1)" aria-label="زيادة عدد الفرق" class="w-5 h-5 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-black text-xs flex items-center justify-center transition active:scale-90 disabled:opacity-35">
+<svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
                         </div>
                     </div>
 
@@ -1068,7 +1110,7 @@
 
                     <!-- Primary Toss Button -->
                     <button type="button" id="btnRunTeamToss" onclick="runTeamOrderToss()" class="w-full py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.97] shadow-md">
-                        <span>🎲</span>
+                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1" fill="currentColor" stroke="none"/></svg>
                         <span>اسحب القرعة</span>
                     </button>
                 </div>
@@ -1077,10 +1119,7 @@
                 <div class="rounded-2xl bg-slate-950/85 border border-slate-800 p-3 space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-black text-amber-300 flex items-center gap-1.5">
-                            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <circle cx="12" cy="12" r="9.5" fill="#f59e0b" fill-opacity="0.22" stroke="#fbbf24" stroke-width="2"/>
-                                <circle cx="12" cy="12" r="5.5" stroke="#fcd34d" stroke-width="1.3"/>
-                            </svg>
+                            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v9M9.5 10l2.5-2.5 2.5 2.5"/></svg>
                             <span>ملك وكتابة</span>
                         </span>
                         <span class="text-[10px] font-bold text-slate-400 bg-slate-900 px-2 py-0.5 rounded-md border border-slate-800">السنتر / الجون</span>
@@ -1165,9 +1204,22 @@
         'الفريق السابع',
         'الفريق الثامن'
     ];
-    const CAPTAIN_ICON_SVG = `<svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4" fill="#f59e0b" fill-opacity="0.22" stroke="currentColor" stroke-width="1.8"/><path d="M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`;
-    const SKILL_LA3EEB_ICON_SVG = `<svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`;
-    const SKILL_GAMED_ICON_SVG = `<svg class="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+    // ---- Unified icon set (outline, rounded, same style as "add player" / "clear draws") ----
+    const ICON_BODY = {"user": "<path d=\"M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/>", "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/>", "user-plus": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><line x1=\"19\" y1=\"8\" x2=\"19\" y2=\"14\"/><line x1=\"22\" y1=\"11\" x2=\"16\" y2=\"11\"/>", "glove": "<path d=\"M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2\"/><path d=\"M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2\"/><path d=\"M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8\"/><path d=\"M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15\"/>", "captain": "<rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"4\"/><path d=\"M14.8 9.4A3.4 3.4 0 1 0 14.8 14.6\"/>", "flame": "<path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z\"/>", "zap": "<polygon points=\"13 2 3 14 12 14 11 22 21 10 12 10 13 2\"/>", "dice": "<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"3\"/><circle cx=\"8.5\" cy=\"8.5\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15.5\" cy=\"8.5\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"12\" cy=\"12\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"8.5\" cy=\"15.5\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/><circle cx=\"15.5\" cy=\"15.5\" r=\"1\" fill=\"currentColor\" stroke=\"none\"/>", "sliders": "<line x1=\"21\" y1=\"4\" x2=\"14\" y2=\"4\"/><line x1=\"10\" y1=\"4\" x2=\"3\" y2=\"4\"/><line x1=\"21\" y1=\"12\" x2=\"12\" y2=\"12\"/><line x1=\"8\" y1=\"12\" x2=\"3\" y2=\"12\"/><line x1=\"21\" y1=\"20\" x2=\"16\" y2=\"20\"/><line x1=\"12\" y1=\"20\" x2=\"3\" y2=\"20\"/><line x1=\"14\" y1=\"2\" x2=\"14\" y2=\"6\"/><line x1=\"8\" y1=\"10\" x2=\"8\" y2=\"14\"/><line x1=\"16\" y1=\"18\" x2=\"16\" y2=\"22\"/>", "chevron": "<polyline points=\"6 9 12 15 18 9\"/>", "x": "<line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"/><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"/>", "pencil": "<path d=\"M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z\"/><path d=\"m15 5 4 4\"/>", "trophy": "<path d=\"M6 9H4.5a2.5 2.5 0 0 1 0-5H6\"/><path d=\"M18 9h1.5a2.5 2.5 0 0 0 0-5H18\"/><path d=\"M4 22h16\"/><path d=\"M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22\"/><path d=\"M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22\"/><path d=\"M18 2H6v7a6 6 0 0 0 12 0V2Z\"/>", "ball": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><polygon points=\"12 8 15.5 10.5 14.2 14.6 9.8 14.6 8.5 10.5\"/><path d=\"M12 8V2.2M15.5 10.5l5.2-1.7M14.2 14.6l3.2 4.4M9.8 14.6l-3.2 4.4M8.5 10.5L3.3 8.8\"/>", "clipboard": "<rect x=\"8\" y=\"2\" width=\"8\" height=\"4\" rx=\"1\"/><path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"/>", "plus": "<line x1=\"12\" y1=\"5\" x2=\"12\" y2=\"19\"/><line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"/>", "minus": "<line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"/>", "refresh": "<path d=\"M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/>", "save": "<path d=\"M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z\"/><polyline points=\"17 21 17 13 7 13 7 21\"/><polyline points=\"7 3 7 8 15 8\"/>", "star": "<polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"/>", "volume": "<polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"/><path d=\"M15.54 8.46a5 5 0 0 1 0 7.07\"/><path d=\"M19.07 4.93a10 10 0 0 1 0 14.14\"/>", "mute": "<polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"/><line x1=\"22\" y1=\"9\" x2=\"16\" y2=\"15\"/><line x1=\"16\" y1=\"9\" x2=\"22\" y2=\"15\"/>", "megaphone": "<path d=\"m3 11 18-5v12L3 14v-3z\"/><path d=\"M11.6 16.8a3 3 0 1 1-5.8-1.6\"/>", "timer": "<line x1=\"10\" y1=\"2\" x2=\"14\" y2=\"2\"/><line x1=\"12\" y1=\"14\" x2=\"15\" y2=\"11\"/><circle cx=\"12\" cy=\"14\" r=\"8\"/>", "play": "<polygon points=\"6 3 20 12 6 21 6 3\"/>", "pause": "<rect x=\"6\" y=\"4\" width=\"4\" height=\"16\" rx=\"1\"/><rect x=\"14\" y=\"4\" width=\"4\" height=\"16\" rx=\"1\"/>", "check": "<polyline points=\"20 6 9 17 4 12\"/>", "swap": "<path d=\"M16 3l4 4-4 4\"/><path d=\"M20 7H4\"/><path d=\"M8 21l-4-4 4-4\"/><path d=\"M4 17h16\"/>", "alert": "<path d=\"M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z\"/><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"/><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"/>", "ban": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><line x1=\"5.6\" y1=\"5.6\" x2=\"18.4\" y2=\"18.4\"/>", "check-circle": "<path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"/><polyline points=\"22 4 12 14.01 9 11.01\"/>", "info": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"16\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"8\" x2=\"12.01\" y2=\"8\"/>", "camera": "<path d=\"M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z\"/><circle cx=\"12\" cy=\"13\" r=\"3\"/>", "video": "<polygon points=\"23 7 16 12 23 17 23 7\"/><rect x=\"1\" y=\"5\" width=\"15\" height=\"14\" rx=\"2\"/>", "trash": "<polyline points=\"3 6 5 6 21 6\"/><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"/><line x1=\"10\" y1=\"11\" x2=\"10\" y2=\"17\"/><line x1=\"14\" y1=\"11\" x2=\"14\" y2=\"17\"/>", "link": "<path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"/><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"/>", "flag": "<path d=\"M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z\"/><line x1=\"4\" y1=\"22\" x2=\"4\" y2=\"15\"/>", "coin": "<circle cx=\"12\" cy=\"12\" r=\"9.5\"/><path d=\"M12 7.5v9M9.5 10l2.5-2.5 2.5 2.5\"/>"};
+    function icon(name, cls = 'w-3.5 h-3.5', sw = '2.2') {
+        return `<svg class="${cls} shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON_BODY[name] || ''}</svg>`;
+    }
+    const EMOJI_ICON = { '⚠️': 'alert', '🚫': 'ban', '✅': 'check-circle', '⭐': 'star', '📸': 'camera', '🎬': 'video', '📋': 'clipboard', '⇄': 'swap', '🔄': 'refresh', '🏆': 'trophy', 'ℹ️': 'info', '⏱️': 'timer', '🎲': 'dice', '🗑️': 'trash' };
+    function iconFromEmoji(e, cls = 'w-3.5 h-3.5') { return EMOJI_ICON[e] ? icon(EMOJI_ICON[e], cls, '2.3') : e; }
+    function setModalIcon(el, e) {
+        const tone = e === '🚫' ? 'text-rose-400' : e === '✅' ? 'text-emerald-400' : e === 'ℹ️' ? 'text-sky-300' : 'text-amber-300';
+        el.className = 'flex items-center justify-center ' + tone;
+        el.innerHTML = iconFromEmoji(e, 'w-7 h-7');
+    }
+
+    const CAPTAIN_ICON_SVG = icon('captain', 'w-3.5 h-3.5');
+    const SKILL_LA3EEB_ICON_SVG = icon('flame', 'w-3 h-3', '2.3');
+    const SKILL_GAMED_ICON_SVG = icon('zap', 'w-3 h-3', '2.3');
     const arabicSampleNames = [
         'أحمد', 'محمد', 'محمود', 'إبراهيم', 'مصطفى', 'يوسف', 'عمر', 'كريم', 'طارق', 'خالد',
         'حسن', 'حسين', 'علي', 'زياد', 'مروان', 'رامي', 'شريف', 'وليد', 'تامر', 'ياسر',
@@ -1180,14 +1232,8 @@
     }
 
     function updateSavedSquadBadge() {
-        const badge = document.getElementById('savedSquadCountBadge');
-        if (!badge) return;
-        if (savedSquad.length > 0) {
-            badge.textContent = savedSquad.length;
-            badge.classList.remove('hidden');
-        } else {
-            badge.classList.add('hidden');
-        }
+        const total = document.getElementById('savedSquadTotalBadge');
+        if (total) total.textContent = `${savedSquad.length} اسم`;
     }
 
     function loadSavedSquadFromStorage() {
@@ -1212,7 +1258,13 @@
     }
 
     // Reset draw freshness history whenever roster, rules, or team count changes
+    let dataVersion = 0;      // bumps whenever players / rules / team count change (invalidates in-flight draws)
+    let drawToken = 0;        // bumps to cancel an in-flight draw
+    let isSingleDrawing = false;
+    let forceMultiLayout = false;
+
     function resetDrawHistory() {
+        dataVersion++;
         recentDrawSignatures.clear();
         recentPairCounts.clear();
         redrawStrictnessLevel = 0;
@@ -1241,6 +1293,8 @@
     function openSavedSquadModal() {
         // Pre-select all saved players by default for 1-tap loading (just uncheck who is absent)
         savedSquadSelectedIds = new Set(savedSquad.map(p => p.id));
+        editingSavedId = null;
+        updateSavedSquadBadge();
         renderSavedSquadList();
         const modal = document.getElementById('savedSquadModal');
         modal?.classList.remove('hidden');
@@ -1248,6 +1302,7 @@
     }
 
     function closeSavedSquadModal() {
+        editingSavedId = null;
         const modal = document.getElementById('savedSquadModal');
         modal?.classList.add('hidden');
         modal?.classList.remove('flex');
@@ -1339,6 +1394,69 @@
         renderSavedSquadList();
     }
 
+    ICON_BODY.copy = '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>';
+    let editingSavedId = null;
+
+    // ---- Copy names (players list / saved list) ----
+    async function copyNamesList(list, emptyMsg) {
+        const names = list.map(p => p.name).filter(Boolean);
+        if (!names.length) {
+            showToast(emptyMsg, 'ℹ️', 1500);
+            return;
+        }
+        const text = names.join('\n');
+        let ok = false;
+        try {
+            const t = document.createElement('textarea');
+            t.value = text;
+            t.setAttribute('readonly', '');
+            t.style.cssText = 'position:fixed;top:0;opacity:0;pointer-events:none;';
+            document.body.appendChild(t);
+            t.focus();
+            t.select();
+            t.setSelectionRange(0, text.length);
+            ok = document.execCommand('copy');
+            document.body.removeChild(t);
+        } catch (e) {}
+        if (!ok && navigator.clipboard && navigator.clipboard.writeText) {
+            try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {}
+        }
+        showToast(ok ? `تم نسخ ${names.length} اسم` : 'تعذر النسخ', ok ? '📋' : '⚠️', 1600);
+    }
+    function copyPlayerNames() { return copyNamesList(players, 'القائمة فارغة'); }
+    function copySavedNames() { return copyNamesList(savedSquad, 'لا يوجد محفوظين'); }
+
+    // ---- Edit a saved player's name (inline) ----
+    function startEditSavedPlayer(id) {
+        editingSavedId = id;
+        renderSavedSquadList();
+        requestAnimationFrame(() => {
+            const el = document.getElementById('savedEditInput');
+            if (el) { el.focus(); el.select(); }
+        });
+    }
+    function cancelSavedPlayerEdit() {
+        editingSavedId = null;
+        renderSavedSquadList();
+    }
+    function saveSavedPlayerEdit(id) {
+        const input = document.getElementById('savedEditInput');
+        const name = (input?.value || '').trim().replace(/\s+/g, ' ');
+        const item = savedSquad.find(p => p.id === id);
+        if (!item) { cancelSavedPlayerEdit(); return; }
+        if (!name) { input?.focus(); return; }
+        if (savedSquad.some(p => p.id !== id && normalizeName(p.name) === normalizeName(name))) {
+            showToast('الاسم محفوظ بالفعل', '⚠️', 1800);
+            input?.select();
+            return;
+        }
+        item.name = name;
+        editingSavedId = null;
+        persistSavedSquad();
+        renderSavedSquadList();
+        showToast('تم تعديل الاسم', '✅', 1400);
+    }
+
     function removeSavedSquadPlayer(id) {
         savedSquad = savedSquad.filter(p => p.id !== id);
         savedSquadSelectedIds.delete(id);
@@ -1381,10 +1499,19 @@
 
         container.innerHTML = savedSquad.map((p) => {
             const checked = savedSquadSelectedIds.has(p.id);
+            if (editingSavedId === p.id) {
+                return `
+                <div class="flex items-center gap-1.5 px-2 py-1.5 rounded-xl border bg-slate-950/90 border-amber-400/60">
+                    <input id="savedEditInput" type="text" value="${escapeHtml(p.name)}" maxlength="30" onkeydown="if(event.key==='Enter'){saveSavedPlayerEdit('${p.id}')}else if(event.key==='Escape'){cancelSavedPlayerEdit()}" class="flex-1 min-w-0 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs font-bold text-white focus:outline-none focus:border-amber-400 transition" />
+                    <button type="button" onclick="saveSavedPlayerEdit('${p.id}')" title="حفظ" aria-label="حفظ" class="w-6 h-6 rounded-md bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-500/45 text-emerald-300 flex items-center justify-center transition">${icon('check', 'w-3 h-3', '3')}</button>
+                    <button type="button" onclick="cancelSavedPlayerEdit()" title="إلغاء" aria-label="إلغاء" class="w-6 h-6 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 flex items-center justify-center transition">${icon('x', 'w-3 h-3', '2.6')}</button>
+                </div>
+                `;
+            }
             return `
                 <div class="flex items-center justify-between gap-1.5 px-2 py-1.5 rounded-xl border transition ${checked ? 'bg-slate-950/90 border-amber-500/35' : 'bg-slate-950/40 border-slate-800/80 opacity-60'}">
                     <button type="button" onclick="toggleSavedSquadSelection('${p.id}')" class="flex items-center gap-2 min-w-0 flex-1 text-right">
-                        <span class="w-4 h-4 rounded-md border flex items-center justify-center text-[10px] font-black shrink-0 transition ${checked ? 'bg-emerald-500 border-emerald-400 text-slate-950' : 'bg-slate-900 border-slate-600 text-transparent'}">✓</span>
+                        <span class="w-4 h-4 rounded-md border flex items-center justify-center text-[10px] font-black shrink-0 transition ${checked ? 'bg-emerald-500 border-emerald-400 text-slate-950' : 'bg-slate-900 border-slate-600 text-transparent'}">${icon('check', 'w-2.5 h-2.5', '3.4')}</span>
                         <span class="text-xs font-bold text-slate-100 truncate">${escapeHtml(p.name)}</span>
                     </button>
                     <div class="flex items-center gap-1 shrink-0">
@@ -1396,10 +1523,11 @@
                             ${CAPTAIN_ICON_SVG}
                         </button>
                         <button type="button" onclick="toggleSavedSquadProp('${p.id}', 'isGk')" title="حارس مرمى" class="w-6 h-6 rounded-md border text-[10px] flex items-center justify-center transition ${p.isGk ? 'bg-sky-500/25 border-sky-400 text-sky-300' : 'bg-slate-900 border-slate-800 text-slate-500 opacity-60'}">
-                            🧤
+                            ${icon('glove', 'w-3.5 h-3.5')}
                         </button>
-                        <button type="button" onclick="removeSavedSquadPlayer('${p.id}')" title="حذف من المحفوظين" class="w-6 h-6 rounded-md bg-rose-500/15 hover:bg-rose-500/30 border border-rose-500/30 text-rose-400 text-[10px] font-black flex items-center justify-center transition">
-                            ✕
+                        <button type="button" onclick="startEditSavedPlayer('${p.id}')" title="تعديل الاسم" aria-label="تعديل الاسم" class="w-6 h-6 rounded-md bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 flex items-center justify-center transition">${icon('pencil', 'w-3 h-3')}</button>
+                    <button type="button" onclick="removeSavedSquadPlayer('${p.id}')" title="حذف من المحفوظين" class="w-6 h-6 rounded-md bg-rose-500/15 hover:bg-rose-500/30 border border-rose-500/30 text-rose-400 text-[10px] font-black flex items-center justify-center transition">
+                            ${icon('x', 'w-3 h-3', '2.6')}
                         </button>
                     </div>
                 </div>
@@ -1564,7 +1692,7 @@
 
         const toast = document.createElement('div');
         toast.className = `pointer-events-auto inline-flex items-center justify-center gap-1.5 max-w-full px-3.5 py-1.5 rounded-full bg-slate-900/95 border ${toneClass} text-[11px] font-extrabold shadow-xl whitespace-nowrap overflow-hidden transition-all duration-150 opacity-0 -translate-y-1.5`;
-        toast.innerHTML = `<span class="shrink-0 leading-none">${icon}</span><span class="truncate">${escapeHtml(message)}</span>`;
+        toast.innerHTML = `<span class="shrink-0 leading-none inline-flex">${iconFromEmoji(icon)}</span><span class="truncate">${escapeHtml(message)}</span>`;
         container.appendChild(toast);
 
         requestAnimationFrame(() => {
@@ -1588,7 +1716,7 @@
         const cancelBtn = document.getElementById('modalCancelBtn');
         if (!modal) return;
 
-        if (iconEl) iconEl.textContent = icon;
+        if (iconEl) setModalIcon(iconEl, icon);
         if (titleEl) titleEl.textContent = title;
         if (msgEl) msgEl.textContent = message;
         if (cancelBtn) cancelBtn.classList.add('hidden');
@@ -1613,7 +1741,7 @@
         const cancelBtn = document.getElementById('modalCancelBtn');
         if (!modal) return;
 
-        if (iconEl) iconEl.textContent = icon;
+        if (iconEl) setModalIcon(iconEl, icon);
         if (titleEl) titleEl.textContent = title;
         if (msgEl) msgEl.textContent = message;
         if (cancelBtn) {
@@ -1642,12 +1770,26 @@
             resetDrawHistory();
         }
         teamCount = nextCount;
+        enforceCaptainLimit();
         const display = document.getElementById('teamCountDisplay');
         const btnDec = document.getElementById('btnDecTeam');
         const btnInc = document.getElementById('btnIncTeam');
         if (display) display.textContent = teamCount;
         if (btnDec) btnDec.disabled = teamCount <= 2;
         if (btnInc) btnInc.disabled = teamCount >= 8;
+    }
+
+    // Captains can never exceed the number of teams: drop the extra (most recently marked) ones automatically
+    function enforceCaptainLimit() {
+        if (!players.length) return 0;
+        const caps = players.filter(p => p.isCap).sort((a, b) => (a.capAt || 0) - (b.capAt || 0));
+        if (caps.length <= teamCount) return 0;
+        const extra = caps.slice(teamCount);
+        extra.forEach(p => { p.isCap = false; });
+        saveData();
+        renderPlayers();
+        showToast(`تمت إزالة ${extra.length} ${extra.length === 1 ? 'كابتن' : 'كباتن'} ليتطابق مع ${teamCount} فرق`, '⚠️', 2400);
+        return extra.length;
     }
 
     function changeTeamCount(delta) {
@@ -1718,11 +1860,11 @@
                 btn.className = 'py-1.5 px-2 rounded-lg border border-amber-400 bg-amber-500/20 flex items-center justify-between text-xs font-extrabold text-amber-300 transition active:scale-[0.97]';
                 check.className = 'w-3.5 h-3.5 rounded-full border border-amber-300 bg-amber-400 text-slate-950 font-black flex items-center justify-center text-[9px]';
             }
-            check.textContent = '✓';
+            check.innerHTML = icon('check', 'w-2.5 h-2.5', '3.4');
         } else {
             btn.className = `py-1.5 px-2 rounded-lg border border-slate-700 ${idleBg} flex items-center justify-between text-xs font-extrabold text-slate-400 transition active:scale-[0.97] hover:border-slate-600`;
             check.className = 'w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center text-[9px]';
-            check.textContent = '';
+            check.innerHTML = '';
         }
     }
 
@@ -1786,7 +1928,8 @@
             name,
             skill: selectedSkill,
             isGk,
-            isCap
+            isCap,
+            capAt: isCap ? Date.now() : 0
         });
 
         nameInput.value = '';
@@ -1872,6 +2015,7 @@
                 }
             }
             player.isCap = !player.isCap;
+            player.capAt = player.isCap ? Date.now() : 0;
         } else if (prop === 'isGk') {
             if (!player.isGk) {
                 const linkedIds = getLinkedGroupIds(id);
@@ -1985,6 +2129,7 @@
         player.name = newName;
         player.skill = tempEditState.skill;
         player.isGk = tempEditState.isGk;
+        if (tempEditState.isCap && !player.isCap) player.capAt = Date.now();
         player.isCap = tempEditState.isCap;
 
         saveData();
@@ -2243,6 +2388,7 @@
     }
 
     function renderConstraints() {
+        dataVersion++;
         const list = document.getElementById('constraintsList');
         const badge = document.getElementById('rulesCountBadge');
         if (!list) return;
@@ -2273,13 +2419,13 @@
             const pillStyle = isLink
                 ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-100'
                 : 'bg-rose-500/10 border-rose-500/30 text-rose-100';
+            const tone = isLink ? 'text-emerald-400' : 'text-rose-400';
             return `
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-bold max-w-full ${pillStyle}">
-                <span class="truncate">${escapeHtml(pl1.name)}</span>
-                <span class="font-black ${isLink ? 'text-emerald-400' : 'text-rose-400'}">${isLink ? '+' : '≠'}</span>
-                <span class="truncate">${escapeHtml(pl2.name)}</span>
-                <button type="button" onclick="removeConstraint('${c.id}')" title="حذف الشرط" class="text-slate-400 hover:text-white text-[10px] mr-0.5 transition">✕</button>
-            </span>
+            <div class="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg border text-[11px] font-bold ${pillStyle}">
+                <span class="inline-flex shrink-0 ${tone}">${isLink ? icon('link', 'w-3.5 h-3.5', '2.4') : icon('ban', 'w-3.5 h-3.5', '2.4')}</span>
+                <span class="flex-1 min-w-0 truncate whitespace-nowrap">${escapeHtml(pl1.name)} <span class="${tone} font-extrabold">${isLink ? 'مع' : 'مش مع'}</span> ${escapeHtml(pl2.name)}</span>
+                <button type="button" onclick="removeConstraint('${c.id}')" title="حذف الشرط" aria-label="حذف الشرط" class="shrink-0 w-5 h-5 rounded-md flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition">${icon('x', 'w-3 h-3', '2.6')}</button>
+            </div>
             `;
         }).join('');
     }
@@ -2331,6 +2477,8 @@
         isResultsVisible = Boolean(open);
         setCollapsibleState('resultsBody', 'resultsToggleArrow', isResultsVisible);
         document.getElementById('resultActionBtns')?.classList.toggle('hidden', !isResultsVisible);
+        document.getElementById('captureArea')?.classList.toggle('results-closed', !isResultsVisible);
+        if (isResultsVisible) requestAnimationFrame(() => fitPlayerNames(document.getElementById('teamsOutputGrid')));
         document.getElementById('resultsHeaderBar')?.classList.toggle('border-b', isResultsVisible);
     }
 
@@ -2396,13 +2544,13 @@
                         ${CAPTAIN_ICON_SVG}
                     </button>
                     <button type="button" onclick="togglePlayerProp('${p.id}', 'isGk')" title="حارس مرمى" class="w-6 h-6 rounded-md border text-[11px] flex items-center justify-center transition ${p.isGk ? 'bg-sky-500/25 border-sky-400 text-sky-300' : 'bg-slate-950 border-slate-800 text-slate-500 opacity-60 hover:opacity-100'}">
-                        🧤
+                        ${icon('glove', 'w-3.5 h-3.5')}
                     </button>
                     <button type="button" onclick="openEditPlayerModal('${p.id}')" title="تعديل" class="w-6 h-6 rounded-md bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 text-[10px] flex items-center justify-center transition">
-                        ✏️
+                        ${icon('pencil', 'w-3 h-3')}
                     </button>
                     <button type="button" onclick="removePlayer('${p.id}')" title="حذف" class="w-6 h-6 rounded-md bg-rose-500/15 hover:bg-rose-500/30 border border-rose-500/30 text-rose-400 text-[10px] font-black flex items-center justify-center transition">
-                        ✕
+                        ${icon('x', 'w-3 h-3', '2.6')}
                     </button>
                 </div>
             </div>
@@ -2854,33 +3002,158 @@
         return { teams: orderedTeams, warnings };
     }
 
-    // Single team generation (High-precision balanced & strict rules)
-    function generateTeams(shouldScroll = true, strictnessBoost = 0) {
-        if (!canGenerateTeams()) return false;
+    // ---- Off-main-thread solver: heavy balancing math runs in a Web Worker so buttons never freeze ----
+    let solverWorker = null;
+    let solverWorkerFailed = false;
+    let solverReqId = 0;
+    const solverPending = new Map();
 
-        lastDrawMode = 'single';
-        swapModeDrawIdx = null;
-        swapSelection = null;
-        lastSwappedKeys.clear();
-        const { teams, warnings } = computeBalancedTeams(recentDrawSignatures, {
-            strictnessBoost: strictnessBoost + 1,
-            pairHistory: recentPairCounts
-        });
-        recordDrawInHistory(teams);
-        allGeneratedDraws = [teams];
-        renderAllResults(shouldScroll, 0);
-        if (warnings.length) {
-            showToast(warnings[0], '⚠️', 2600);
-        }
-        return true;
+    function failSolverWorker() {
+        solverWorkerFailed = true;
+        try { solverWorker && solverWorker.terminate(); } catch (e) {}
+        solverWorker = null;
+        // Rescue anything in flight by computing it on the main thread
+        const pending = Array.from(solverPending.values());
+        solverPending.clear();
+        pending.forEach(p => setTimeout(() => p.resolve(computeBalancedTeams(p.used, p.options)), 0));
     }
 
-    // Multiple consecutive draws stacked under each other (silent on completion to prevent lag)
-    async function generateTeamsMultiple(customRounds = null, strictnessBoost = 0) {
-        if (isMultiDrawing) return;
+    function getSolverWorker() {
+        if (solverWorker) return solverWorker;
+        if (solverWorkerFailed || typeof Worker === 'undefined') return null;
+        try {
+            const code = [
+                'let players = [], constraints = [], teamCount = 3;',
+                shuffle.toString(),
+                getLinkedGroupIds.toString(),
+                getDivisionSignature.toString(),
+                computeBalancedTeams.toString(),
+                'onmessage = function (e) {',
+                '  const d = e.data;',
+                '  players = d.players; constraints = d.constraints; teamCount = d.teamCount;',
+                '  try {',
+                '    const r = computeBalancedTeams(new Set(d.used), { strictnessBoost: d.strictnessBoost, pairHistory: new Map(d.pairHistory) });',
+                '    postMessage({ id: d.id, teams: r.teams.map(t => t.map(p => p.id)), warnings: r.warnings });',
+                '  } catch (err) { postMessage({ id: d.id, error: String(err) }); }',
+                '};'
+            ].join('\n');
+            const url = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+            const w = new Worker(url);
+            w.onmessage = (e) => {
+                const d = e.data;
+                const p = solverPending.get(d.id);
+                if (!p) return;
+                solverPending.delete(d.id);
+                if (d.error) {
+                    p.resolve(computeBalancedTeams(p.used, p.options));
+                    return;
+                }
+                const byId = new Map(p.playersSnapshot.map(pl => [pl.id, pl]));
+                p.resolve({ teams: d.teams.map(ids => ids.map(id => byId.get(id)).filter(Boolean)), warnings: d.warnings });
+            };
+            w.onerror = () => failSolverWorker();
+            solverWorker = w;
+            return w;
+        } catch (e) {
+            solverWorkerFailed = true;
+            return null;
+        }
+    }
 
+    function computeBalancedTeamsAsync(used, options) {
+        return new Promise(resolve => {
+            const w = getSolverWorker();
+            if (!w) {
+                // Fallback: yield one frame so the tap feedback paints, then compute
+                requestAnimationFrame(() => setTimeout(() => resolve(computeBalancedTeams(used, options)), 0));
+                return;
+            }
+            const id = ++solverReqId;
+            const playersSnapshot = players.slice();
+            solverPending.set(id, { resolve, used, options, playersSnapshot });
+            w.postMessage({
+                id,
+                players: playersSnapshot,
+                constraints,
+                teamCount,
+                used: Array.from(used || []),
+                strictnessBoost: (options && options.strictnessBoost) || 0,
+                pairHistory: Array.from((options && options.pairHistory) || [])
+            });
+        });
+    }
+
+    function setDrawBusy(btn, busy) {
+        if (!btn) return;
+        btn.classList.toggle('opacity-60', busy);
+        btn.setAttribute('aria-busy', busy ? 'true' : 'false');
+    }
+
+    function resetMultiDrawUI() {
+        const btnMultiText = document.getElementById('btnDrawMultiText');
+        if (btnMultiText) btnMultiText.textContent = 'قسم أكتر';
+        setDrawBusy(document.getElementById('btnDrawMulti'), false);
+    }
+
+    function cancelActiveDraw() {
+        drawToken++;
+        if (isMultiDrawing) {
+            isMultiDrawing = false;
+            forceMultiLayout = false;
+            resetMultiDrawUI();
+        }
+    }
+
+    const nextFrame = () => new Promise(r => requestAnimationFrame(() => r()));
+    const waitMs = (ms) => new Promise(r => setTimeout(r, ms));
+
+    // Single draw (non-blocking)
+    async function generateTeams(shouldScroll = true, strictnessBoost = 0) {
+        if (isSingleDrawing) return false;
+        if (!canGenerateTeams()) return false;
+
+        cancelActiveDraw();
+        const token = drawToken;
+        const ver = dataVersion;
+        isSingleDrawing = true;
+        const btnOnce = document.getElementById('btnDrawOnce');
+        setDrawBusy(btnOnce, true);
+        try {
+            await nextFrame();
+            const { teams, warnings } = await computeBalancedTeamsAsync(recentDrawSignatures, {
+                strictnessBoost: strictnessBoost + 1,
+                pairHistory: recentPairCounts
+            });
+            if (token !== drawToken || ver !== dataVersion) return false; // cancelled or data changed meanwhile
+
+            lastDrawMode = 'single';
+            swapModeDrawIdx = null;
+            swapSelection = null;
+            lastSwappedKeys.clear();
+            forceMultiLayout = false;
+            recordDrawInHistory(teams);
+            allGeneratedDraws = [teams];
+            renderAllResults(shouldScroll, 0);
+            if (warnings.length) {
+                showToast(warnings[0], '⚠️', 2600);
+            }
+            return true;
+        } catch (err) {
+            console.error(err);
+            return false;
+        } finally {
+            isSingleDrawing = false;
+            setDrawBusy(btnOnce, false);
+        }
+    }
+
+    // Multiple consecutive draws: computed off-thread, appended one by one (no full re-render each round)
+    async function generateTeamsMultiple(customRounds = null, strictnessBoost = 0) {
+        if (isMultiDrawing || isSingleDrawing) return;
         if (!canGenerateTeams()) return;
 
+        const token = ++drawToken;
+        const ver = dataVersion;
         lastDrawMode = 'multi';
         swapModeDrawIdx = null;
         swapSelection = null;
@@ -2888,55 +3161,44 @@
         isMultiDrawing = true;
         const btnMulti = document.getElementById('btnDrawMulti');
         const btnMultiText = document.getElementById('btnDrawMultiText');
-        const btnOnce = document.getElementById('btnDrawOnce');
-        const btnClear = document.getElementById('btnClearDraw');
-        const btnRedraw = document.getElementById('redrawBtn');
-        const origLabel = 'تقسيم أكتر';
-
-        if (btnMulti) btnMulti.disabled = true;
-        if (btnOnce) btnOnce.disabled = true;
-        if (btnClear) btnClear.disabled = true;
-        if (btnRedraw) btnRedraw.disabled = true;
+        setDrawBusy(btnMulti, true);
 
         try {
             const totalRounds = customRounds !== null ? customRounds : multiDrawCount;
+            forceMultiLayout = totalRounds > 1;
             allGeneratedDraws = [];
             const usedSignatures = new Set(recentDrawSignatures);
 
             for (let round = 1; round <= totalRounds; round++) {
-                if (btnMultiText) {
-                    btnMultiText.textContent = `جولة ${round} / ${totalRounds}...`;
-                }
-                const { teams } = computeBalancedTeams(usedSignatures, {
+                if (btnMultiText) btnMultiText.textContent = `جولة ${round} / ${totalRounds}...`;
+
+                const job = computeBalancedTeamsAsync(usedSignatures, {
                     strictnessBoost: strictnessBoost + 1,
                     pairHistory: recentPairCounts
                 });
-                const sig = getDivisionSignature(teams);
-                usedSignatures.add(sig);
+                // Keep the smooth staggered reveal, but overlap it with the computation
+                const [{ teams }] = await Promise.all([job, round > 1 ? waitMs(160) : nextFrame()]);
+                if (token !== drawToken || ver !== dataVersion) return; // cancelled
+
+                usedSignatures.add(getDivisionSignature(teams));
                 recordDrawInHistory(teams);
-
                 allGeneratedDraws.push(teams);
-                renderAllResults(round === 1, round - 1);
-
-                if (round < totalRounds) {
-                    await new Promise(resolve => setTimeout(resolve, 340));
-                }
+                renderAllResults(round === 1, round - 1, round > 1 ? round - 1 : -1);
             }
         } catch (err) {
             console.error(err);
         } finally {
-            isMultiDrawing = false;
-            if (btnMulti) btnMulti.disabled = false;
-            if (btnOnce) btnOnce.disabled = false;
-            if (btnClear) btnClear.disabled = false;
-            if (btnRedraw) btnRedraw.disabled = false;
-            if (btnMultiText) btnMultiText.textContent = origLabel;
+            if (token === drawToken) {
+                isMultiDrawing = false;
+                forceMultiLayout = false;
+                resetMultiDrawUI();
+            }
         }
     }
 
     // Regenerate fresh, distinct divisions with escalating strictness & precision
     async function regenerateTeams() {
-        if (isMultiDrawing) return;
+        if (isMultiDrawing || isSingleDrawing) return;
         if (!canGenerateTeams()) return;
 
         redrawStrictnessLevel = Math.min(4, redrawStrictnessLevel + 1);
@@ -2944,7 +3206,7 @@
         if (lastDrawMode === 'multi' && allGeneratedDraws.length > 1) {
             await generateTeamsMultiple(allGeneratedDraws.length, redrawStrictnessLevel);
         } else {
-            const ok = generateTeams(false, redrawStrictnessLevel);
+            const ok = await generateTeams(false, redrawStrictnessLevel);
             if (ok) {
                 showToast('تم إعادة التقسيم', '🔄', 1500);
             }
@@ -2953,7 +3215,7 @@
 
     // Clear only generated team divisions silently (no toast to prevent lag)
     function clearGeneratedTeams() {
-        if (isMultiDrawing) return;
+        cancelActiveDraw();
         const wrapper = document.getElementById('resultWrapper');
         const grid = document.getElementById('teamsOutputGrid');
 
@@ -3059,6 +3321,22 @@
     // =========================================================
     // Protected Swap Mode (Only when toggled ON + Strict Rule Check)
     // =========================================================
+    // Remove one division only (the last remaining one clears the whole result panel)
+    function clearSingleDraw(drawIdx) {
+        if (isMultiDrawing || isSingleDrawing) return;
+        if (!allGeneratedDraws[drawIdx]) return;
+        if (allGeneratedDraws.length <= 1) {
+            clearGeneratedTeams();
+            return;
+        }
+        allGeneratedDraws.splice(drawIdx, 1);
+        swapModeDrawIdx = null;
+        swapSelection = null;
+        lastSwappedKeys.clear();
+        updateSwapHintBar();
+        renderAllResults(false, -2);
+    }
+
     function toggleSwapMode(drawIdx) {
         if (isMultiDrawing) return;
         if (swapModeDrawIdx === drawIdx) {
@@ -3210,17 +3488,17 @@
         return `
             <div class="${gridClass} items-stretch">
                 ${teams.map((team, idx) => {
-                    const cardDelay = idx * 80;
+                    const cardDelay = idx * 60;
                     const cardAnimClass = animate ? 'draw-card-anim' : '';
                     const cardAnimStyle = animate ? `style="animation-delay: ${cardDelay}ms;"` : '';
                     return `
-                    <div class="${cardAnimClass} rounded-xl bg-slate-900/95 border ${isSwapActive ? 'border-amber-400/35' : 'border-slate-400/20'} overflow-hidden flex flex-col shadow-lg transition" ${cardAnimStyle}>
-                        <div class="team-header-${idx % 4} py-1.5 px-1.5 text-center">
-                            <h3 class="${isThreeCol ? 'text-[11px]' : 'text-xs'} font-black text-white leading-tight">${teamNames[idx] || `الفريق ${idx + 1}`}</h3>
+                    <div class="${cardAnimClass} rounded-2xl bg-slate-900/95 border ${isSwapActive ? 'border-amber-400/35' : 'border-slate-600/50'} overflow-hidden flex flex-col transition" ${cardAnimStyle}>
+                        <div class="team-header-${idx % 4} py-2.5 px-2 text-center">
+                            <h3 class="${isThreeCol ? 'text-xs' : 'text-sm'} font-black text-white leading-tight">${teamNames[idx] || `الفريق ${idx + 1}`}</h3>
                         </div>
-                        <div class="p-1.5 space-y-1 flex-1">
+                        <div class="p-2 space-y-1.5 flex-1">
                             ${team.map((p, i) => {
-                                const playerDelay = cardDelay + 110 + i * 55;
+                                const playerDelay = cardDelay + 90 + Math.min(i, 10) * 30;
                                 const pAnimClass = animate ? 'draw-player-anim' : '';
                                 const pAnimStyle = animate ? `style="animation-delay: ${playerDelay}ms;"` : '';
                                 const isSelected = isSwapActive && swapSelection && swapSelection.drawIdx === drawIdx && swapSelection.teamIdx === idx && swapSelection.playerIdx === i;
@@ -3233,9 +3511,9 @@
                                 const flashClass = isJustSwapped ? 'swap-flash-anim' : '';
                                 const clickAttr = isSwapActive ? `onclick="handlePlayerSwapClick(${drawIdx}, ${idx}, ${i})"` : '';
                                 return `
-                                <div ${clickAttr} class="${pAnimClass} ${flashClass} flex items-start gap-1 px-1.5 py-1 rounded-lg select-none transition ${rowStateClass}" ${pAnimStyle}>
-                                    <span class="${isThreeCol ? 'text-[10px]' : 'text-[11px]'} font-black ${isSelected ? 'text-amber-300' : 'text-emerald-400'} shrink-0 tabular-nums leading-snug pt-[1px]">${i + 1}.</span>
-                                    <span class="${isThreeCol ? 'text-[11px]' : 'text-xs'} font-bold ${isSelected ? 'text-amber-100' : 'text-slate-100'} leading-snug break-words min-w-0 flex-1">${escapeHtml(p.name)}</span>
+                                <div ${clickAttr} class="${pAnimClass} ${flashClass} flex items-center gap-1.5 px-2 h-7 rounded-lg select-none transition ${rowStateClass}" ${pAnimStyle}>
+                                    <span class="${isThreeCol ? 'text-[10px]' : 'text-[11px]'} font-black ${isSelected ? 'text-amber-300' : 'text-emerald-400'} shrink-0 tabular-nums leading-none">${i + 1}.</span>
+                                    <span class="${isThreeCol ? 'text-[11px]' : 'text-xs'} font-bold ${isSelected ? 'text-amber-100' : 'text-slate-100'} player-name leading-none whitespace-nowrap overflow-hidden text-ellipsis min-w-0 flex-1">${escapeHtml(p.name)}</span>
                                 </div>
                                 `;
                             }).join('')}
@@ -3247,17 +3525,32 @@
         `;
     }
 
+    // Keep every player name on ONE line: shrink the font just enough, ellipsis only as a last resort
+    function fitPlayerNames(root, reset = false) {
+        const els = Array.from((root || document).querySelectorAll('.player-name'));
+        if (reset) els.forEach(el => { el.style.fontSize = ''; });
+        const over = [];
+        for (const el of els) {
+            if (el.clientWidth > 0 && el.scrollWidth > el.clientWidth + 1) over.push(el);
+        }
+        const plan = over.map(el => ({ el, size: parseFloat(getComputedStyle(el).fontSize) || 11, ratio: el.clientWidth / el.scrollWidth }));
+        for (const p of plan) {
+            p.el.style.fontSize = Math.max(8.5, Math.floor(p.size * p.ratio * 10) / 10) + 'px';
+        }
+    }
+
     // Render one or multiple divisions with action controls beside each division
-    function renderAllResults(shouldScroll = true, animateDrawIdx = -1) {
+    function renderAllResults(shouldScroll = true, animateDrawIdx = -1, appendIdx = -1) {
         const wrapper = document.getElementById('resultWrapper');
         const container = document.getElementById('teamsOutputGrid');
         const headerBadge = document.getElementById('resultHeaderBadge');
         if (!wrapper || !container) return;
 
-        const isMulti = allGeneratedDraws.length > 1;
+        const isMulti = allGeneratedDraws.length > 1 || forceMultiLayout;
         if (headerBadge) {
-            headerBadge.classList.toggle('hidden', !isMulti);
-            headerBadge.textContent = isMulti ? `${allGeneratedDraws.length} تقسيمات` : '';
+            const showBadge = allGeneratedDraws.length > 1;
+            headerBadge.classList.toggle('hidden', !showBadge);
+            headerBadge.textContent = showBadge ? `${allGeneratedDraws.length} تقسيمات` : '';
         }
         updateSwapHintBar();
 
@@ -3271,6 +3564,7 @@
                         <path d="M4 17h16"/>
                     </svg>
                 </button>
+                <button type="button" data-html2canvas-ignore="true" onclick="clearSingleDraw(${dIdx})" title="مسح التقسيمة" aria-label="مسح التقسيمة" class="w-6 h-6 rounded-md bg-rose-500/15 hover:bg-rose-500/30 border border-rose-400/40 text-rose-300 flex items-center justify-center transition">${icon('trash', 'w-3.5 h-3.5')}</button>
                 <button type="button" data-html2canvas-ignore="true" onclick="shareDraw(${dIdx})" title="مشاركة التقسيمة" aria-label="مشاركة التقسيمة" class="w-6 h-6 rounded-md bg-sky-500/15 hover:bg-sky-500/30 border border-sky-400/40 text-sky-300 flex items-center justify-center transition active:scale-90">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <circle cx="18" cy="5" r="3"/>
@@ -3289,7 +3583,7 @@
             </div>
         `;
 
-        container.innerHTML = allGeneratedDraws.map((drawTeams, dIdx) => {
+        const renderBlock = (drawTeams, dIdx) => {
             const shouldAnimate = animateDrawIdx !== -2 && (animateDrawIdx === -1 || animateDrawIdx === dIdx);
             const isSwapHere = swapModeDrawIdx === dIdx;
 
@@ -3318,10 +3612,17 @@
                     ${buildSingleDrawGridHTML(drawTeams, shouldAnimate, dIdx)}
                 </div>
             `;
-        }).join('');
+        };
+
+        if (appendIdx >= 0 && isMulti && container.childElementCount === appendIdx && allGeneratedDraws[appendIdx]) {
+            container.insertAdjacentHTML('beforeend', renderBlock(allGeneratedDraws[appendIdx], appendIdx));
+        } else {
+            container.innerHTML = allGeneratedDraws.map(renderBlock).join('');
+        }
 
         wrapper.classList.remove('hidden');
         setResultsVisibility(true);
+        requestAnimationFrame(() => fitPlayerNames(container));
         if (shouldScroll) {
             wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
@@ -4293,6 +4594,25 @@
         return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     }
 
+    // Lightweight per-second refresh (clock, progress bar, header label only)
+    function updateTimerTickUI() {
+        const formatted = formatClockTime(timerRemainingSec);
+        const displayEl = document.getElementById('timerDisplay');
+        const progressEl = document.getElementById('timerProgressBar');
+        const headerLabel = document.getElementById('headerTimerLabel');
+        const urgent = timerRemainingSec <= 10 && timerRemainingSec > 0;
+        if (displayEl) {
+            displayEl.textContent = formatted;
+            displayEl.classList.toggle('text-rose-400', urgent);
+            displayEl.classList.toggle('text-white', !urgent);
+        }
+        if (progressEl) {
+            const pct = timerDurationSec > 0 ? Math.max(0, Math.min(100, (timerRemainingSec / timerDurationSec) * 100)) : 0;
+            progressEl.style.width = `${pct}%`;
+        }
+        if (headerLabel && timerRunning) headerLabel.textContent = formatted;
+    }
+
     function updateMatchTimerUI() {
         const displayEl = document.getElementById('timerDisplay');
         const progressEl = document.getElementById('timerProgressBar');
@@ -4317,11 +4637,11 @@
         if (startPauseBtn && startPauseText) {
             const iconSpan = startPauseBtn.querySelector('span:first-child');
             if (timerRunning) {
-                if (iconSpan) iconSpan.textContent = '⏸️';
+                if (iconSpan) iconSpan.innerHTML = icon('pause', 'w-3.5 h-3.5', '2.4');
                 startPauseText.textContent = 'إيقاف مؤقت';
                 startPauseBtn.className = 'col-span-8 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.97] shadow-md';
             } else {
-                if (iconSpan) iconSpan.textContent = '▶️';
+                if (iconSpan) iconSpan.innerHTML = icon('play', 'w-3.5 h-3.5', '2.4');
                 startPauseText.textContent = (timerRemainingSec > 0 && timerRemainingSec < timerDurationSec) ? 'استكمال' : 'ابدأ الماتش';
                 startPauseBtn.className = 'col-span-8 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.97] shadow-md';
             }
@@ -4338,7 +4658,7 @@
         }
 
         if (soundBtn) {
-            soundBtn.textContent = timerSoundEnabled ? '🔊' : '🔇';
+            soundBtn.innerHTML = icon(timerSoundEnabled ? 'volume' : 'mute', 'w-3.5 h-3.5');
         }
 
         // Highlight active preset button (5 / 10 / 15 min)
@@ -4410,8 +4730,10 @@
         updateMatchTimerUI();
         timerIntervalId = setInterval(() => {
             const left = Math.max(0, Math.ceil((timerEndTimestamp - Date.now()) / 1000));
-            timerRemainingSec = left;
-            updateMatchTimerUI();
+            if (left !== timerRemainingSec) {
+                timerRemainingSec = left;
+                if (!document.hidden) updateTimerTickUI();
+            }
 
             if (left <= 0) {
                 clearInterval(timerIntervalId);
@@ -4559,6 +4881,21 @@
         } catch (err) {
             console.error('Init error:', err);
         }
+
+        let fitResizeTimer = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(fitResizeTimer);
+            fitResizeTimer = setTimeout(() => fitPlayerNames(document.getElementById('teamsOutputGrid'), true), 150);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            document.documentElement.classList.toggle('app-hidden', document.hidden);
+            if (!document.hidden && typeof timerRunning !== 'undefined' && timerRunning) {
+                const left = Math.max(0, Math.ceil((timerEndTimestamp - Date.now()) / 1000));
+                timerRemainingSec = left;
+                updateMatchTimerUI();
+            }
+        });
 
         // Smoothly dismiss the seamless splash overlay
         setTimeout(() => {
